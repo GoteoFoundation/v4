@@ -1,0 +1,28 @@
+version: '3'
+services:
+  php:
+    build: docker/php
+    container_name: proto-php
+    volumes:
+      - .:/app
+
+  nginx:
+    image: nginx:alpine
+    container_name: proto-web
+    volumes:
+      - .:/app
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "${APP_HTTP_PORT:-8090}:80"
+      - "${APP_HTTPS_PORT:-8091}:433"
+
+  mariadb:
+    image: mariadb:10.11.2
+    container_name: proto-db
+    volumes:
+      - ./var/lib/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-goteo}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-goteo}
+      MYSQL_DATABASE: ${DB_DATABASE:-goteo}
+      MYSQL_USER: ${DB_USER:-goteo}
