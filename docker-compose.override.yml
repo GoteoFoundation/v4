@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  php:
+    volumes:
+      - ./docker/php/conf.d/opcache.dev.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
+      - ./docker/php/conf.d/xdebug.dev.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

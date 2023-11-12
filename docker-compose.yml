@@ -1,10 +1,12 @@
 version: '3'
+
 services:
   php:
     build: docker/php
     container_name: proto-php
     volumes:
       - .:/app
+      - ./docker/php/conf.d/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
 
   nginx:
     image: nginx:alpine
