@@ -25,9 +25,24 @@ abstract class AbstractMonetizable
         );
     }
 
+    public function isZero(): bool
+    {
+        return $this->toBrickMoney()->isZero();
+    }
+
     public function isLessThan(AbstractMonetizable $money): bool
     {
         return $this->toBrickMoney()->isLessThan($money->toBrickMoney());
+    }
+
+    public function isLessThanOrEqualTo(AbstractMonetizable $money): bool
+    {
+        return $this->toBrickMoney()->isLessThanOrEqualTo($money->toBrickMoney());
+    }
+
+    public function isGreaterThan(AbstractMonetizable $money): bool
+    {
+        return $this->toBrickMoney()->isGreaterThan($money->toBrickMoney());
     }
 
     public function isGreaterThanOrEqualTo(AbstractMonetizable $money): bool

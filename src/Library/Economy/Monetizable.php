@@ -57,32 +57,43 @@ class Monetizable extends AbstractMonetizable
         return $this;
     }
 
+    private static function toMinorAmount(AbstractMoney $money): int
+    {
+        return $money
+            ->getAmount()
+            ->toBigDecimal()
+            ->withPointMovedRight($money->getCurrency()->getDefaultFractionDigits())
+            ->toInt();
+    }
+
     public static function ofBrickMoney(AbstractMoney $money): Monetizable
     {
         $result = new Monetizable();
 
         $result->setCurrency($money->getCurrency());
-        $result->setAmount(
-            $money
-                ->getAmount()
-                ->toBigDecimal()
-                ->withPointMovedRight($money->getCurrency()->getDefaultFractionDigits())
-                ->toInt()
-        );
+        $result->setAmount(self::toMinorAmount($money));
 
         return $result;
     }
 
-    public function plus(Monetizable $money): Monetizable
+    public function fromBrickMoney(AbstractMoney $money): static
     {
-        return self::ofBrickMoney(
+        $this->setCurrency($money->getCurrency());
+        $this->setAmount(self::toMinorAmount($money));
+
+        return $this;
+    }
+
+    public function plus(Monetizable $money): static
+    {
+        return $this->fromBrickMoney(
             $this->toBrickMoney()->plus($money->toBrickMoney())
         );
     }
 
-    public function minus(Monetizable $money): Monetizable
+    public function minus(Monetizable $money): static
     {
-        return self::ofBrickMoney(
+        return $this->ofBrickMoney(
             $this->toBrickMoney()->minus($money->toBrickMoney())
         );
     }

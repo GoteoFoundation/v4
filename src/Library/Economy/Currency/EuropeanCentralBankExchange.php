@@ -54,7 +54,7 @@ class EuropeanCentralBankExchange implements ExchangeInterface
 
     public function getConversion(AbstractMonetizable $money, string $currency): Monetizable
     {
-        return Monetizable::ofBrickMoney($this->converter->convert(
+        return Monetizable::fromBrickMoney($this->converter->convert(
             Money::ofMinor($money->getAmount(), $money->getCurrency()),
             $currency,
             null,

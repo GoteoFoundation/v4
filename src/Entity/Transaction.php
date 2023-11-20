@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata as API;
 use App\Library\Economy\Monetizable;
 use App\Repository\TransactionRepository;
+use App\State\TransactionStateProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -17,7 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[API\ApiResource()]
 #[API\GetCollection()]
-#[API\Post()]
+#[API\Post(processor: TransactionStateProcessor::class)]
 #[API\Get()]
 class Transaction extends Monetizable
 {
