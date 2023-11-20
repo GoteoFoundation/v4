@@ -28,7 +28,7 @@ class ExchangeLocator
         });
 
         foreach ($exchanges as $exchange) {
-            $this->exchanges[$exchange->getId()] = $exchange;
+            $this->exchanges[$exchange->getName()] = $exchange;
         }
     }
 
@@ -41,12 +41,17 @@ class ExchangeLocator
     }
 
     /**
-     * @param string $id ID of the Exchange Interface implementation
+     * @param string $name ID of the Exchange Interface implementation
      * @return ExchangeInterface
+     * @throws \Exception When the $name does not match to that of an implemented Exchange
      */
-    public function getExchange(string $id): ExchangeInterface
+    public function getExchange(string $name): ExchangeInterface
     {
-        return $this->exchanges[$id];
+        if (!\array_key_exists($name, $this->exchanges)) {
+            throw new \Exception("No such exchange with the name $name");
+        }
+
+        return $this->exchanges[$name];
     }
 
     /**

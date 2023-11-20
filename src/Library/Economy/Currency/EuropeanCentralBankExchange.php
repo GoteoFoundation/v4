@@ -37,7 +37,7 @@ class EuropeanCentralBankExchange implements ExchangeInterface
         $this->converter = new CurrencyConverter($this->provider);
     }
 
-    public function getId(): string
+    public function getName(): string
     {
         return 'european_central_bank';
     }
@@ -54,7 +54,7 @@ class EuropeanCentralBankExchange implements ExchangeInterface
 
     public function getConversion(AbstractMonetizable $money, string $currency): Monetizable
     {
-        return Monetizable::fromBrickMoney($this->converter->convert(
+        return Monetizable::ofBrickMoney($this->converter->convert(
             Money::ofMinor($money->getAmount(), $money->getCurrency()),
             $currency,
             null,

@@ -93,7 +93,7 @@ class Monetizable extends AbstractMonetizable
 
     public function minus(Monetizable $money): static
     {
-        return $this->ofBrickMoney(
+        return $this->fromBrickMoney(
             $this->toBrickMoney()->minus($money->toBrickMoney())
         );
     }

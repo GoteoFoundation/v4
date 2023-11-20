@@ -10,7 +10,7 @@ interface ExchangeInterface
     /**
      * @return string A short, unique, descriptive string of your exchange
      */
-    public function getId(): string;
+    public function getName(): string;
 
     /**
      * @return int The heavier the weight, the less priority it will have

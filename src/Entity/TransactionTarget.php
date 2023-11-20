@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata as API;
 use App\Repository\TransactionTargetRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TransactionTargetRepository::class)]
 class TransactionTarget
@@ -20,6 +21,7 @@ class TransactionTarget
      */
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotBlank()]
     private ?Accounting $accounting = null;
 
     /**

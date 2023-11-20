@@ -33,7 +33,7 @@ class AccountingService
                 $transaction->getAmount(),
                 $transaction->getCurrency(),
                 $exchange->getConversionRate($transaction->getCurrency(), $accounting->getCurrency()),
-                $exchange->getId()
+                $exchange->getName()
             );
         }
 
@@ -102,7 +102,7 @@ class AccountingService
                 $transaction->getAmount(),
                 $transaction->getCurrency(),
                 $exchange->getConversionRate($transaction->getCurrency(), $accounting->getCurrency()),
-                $exchange->getId()
+                $exchange->getName()
             );
         }
 

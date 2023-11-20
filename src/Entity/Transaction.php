@@ -47,10 +47,12 @@ class Transaction extends Monetizable
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotBlank()]
     private ?TransactionOrigin $origin = null;
 
     #[ORM\OneToOne(inversedBy: 'transaction', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotBlank()]
     private ?TransactionTarget $target = null;
 
     public function getId(): ?int
