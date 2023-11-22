@@ -24,6 +24,12 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\OpenApi\OpenApiFactory:
+        autoconfigure: false
+        decorates: 'api_platform.openapi.factory'
+        arguments:
+            - '@App\OpenApi\OpenApiFactory.inner'
+
     App\Library\Economy\Currency\ExchangeLocator:
         arguments:
             - !tagged 'app.lib.economy.currency.exchange'

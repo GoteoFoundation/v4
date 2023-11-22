@@ -1,3 +1,44 @@
 body {
     margin-top: 0;
 }
+
+#formats {
+    margin: 0;
+    padding: 20px 40px;
+    max-width: 100%;
+    background-color: #088787;
+}
+
+#formats .information-container {
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    text-align: left;
+}
+
+#formats .information-container .info {
+    margin: 0;
+    padding: 0;
+}
+
+#formats .information-container .info p {
+    color: #2c2c2c;
+    margin: 10px;
+}
+
+#formats .information-container .info a {
+    color: #fff;
+    text-decoration: none;
+}
+
+ul[role="menu"]+div {
+    position: sticky !important;
+}
+
+.hl-yellow {
+    background-color: #EFE1A8;
+}
+
+a {
+    color: #2BBBB7;
+}

@@ -1,9 +1,24 @@
 api_platform:
-    title: Goteo API
-    version: 1.0.0
+    title: The v4 API
+    version: 4.0.0
+    show_webby: false
+    collection:
+        order: 'DESC'
+    openapi:
+        contact:
+            name: Fundación Platoniq
+            url: http://platoniq.net/contact/
+            email: contacto@platoniq.net
+        termsOfService:
+        license:
+            name: MIT
+            url: 
+        swagger_ui_extra_configuration:
+            filter: true
     formats:
         json: ['application/json']
-        # jsonld: ['application/ld+json']
+        jsonld: ['application/ld+json']
+        csv: ['text/csv']
     docs_formats:
         html: ['text/html']
         json: ['application/json']
@@ -18,5 +33,3 @@ api_platform:
             rfc_7807_compliant_errors: true
     event_listeners_backward_compatibility_layer: false
     keep_legacy_inflector: false
-    enable_re_doc: false
-    show_webby: false
