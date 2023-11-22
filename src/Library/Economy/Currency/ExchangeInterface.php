@@ -32,4 +32,12 @@ interface ExchangeInterface
      * @throws CurrencyConversionException If the exchange rate is not available
      */
     public function getConversionRate(string $source, string $target): float;
+
+    /**
+     * @param string $source The currency to convert from
+     * @param string $target The currency to convert to
+     * @return \DateTimeInterface The date and time at which the rate was last updated
+     * @throws CurrencyConversionException If the exchange rate is not available
+     */
+    public function getConversionDate(string $source, string $target): \DateTimeInterface;
 }

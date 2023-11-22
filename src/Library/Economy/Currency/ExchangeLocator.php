@@ -41,14 +41,14 @@ class ExchangeLocator
     }
 
     /**
-     * @param string $name ID of the Exchange Interface implementation
+     * @param string $name Name of the Exchange interface implementation
      * @return ExchangeInterface
      * @throws \Exception When the $name does not match to that of an implemented Exchange
      */
     public function getExchange(string $name): ExchangeInterface
     {
         if (!\array_key_exists($name, $this->exchanges)) {
-            throw new \Exception("No such exchange with the name $name");
+            throw new \Exception("No such Exchange with the name $name");
         }
 
         return $this->exchanges[$name];

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Library\Economy\Monetizable;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Embeddable]
@@ -29,6 +30,12 @@ class TransactionExchange extends Monetizable
     public readonly float $rate;
 
     /**
+     * The date at which the conversion rate was last updated.
+     */
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    public readonly \DateTimeInterface $rateDateTime;
+
+    /**
      * The source of the conversion rate.
      */
     #[ORM\Column(type: 'string', nullable: true)]
@@ -38,12 +45,14 @@ class TransactionExchange extends Monetizable
         int $amount,
         string $currency,
         float $rate,
-        string $rateProvider
+        \DateTimeInterface $rateDateTime,
+        string $rateProvider,
     )
     {
         $this->amount = $amount;
         $this->currency = $currency;
         $this->rate = $rate;
+        $this->rateDateTime = $rateDateTime;
         $this->rateProvider = $rateProvider;
     }
 
