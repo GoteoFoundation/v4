@@ -11,8 +11,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Transactions represent a movement of funds inside the platform.\
- * When making relations between Transactions and Accountings you are effectively altering the platform's internal economy.\
- * Transactions cannot be mutated after they are stored.
+ * When making relations between Transactions and Accountings you are effectively altering the platform's internal economy.
+ * \
+ * \
+ * Transactions cannot be mutated after they are stored.\
  * If in need to reverse a Transaction generate a new Transaction reversing the to-be-cancelled one.
  */
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]

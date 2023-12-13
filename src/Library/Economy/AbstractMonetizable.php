@@ -2,6 +2,8 @@
 
 namespace App\Library\Economy;
 
+use ApiPlatform\Metadata as API;
+
 abstract class AbstractMonetizable
 {
     abstract public function getAmount(): int;
@@ -25,6 +27,7 @@ abstract class AbstractMonetizable
         );
     }
 
+    #[API\ApiProperty(readable: false)]
     public function isZero(): bool
     {
         return $this->toBrickMoney()->isZero();

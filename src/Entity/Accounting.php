@@ -15,7 +15,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * When making relations between Transactions and Accountings you are effectively altering the platform's internal economy.
  */
 #[ORM\Entity(repositoryClass: AccountingRepository::class)]
-#[API\ApiResource()]
 #[API\GetCollection()]
 #[API\Get()]
 #[API\Put()]
