@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use App\Library\Economy\Monetizable;
-use App\Repository\AccountingIncomingSpentRepository;
+use App\Repository\AccountingFundingRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * When a Transaction asks to take funds from an Accounting it will secure them from the Incomings list.\
  * Each time an Accounting takes funds from an Incoming, it generates a Funding to represent how much it took and to where.
  */
-#[ORM\Entity(repositoryClass: AccountingIncomingSpentRepository::class)]
+#[ORM\Entity(repositoryClass: AccountingFundingRepository::class)]
 class AccountingFunding extends Monetizable
 {
     #[ORM\Id]
