@@ -14,17 +14,17 @@ class Monetizable
     /**
      * An amount of currency, expressed in the minor unit (cents, pennies, etc).
      */
-    protected int $amount;
+    private int $amount;
 
     /**
      * 3-letter ISO 4217 currency code
      */
-    protected string $currency;
+    private string $currency;
 
     /**
      * An AbstractMoney instance with the same amount and currency of the Monetizable
      */
-    protected ?AbstractMoney $money;
+    private ?AbstractMoney $money;
 
     /**
      * @return string An amount of currency, expressed in the minor unit (cents, pennies, etc).
@@ -69,7 +69,7 @@ class Monetizable
         return $this->getCurrency() === $money->getCurrency();
     }
 
-    protected function toBrickMoney(): Money
+    private function toBrickMoney(): Money
     {
         if ($this->money) return $this->money;
 
@@ -79,7 +79,7 @@ class Monetizable
         );
     }
 
-    protected static function getBrickMoneyMinorAmount(AbstractMoney $money): int
+    private static function getBrickMoneyMinorAmount(AbstractMoney $money): int
     {
         return $money
             ->getAmount()

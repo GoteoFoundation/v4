@@ -36,7 +36,7 @@ class Transaction extends Monetizable
     #[ORM\Column]
     #[Assert\NotBlank()]
     #[Assert\Positive()]
-    protected int $amount = 0;
+    private int $amount = 0;
 
     /**
      * The currency of the transacted amount.\
@@ -45,7 +45,7 @@ class Transaction extends Monetizable
     #[ORM\Column(length: 3)]
     #[Assert\NotBlank()]
     #[Assert\Currency()]
-    protected string $currency = "";
+    private string $currency = "";
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]

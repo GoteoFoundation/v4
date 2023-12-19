@@ -14,14 +14,14 @@ class TransactionExchange extends Monetizable
      * Expressed in the minor unit of the currency (cents, pennies, etc)
      */
     #[ORM\Column(type: 'integer', nullable: true)]
-    protected int $amount;
+    private int $amount;
 
     /**
      * The asked-for currency.\
      * 3-letter ISO 4217 currency code.
      */
     #[ORM\Column(type: 'string', nullable: true)]
-    protected string $currency;
+    private string $currency;
 
     /**
      * The rate used in the conversion.

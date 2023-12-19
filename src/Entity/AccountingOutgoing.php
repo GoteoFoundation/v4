@@ -35,13 +35,13 @@ class AccountingOutgoing extends Monetizable
      * Expressed in the minor unit of the currency (cents, pennies, etc)
      */
     #[ORM\Column]
-    protected int $amount = 0;
+    private int $amount = 0;
 
     /**
      * 3-letter ISO 4217 currency code. Same as parent Accounting.
      */
     #[ORM\Column(length: 3)]
-    protected string $currency = "";
+    private string $currency = "";
 
     #[ORM\ManyToOne(inversedBy: 'outgoing')]
     #[ORM\JoinColumn(nullable: false)]

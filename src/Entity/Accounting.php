@@ -34,7 +34,7 @@ class Accounting extends Monetizable
      */
     #[ORM\Column(length: 255)]
     #[API\ApiProperty(writable: false)]
-    protected int $amount = 0;
+    private int $amount = 0;
 
     /**
      * 3-letter ISO 4217 currency code
@@ -42,7 +42,7 @@ class Accounting extends Monetizable
     #[ORM\Column(length: 3)]
     #[Assert\NotBlank()]
     #[Assert\Currency()]
-    protected string $currency = self::CURRENCY_DEFAULT;
+    private string $currency = self::CURRENCY_DEFAULT;
 
     /**
      * Accounting Incoming movements state the Accounting holdings
