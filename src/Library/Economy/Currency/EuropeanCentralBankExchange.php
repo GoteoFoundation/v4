@@ -2,7 +2,6 @@
 
 namespace App\Library\Economy\Currency;
 
-use App\Library\Economy\AbstractMonetizable;
 use App\Library\Economy\Monetizable;
 use Brick\Math\RoundingMode;
 use Brick\Money\CurrencyConverter;
@@ -55,7 +54,7 @@ class EuropeanCentralBankExchange implements ExchangeInterface
         return 100;
     }
 
-    public function getConversion(AbstractMonetizable $money, string $currency): Monetizable
+    public function getConversion(Monetizable $money, string $currency): Monetizable
     {
         return Monetizable::ofBrickMoney($this->converter->convert(
             Money::ofMinor($money->getAmount(), $money->getCurrency()),

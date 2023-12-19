@@ -2,7 +2,7 @@
 
 namespace App\Library\Economy\Currency;
 
-use App\Library\Economy\AbstractMonetizable;
+use App\Library\Economy\Monetizable;
 use Brick\Money\Exception\CurrencyConversionException;
 
 interface ExchangeInterface
@@ -18,12 +18,12 @@ interface ExchangeInterface
     public function getWeight(): int;
 
     /**
-     * @param AbstractMonetizable $money The money to be converted
+     * @param Monetizable $money The money to be converted
      * @param string $currency The currency to convert to
-     * @return AbstractMonetizable The converted Money
+     * @return Monetizable The converted Money
      * @throws CurrencyConversionException If the exchange rate is not available
      */
-    public function getConversion(AbstractMonetizable $money, string $currency): AbstractMonetizable;
+    public function getConversion(Monetizable $money, string $currency): Monetizable;
 
     /**
      * @param string $source The currency to convert from
