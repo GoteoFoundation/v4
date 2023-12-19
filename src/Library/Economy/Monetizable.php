@@ -22,6 +22,11 @@ class Monetizable
     protected string $currency;
 
     /**
+     * An AbstractMoney instance with the same amount and currency of the Monetizable
+     */
+    protected ?AbstractMoney $money;
+
+    /**
      * @return string An amount of currency, expressed in the minor unit (cents, pennies, etc).
      */
     public function getAmount(): int
@@ -64,6 +69,16 @@ class Monetizable
         return $this->getCurrency() === $money->getCurrency();
     }
 
+    protected function toBrickMoney(): Money
+    {
+        if ($this->money) return $this->money;
+
+        return Money::ofMinor(
+            $this->getAmount(),
+            $this->getCurrency()
+        );
+    }
+
     protected static function getBrickMoneyMinorAmount(AbstractMoney $money): int
     {
         return $money
@@ -73,20 +88,14 @@ class Monetizable
             ->toInt();
     }
 
-    protected function toBrickMoney(): Money
-    {
-        return Money::ofMinor(
-            $this->getAmount(),
-            $this->getCurrency()
-        );
-    }
-
     /**
      * Mutably update this instance to have the same currency and amount of a `Brick\Money\AbstractMoney` instance
      * @param AbstractMoney $money
      */
     public function fromBrickMoney(AbstractMoney $money): static
     {
+        $this->money = $money;
+
         $this->setCurrency($money->getCurrency());
         $this->setAmount(self::getBrickMoneyMinorAmount($money));
 
@@ -101,10 +110,7 @@ class Monetizable
     {
         $result = new Monetizable();
 
-        $result->setCurrency($money->getCurrency());
-        $result->setAmount(self::getBrickMoneyMinorAmount($money));
-
-        return $result;
+        return $result->fromBrickMoney($money);
     }
 
     #[API\ApiProperty(readable: false)]
