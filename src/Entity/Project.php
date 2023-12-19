@@ -3,13 +3,13 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
-use App\Repository\ProyectRepository;
+use App\Repository\ProjectRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity(repositoryClass: ProyectRepository::class)]
+#[ORM\Entity(repositoryClass: ProjectRepository::class)]
 #[API\ApiResource()]
-class Proyect
+class Project
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
