@@ -16,6 +16,10 @@ class TransactionOrigin
     #[API\ApiProperty(readable: false)]
     private ?int $id = null;
 
+    #[ORM\OneToOne(mappedBy: 'target', cascade: ['persist', 'remove'])]
+    #[API\ApiProperty(writable: false, readable: false)]
+    private ?Transaction $transaction = null;
+
     /**
      * The Accounting asked to originate the Transaction amount.
      */
@@ -32,13 +36,26 @@ class TransactionOrigin
     #[API\ApiProperty(writable: false)]
     private ?AccountingOutgoing $outgoing = null;
 
-    #[ORM\OneToOne(mappedBy: 'target', cascade: ['persist', 'remove'])]
-    #[API\ApiProperty(writable: false, readable: false)]
-    private ?Transaction $transaction = null;
-
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getTransaction(): ?Transaction
+    {
+        return $this->transaction;
+    }
+
+    public function setTransaction(Transaction $transaction): static
+    {
+        // set the owning side of the relation if necessary
+        if ($transaction->getOrigin() !== $this) {
+            $transaction->setOrigin($this);
+        }
+
+        $this->transaction = $transaction;
+
+        return $this;
     }
 
     public function getAccounting(): ?Accounting
@@ -61,23 +78,6 @@ class TransactionOrigin
     public function setOutgoing(AccountingOutgoing $outgoing): static
     {
         $this->outgoing = $outgoing;
-
-        return $this;
-    }
-    
-    public function getTransaction(): ?Transaction
-    {
-        return $this->transaction;
-    }
-
-    public function setTransaction(Transaction $transaction): static
-    {
-        // set the owning side of the relation if necessary
-        if ($transaction->getOrigin() !== $this) {
-            $transaction->setOrigin($this);
-        }
-
-        $this->transaction = $transaction;
 
         return $this;
     }
