@@ -21,10 +21,18 @@ class TransactionStateProcessor implements ProcessorInterface
         /** @var Transaction */
         $transaction = $data;
 
+        if (
+            $transaction->getOrigin()->getAccounting()->getId() ===
+            $transaction->getTarget()->getAccounting()->getId()
+        ) {
+            throw new \Exception("The target Accounting cannot be the same as the origin Accounting");
+        }
+
         $transaction = $this->accountingService->spendTransaction($transaction);
         $transaction = $this->accountingService->storeTransaction($transaction);
 
-        var_dump($transaction); exit;
+        var_dump($transaction);
+        exit;
 
         return $transaction;
     }

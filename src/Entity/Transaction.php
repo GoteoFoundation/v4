@@ -47,7 +47,7 @@ class Transaction extends Monetizable
     #[Assert\Currency()]
     private string $currency = "";
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'transaction', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotBlank()]
     private ?TransactionOrigin $origin = null;

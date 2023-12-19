@@ -24,7 +24,7 @@ class Monetizable
     /**
      * An AbstractMoney instance with the same amount and currency of the Monetizable
      */
-    private ?AbstractMoney $money;
+    private ?AbstractMoney $money = null;
 
     /**
      * @return string An amount of currency, expressed in the minor unit (cents, pennies, etc).
