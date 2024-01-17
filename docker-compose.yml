@@ -18,11 +18,14 @@ services:
 
   mariadb:
     image: mariadb:10.11.2
-    container_name: proto-db
+    container_name: proto-mariadb
     volumes:
-      - ./var/lib/mysql:/var/lib/mysql
+      - mariadb-data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-goteo}
       MYSQL_PASSWORD: ${DB_PASSWORD:-goteo}
       MYSQL_DATABASE: ${DB_DATABASE:-goteo}
       MYSQL_USER: ${DB_USER:-goteo}
+
+volumes:
+  mariadb-data:
