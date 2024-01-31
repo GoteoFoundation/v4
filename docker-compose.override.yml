@@ -5,3 +5,4 @@ services:
       - ./docker/php/conf.d/xdebug.dev.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    user: "${USER_ID:-1001}:${USER_GROUP_ID:-1001}"
