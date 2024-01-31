@@ -6,6 +6,7 @@ use ApiPlatform\Metadata as API;
 use App\Library\Economy\Monetizable;
 use App\Repository\TransactionRepository;
 use App\State\TransactionStateProcessor;
+use App\Validator\GatewayName;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -57,6 +58,10 @@ class Transaction extends Monetizable
     #[Assert\NotBlank()]
     private ?TransactionTarget $target = null;
 
+    #[ORM\Column(length: 255)]
+    #[GatewayName()]
+    private ?string $gateway = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -106,6 +111,18 @@ class Transaction extends Monetizable
     public function setTarget(TransactionTarget $target): static
     {
         $this->target = $target;
+
+        return $this;
+    }
+
+    public function getGateway(): ?string
+    {
+        return $this->gateway;
+    }
+
+    public function setGateway(string $gateway): static
+    {
+        $this->gateway = $gateway;
 
         return $this;
     }

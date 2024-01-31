@@ -2,10 +2,10 @@
 
 namespace App\Library\Economy\Payment;
 
-class StripeGateway implements GatewayInterface
+class WalletGateway implements GatewayInterface
 {
     public static function getName(): string
     {
-        return 'stripe';
+        return 'wallet';
     }
 }

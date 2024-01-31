@@ -26,6 +26,17 @@ class GatewayLocator
     }
 
     /**
+     * @return array<string> List of the available Gateway names (hardcoded)
+     */
+    public static function getNamesStatic(): array
+    {
+        return [
+            StripeGateway::getName(),
+            WalletGateway::getName()
+        ];
+    }
+
+    /**
      * @return GatewayInterface[]
      */
     public function getGateways(): array
