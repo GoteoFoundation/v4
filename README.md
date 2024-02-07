@@ -57,6 +57,11 @@ You can access a real-time build of the OpenAPI spec file for v4 at [http://loca
 
 A Swagger UI version of the docs is also available at [http://localhost:8090/v4/docs?ui=swagger_ui](http://localhost:8090/v4/docs?ui=swagger_ui).
 
+For quick Docker access you can use the `bin/docker` shortcut to quickly `exec` anything into one of the containers. It expects the name of the Docker Compose service as first parameter, then you can pass whatever it is that you wish to exec into that container, e.g:
+
+- Login to mysql cli: `bin/docker mariadb mysql`. 
+- Debug the symfony services: `bin/docker php bin/console debug:container`
+
 ## Testing
 
 This app uses PHPUnit.
