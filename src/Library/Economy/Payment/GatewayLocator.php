@@ -2,6 +2,8 @@
 
 namespace App\Library\Economy\Payment;
 
+use App\Entity\GatewayCheckout;
+
 class GatewayLocator
 {
     /** @var GatewayInterface[] */
@@ -56,5 +58,15 @@ class GatewayLocator
         }
 
         return $this->gateways[$name];
+    }
+
+    /**
+     * @param GatewayCheckout $gatewayCheckout
+     * @return GatewayInterface
+     * @throws \Exception When the gateway name in the GatewayCheckout does not match that of an implemented Gateway
+     */
+    public function getGatewayByCheckout(GatewayCheckout $gatewayCheckout): GatewayInterface
+    {
+        return $this->getGateway($gatewayCheckout->getGatewayName());
     }
 }

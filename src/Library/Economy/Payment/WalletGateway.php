@@ -22,4 +22,14 @@ class WalletGateway implements GatewayInterface
 
         return $gatewayCheckout;
     }
+
+    public function onSuccess(GatewayCheckout $gatewayCheckout): GatewayCheckout
+    {
+        return $gatewayCheckout;
+    }
+
+    public function onFailure(GatewayCheckout $gatewayCheckout): GatewayCheckout
+    {
+        return $gatewayCheckout;
+    }
 }

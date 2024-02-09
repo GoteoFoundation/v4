@@ -17,4 +17,18 @@ interface GatewayInterface
      * @return GatewayCheckout
      */
     public function process(GatewayCheckout $gatewayCheckout): GatewayCheckout;
+
+    /**
+     * Update a Checkout after the Gateway redirects successfully
+     * @param GatewayCheckout
+     * @return GatewayCheckout
+     */
+    public function onSuccess(GatewayCheckout $gatewayCheckout): GatewayCheckout;
+
+    /**
+     * Update a Checkout after the Gateway redirects with a failure
+     * @param GatewayCheckout
+     * @return GatewayCheckout
+     */
+    public function onFailure(GatewayCheckout $gatewayCheckout): GatewayCheckout;
 }

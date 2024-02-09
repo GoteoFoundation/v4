@@ -22,12 +22,10 @@ class GatewayCheckoutStateProcessor implements ProcessorInterface
         /** @var GatewayCheckout */
         $gatewayCheckout = $data;
 
-        $gatewayName = $gatewayCheckout->getGatewayName();
-
         switch ($operation::class) {
             case API\Post::class:
                 $gatewayCheckout = $this->gatewayLocator
-                    ->getGateway($gatewayName)
+                    ->getGatewayByCheckout($gatewayCheckout)
                     ->process($gatewayCheckout);
                 break;
             default:
