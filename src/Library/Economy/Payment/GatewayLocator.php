@@ -52,7 +52,7 @@ class GatewayLocator
     public function getGateway(string $name): GatewayInterface
     {
         if (!\array_key_exists($name, $this->gateways)) {
-            throw new \Exception("No such Gateway with the name $name");
+            throw new \Exception("No such Gateway with the name '$name'.");
         }
 
         return $this->gateways[$name];

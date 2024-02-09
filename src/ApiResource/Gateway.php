@@ -7,7 +7,11 @@ use App\Library\Economy\Payment\GatewayInterface;
 use App\State\GatewayStateProvider;
 
 /**
- * Gateways represent external payment services
+ * Gateways represent payment services used to perform Transactions from Users into Accountings of the platform.\
+ * \
+ * For each Gateway there is an internal implementation that handles the creation and validation of Transactions between Accountings.
+ * These implementations make use of external or internal payment services to gather the funds that are inside a Transaction,
+ * perform corroboration of funds and store the Transactions into the system.
  */
 #[API\GetCollection(provider: GatewayStateProvider::class)]
 #[API\Get(provider: GatewayStateProvider::class)]

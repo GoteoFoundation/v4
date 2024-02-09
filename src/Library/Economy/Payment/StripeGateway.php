@@ -2,7 +2,7 @@
 
 namespace App\Library\Economy\Payment;
 
-class StripeGateway implements GatewayInterface
+abstract class StripeGateway implements GatewayInterface
 {
     public static function getName(): string
     {
