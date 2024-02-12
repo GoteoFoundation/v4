@@ -1,5 +1,5 @@
 # The v4 API
-This repository holds the code for the the v4 goteo API.
+This repository holds the code for the Goteo **v4** API.
 
 ## Installation
 This application requires [Docker](https://docs.docker.com/get-docker/) and the [Docker Compose](https://docs.docker.com/compose/install/) plugin.
@@ -17,14 +17,18 @@ cd v4
 docker compose up -d --build
 ```
 
-To avoid ownership issues for files generated inside the PHP container, the default Compose config will export **1001** as the ID for your user and user group. If that is not your ID you can pass your actual IDs using the env vars `USER_ID` and  `USER_GROUP_ID`.
+#### 2.1 Configuring the containers.
+
+To avoid ownership issues for files generated inside the PHP container the default Compose config will try to export your user's and group's ID, or **1000** if it can't find them, to the user inside the container. If that is not your ID you can pass your actual IDs using the env vars `UID` and  `GID`.
 
 In a similar fashion you can override the nginx container binding to the ports **:8090** (for http) and **:8091** (for https) on your host with the env vars `APP_HTTP_PORT` and `APP_HTTPS_PORT`.
 
+- Option A. Using a custom `.env.local` file.
 ```dotenv
 # .env.local
-USER_ID=1002
-USER_GROUP_ID=1002
+
+UID=1001
+GID=1001
 
 APP_HTTP_PORT=8080
 APP_HTTPS_PORT=8433
@@ -35,13 +39,28 @@ Then feed your custom env vars to Compose:
 docker compose --env-file .env.local up -d --build
 ```
 
+- Option B. Passing the variables through the shell.
+```shell
+export APP_HTTP_PORT=8080 && export APP_HTTPS_PORT=8433
+
+# Dynamic user and group id
+export UID=$(id -u) && export GID=$(id -g)
+
+# Custom user and group id
+export UID=1001 && export GID=1001
+
+docker compose up -d --build
+```
+
+#### 2.2 Post-build setup.
+
 After the Docker containers are first built, you'll need to finish the PHP setup.
 ```shell
 # Install composer.json dependencies
 bin/docker php composer install
 
 # Create the database
-# May throw an error if the DB already exists, you don't need to do anything in that case
+# May throw an error if the DB already exists, no further action required if so
 bin/docker php bin/console doctrine:database:create
 
 # Update the database schema
@@ -59,7 +78,7 @@ A Swagger UI version of the docs is also available at [http://localhost:8090/v4/
 
 For quick Docker access you can use the `bin/docker` shortcut to quickly `exec` anything into one of the containers. It expects the name of the Docker Compose service as first parameter, then you can pass whatever it is that you wish to exec into that container, e.g:
 
-- Login to mysql cli: `bin/docker mariadb mysql`. 
+- Login to mysql CLI: `bin/docker mariadb mysql -u goteo -pgoteo goteo`
 - Debug the symfony services: `bin/docker php bin/console debug:container`
 
 ## Testing
