@@ -52,7 +52,9 @@ class GatewayLocator
     private static function getGatewayBundleDir(): string
     {
         return sprintf(
-            'bundles%s%s',
+            '%s%svar%s%s',
+            \dirname(__DIR__, 4),
+            DIRECTORY_SEPARATOR,
             DIRECTORY_SEPARATOR,
             self::GATEWAYS_DIR,
         );
@@ -73,8 +75,10 @@ class GatewayLocator
      */
     public function makeBundleDir()
     {
-        if (!\is_dir(self::getGatewayBundleDir())) {
-            \mkdir(self::getGatewayBundleDir(), 0777, true);
+        $bundleDir = self::getGatewayBundleDir();
+
+        if (!\is_dir($bundleDir)) {
+            \mkdir($bundleDir, 0777, true);
         }
     }
 
