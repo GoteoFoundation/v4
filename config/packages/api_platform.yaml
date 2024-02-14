@@ -11,8 +11,8 @@ api_platform:
             email: contacto@platoniq.net
         termsOfService:
         license:
-            name: MIT
-            url: 
+            name: AGPL
+            url: https://www.gnu.org/licenses/agpl-3.0.txt
         swagger_ui_extra_configuration:
             filter: true
     formats:
