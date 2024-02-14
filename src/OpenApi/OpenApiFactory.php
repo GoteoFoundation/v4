@@ -22,15 +22,19 @@ class OpenApiFactory implements OpenApiFactoryInterface
         $idResource = $operation->getTags()[0];
         $idOperation = array_slice($idParts, -1)[0];
 
+        $operationDescription = $operation->getDescription();
+
         switch ($idOperation) {
             case 'collection':
                 $operationId = sprintf('List all %ss', $idResource);
                 break;
             case 'post':
                 $operationId = sprintf('Create one %s', $idResource);
+                $operationDescription = sprintf('Creates a new %s resource.', $idResource);
                 break;
             case 'get':
                 $operationId = sprintf('Retrieve one %s', $idResource);
+                $operationDescription = sprintf('Retrieves one %s resource.', $idResource);
                 break;
             case 'put':
                 $operationId = sprintf('Update one %s', $idResource);
@@ -46,8 +50,9 @@ class OpenApiFactory implements OpenApiFactoryInterface
         }
 
         return $operation
+            ->withSummary($operationId)
             ->withOperationId($operationId)
-            ->withSummary($operationId);
+            ->withDescription($operationDescription);
     }
 
     private function updatePathItemOperations(PathItem $pathItem): PathItem
@@ -89,6 +94,10 @@ class OpenApiFactory implements OpenApiFactoryInterface
     {
         $openApi = $this->decorated->__invoke($context);
 
+        $openApi = $openApi->withServers([
+            new Model\Server(sprintf('%s://%s', $_SERVER['REQUEST_SCHEME'], $_SERVER['HTTP_HOST']))
+        ]);
+
         $openApi = $openApi->withInfo(
             $openApi
                 ->getInfo()
@@ -104,8 +113,7 @@ class OpenApiFactory implements OpenApiFactoryInterface
 
         $tags = [];
         foreach ($openApi->getComponents()->getSchemas() as $name => $schema) {
-            if (\preg_match('/.*\.json/', $name)) continue;
-            if (empty($schema['description'])) continue;
+            if (\preg_match('/.*\.jsonld/', $name)) continue;
 
             $tags[] = [
                 'name' => $name,
@@ -123,10 +131,6 @@ class OpenApiFactory implements OpenApiFactoryInterface
         }
 
         $openApi = $openApi->withPaths($paths);
-
-        $openApi = $openApi->withServers([
-            new Model\Server(sprintf('%s://%s', $_SERVER['REQUEST_SCHEME'], $_SERVER['HTTP_HOST']))
-        ]);
 
         return $openApi;
     }

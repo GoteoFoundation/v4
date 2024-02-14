@@ -6,8 +6,12 @@ use ApiPlatform\Metadata as API;
 use App\Repository\AccountRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Accounts are the senders and receivers of Transactions.
+ */
 #[ORM\Entity(repositoryClass: AccountRepository::class)]
 #[API\ApiResource]
+#[API\Get()]
 class Account
 {
     #[ORM\Id]
