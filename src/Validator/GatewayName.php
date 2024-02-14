@@ -21,6 +21,8 @@ class GatewayName extends Choice
 
     public function __construct()
     {
-        parent::__construct(options: GatewayLocator::getNamesStatic());
+        parent::__construct(
+            options: GatewayLocator::getNamesStatic()
+        );
     }
 }

@@ -6,9 +6,12 @@ use App\Entity\GatewayCheckout;
 
 class GatewayLocator
 {
+    public const GATEWAYS_DIR = 'gateways';
+    public const GATEWAY_NAMES_LOCK = 'gateway_names_compiled.lock';
+
     /** @var GatewayInterface[] */
     private array $gatewaysByName = [];
-    
+
     /** @var GatewayInterface[] */
     private array $gatewaysByClass = [];
 
@@ -17,12 +20,16 @@ class GatewayLocator
         foreach (\iterator_to_array($instanceof) as $key => $gateway) {
             $this->gatewaysByClass[$gateway::class] = $gateway;
         }
-        
+
         foreach ($this->gatewaysByClass as $class => $gateway) {
             $this->gatewaysByName[$gateway::getName()] = $gateway;
         }
     }
 
+    /**
+     * @throws \Exception If there are two different Gateway classes with the same name
+     * @see GatewayInterface::getName()
+     */
     public function validateGatewayNames()
     {
         $gatewaysValidated = [];
@@ -42,6 +49,46 @@ class GatewayLocator
         }
     }
 
+    private static function getGatewayBundleDir(): string
+    {
+        return sprintf(
+            'bundles%s%s',
+            DIRECTORY_SEPARATOR,
+            self::GATEWAYS_DIR,
+        );
+    }
+
+    private static function getGatewayNamesStore(): string
+    {
+        return sprintf(
+            '%s%s%s',
+            self::getGatewayBundleDir(),
+            DIRECTORY_SEPARATOR,
+            self::GATEWAY_NAMES_LOCK
+        );
+    }
+
+    /**
+     * Generates a directory for the gateways in the 'bundles' dir.
+     */
+    public function makeBundleDir()
+    {
+        if (!\is_dir(self::getGatewayBundleDir())) {
+            \mkdir(self::getGatewayBundleDir(), 0777, true);
+        }
+    }
+
+    /**
+     * Stores the available gateway names in disk.
+     */
+    public function compileGatewayNames()
+    {
+        \file_put_contents(
+            self::getGatewayNamesStore(),
+            implode(PHP_EOL, $this->getNames())
+        );
+    }
+
     /**
      * @return array<string> List of the available Gateway names
      */
@@ -51,14 +98,12 @@ class GatewayLocator
     }
 
     /**
-     * @return array<string> List of the available Gateway names (hardcoded)
+     * @return array<string> List of the available Gateway names
+     * @see compileGatewayNames()
      */
     public static function getNamesStatic(): array
     {
-        return [
-            StripeGateway::getName(),
-            WalletGateway::getName()
-        ];
+        return explode(PHP_EOL, \file_get_contents(self::getGatewayNamesStore()));
     }
 
     /**

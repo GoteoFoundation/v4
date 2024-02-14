@@ -14,5 +14,6 @@ class GatewayPass implements CompilerPassInterface
         $gatewayLocator = $container->get(GatewayLocator::class);
 
         $gatewayLocator->validateGatewayNames();
+        $gatewayLocator->compileGatewayNames();
     }
 }
