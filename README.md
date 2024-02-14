@@ -66,6 +66,9 @@ bin/docker php bin/console doctrine:database:create
 # Update the database schema
 # Might be changed to use doctrine migrations in the future
 bin/docker php bin/console doctrine:schema:update --force
+
+# Setup Gateway services
+bin/docker php bin/console app:gateways:setup
 ```
 
 ## Usage
