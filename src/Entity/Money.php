@@ -3,22 +3,24 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\Embeddable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Represents a fixed monetary value.
+ * NOT FINANCIALLY SAFE.\
+ * Use `Brick\Money` to perform monetary calculations.
+ * 
+ * @see \Brick\Money
  */
-#[Embeddable]
+#[ORM\Embeddable]
 class Money
 {
     /**
-     * The amount of the currency.\
-     * Expressed as the minor possible unit, e.g: cents, pennies, etc.
+     * An amount of currency.\
+     * Expressed as the minor unit, e.g: cents, pennies, etc.
      */
     #[Assert\NotBlank()]
     #[Assert\Positive()]
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: 'integer', nullable: false)]
     public readonly int $amount;
 
     /**
@@ -26,14 +28,13 @@ class Money
      */
     #[Assert\NotBlank()]
     #[Assert\Currency()]
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', nullable: false)]
     public readonly string $currency;
 
     public function __construct(
         int $amount,
         string $currency
-    )
-    {
+    ) {
         $this->amount = $amount;
         $this->currency = $currency;
     }
