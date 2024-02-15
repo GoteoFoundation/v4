@@ -135,10 +135,10 @@ class GatewayLocator
     /**
      * @param GatewayCheckout $gatewayCheckout
      * @return GatewayInterface
-     * @throws \Exception When the gateway name in the GatewayCheckout does not match that of an implemented Gateway
+     * @throws \Exception When the $gatewayCheckout::getGateway() does not match to that of an implemented Gateway
      */
-    public function getGatewayByCheckout(GatewayCheckout $gatewayCheckout): GatewayInterface
+    public function getGatewayOf(GatewayCheckout $gatewayCheckout): GatewayInterface
     {
-        return $this->getGateway($gatewayCheckout->getGatewayName());
+        return $this->getGateway($gatewayCheckout->getGateway());
     }
 }

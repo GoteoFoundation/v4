@@ -2,7 +2,6 @@
 
 namespace App\State;
 
-use ApiPlatform\Metadata as API;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\GatewayCheckout;
@@ -22,19 +21,10 @@ class GatewayCheckoutStateProcessor implements ProcessorInterface
         /** @var GatewayCheckout */
         $gatewayCheckout = $data;
 
-        switch ($operation::class) {
-            case API\Post::class:
-                $gatewayCheckout = $this->gatewayLocator
-                    ->getGatewayByCheckout($gatewayCheckout)
-                    ->process($gatewayCheckout);
-                break;
-            default:
-                # code...
-                break;
-        }
+        $gateway = $this->gatewayLocator->getGatewayOf($gatewayCheckout);
 
         $this->entityManager->persist($gatewayCheckout);
-        $this->entityManager->flush();
+        $this->entityManager->flush($gatewayCheckout);
 
         return $gatewayCheckout;
     }

@@ -7,7 +7,7 @@ use App\Entity\GatewayCheckout;
 interface GatewayInterface
 {
     /**
-     * @return string A short, unique, descriptive string of your gateway
+     * @return string A short, unique, descriptive string for this Gateway
      */
     public static function getName(): string;
 
