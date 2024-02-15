@@ -4,6 +4,7 @@ namespace App\Validator;
 
 use App\Library\Economy\Payment\GatewayLocator;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\ChoiceValidator;
 
 class GatewayNameValidator extends ChoiceValidator
@@ -21,12 +22,16 @@ class GatewayNameValidator extends ChoiceValidator
             return;
         }
 
-        if ($this->gateways->getGateway($value)) {
-            return;
+        try {
+            if ($this->gateways->getGateway($value)) {
+                return;
+            }
+        } catch (\Exception $e) {
+            $this->context->buildViolation($constraint->message)
+                ->setParameter('{{ value }}', $this->formatValue($value))
+                ->setParameter('{{ choices }}', $this->formatValues($constraint->choices))
+                ->setCode(Choice::NO_SUCH_CHOICE_ERROR)
+                ->addViolation();
         }
-
-        $this->context->buildViolation($constraint->message)
-            ->setParameter('{{ value }}', $value)
-            ->addViolation();
     }
 }
