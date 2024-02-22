@@ -18,6 +18,7 @@ class GatewayCheckoutStateProcessor implements ProcessorInterface
     }
 
     /**
+     * @return T2
      * @inheritdoc
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
