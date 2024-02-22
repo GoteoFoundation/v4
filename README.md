@@ -91,3 +91,23 @@ This app uses PHPUnit.
 ```shell
 bin/docker php bin/phpunit
 ```
+
+Beware you might experience the following error:
+
+```
+RuntimeException: Error running "doctrine:database:create": Could not create database `goteo_test` for connection named default
+An exception occurred while executing a query: SQLSTATE[42000]: Syntax error or access violation: 1044 Access denied for user 'goteo'@'%' to database 'goteo_test'
+ in /app/vendor/zenstruck/foundry/src/Test/AbstractSchemaResetter.php:33
+```
+
+To fix it:
+
+1. Login into the MariaDB instance as *root*.
+```shell
+bin/docker mariadb mysql -u root -pgoteo goteo
+```
+
+2. Grant *goteo* all privileges.
+```mysql
+GRANT ALL PRIVILEGES ON *.* TO 'goteo'@'%'
+```
