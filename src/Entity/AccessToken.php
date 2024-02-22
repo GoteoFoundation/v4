@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  * `pat_` means the token was created via a login flow.
  */
 #[API\Post(input: AccessTokenLoginDto::class, processor: AccessTokenLoginProcessor::class)]
-#[API\Delete()]
+#[API\Delete(security: 'is_granted("AUTH_OWNER")')]
 #[ORM\Entity(repositoryClass: AccessTokenRepository::class)]
 class AccessToken
 {

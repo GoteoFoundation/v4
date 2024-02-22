@@ -10,14 +10,18 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[API\ApiResource(
-    normalizationContext: ['groups' => ['user:read']],
-    denormalizationContext: ['groups' => ['user:write']],
-)]
+/**
+ * Users represent people who interact with the platform.
+ */
+#[API\GetCollection()]
+#[API\Post()]
+#[API\Get()]
+#[API\Put(security: 'is_granted("AUTH_USER_EDIT")')]
+#[API\Delete(security: 'is_granted("AUTH_USER_EDIT")')]
+#[API\Patch(security: 'is_granted("AUTH_USER_EDIT")')]
 #[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
 #[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -34,19 +38,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank()]
     #[Assert\Length(min: 4, max: 30)]
     #[Assert\Regex('/^[a-z0-9_-]+$/')]
-    #[Groups(['user:read', 'user:write'])]
     #[ORM\Column(length: 30, unique: true)]
     private ?string $username = null;
 
     /**
-     * @var list<string> The user roles
+     * @var list<string> The user roles. Admin only property.
      */
     #[ORM\Column]
+    #[API\ApiProperty(security: 'is_granted("ROLE_ADMIN")')]
     private array $roles = [];
 
     /**
      * @var string The user password
      */
+    #[API\ApiProperty(writable: false, readable: false)]
     #[ORM\Column]
     private ?string $password = null;
 
@@ -55,21 +60,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[Assert\NotBlank()]
     #[Assert\Length(min: 12)]
-    #[Groups(['user:write'])]
+    #[API\ApiProperty(writable: true, readable: false)]
     #[SerializedName('password')]
     private ?string $plainPassword = null;
 
     #[Assert\NotBlank()]
     #[Assert\Email()]
-    #[Groups(['user:read', 'user:write'])]
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
-    #[Groups(['user:read'])]
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Account $account = null;
 
+    /**
+     * The AccessTokens owned by this user. Owner only property.
+     */
+    #[API\ApiProperty(writable: false, readableLink: true, security: 'is_granted("AUTH_OWNER")')]
     #[ORM\OneToMany(mappedBy: 'ownedBy', targetEntity: AccessToken::class, orphanRemoval: true)]
     private Collection $accessTokens;
 
@@ -101,6 +109,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @see UserInterface
      */
+    #[API\ApiProperty(readable: false)]
     public function getUserIdentifier(): string
     {
         return (string) $this->username;
