@@ -32,6 +32,10 @@ services:
         arguments:
             - '@App\OpenApi\OpenApiFactory.inner'
 
+    App\Service\Auth\AuthService:
+        arguments:
+            - '%env(APP_SECRET)%'
+
     App\Library\Economy\Currency\ExchangeLocator:
         arguments:
             - !tagged 'app.lib.economy.currency.exchange'

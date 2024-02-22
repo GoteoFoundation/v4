@@ -7,6 +7,7 @@ use ApiPlatform\OpenApi\Model;
 use ApiPlatform\OpenApi\Model\Operation;
 use ApiPlatform\OpenApi\Model\PathItem;
 use ApiPlatform\OpenApi\Model\Paths;
+use ApiPlatform\OpenApi\Model\SecurityScheme;
 use ApiPlatform\OpenApi\OpenApi;
 
 class OpenApiFactory implements OpenApiFactoryInterface
@@ -114,6 +115,7 @@ class OpenApiFactory implements OpenApiFactoryInterface
         $tags = [];
         foreach ($openApi->getComponents()->getSchemas() as $name => $schema) {
             if (\preg_match('/.*\.jsonld/', $name)) continue;
+            if (\preg_match('/.*Dto/', $name)) continue;
             if (empty($schema['description'])) continue;
 
             $tags[] = [
@@ -132,6 +134,12 @@ class OpenApiFactory implements OpenApiFactoryInterface
         }
 
         $openApi = $openApi->withPaths($paths);
+
+        $securitySchemes = $openApi->getComponents()->getSecuritySchemes() ?: new \ArrayObject();
+        $securitySchemes['access_token'] = new SecurityScheme(
+            type: 'http',
+            scheme: 'bearer',
+        );
 
         return $openApi;
     }

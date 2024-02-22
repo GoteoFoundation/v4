@@ -15,15 +15,11 @@ security:
             security: false
         main:
             lazy: true
+            stateless: true
             provider: app_user_provider
 
-            logout:
-                path: app_security_logout
-
-            json_login:
-                check_path: app_security_login
-                username_path: username
-                password_path: password
+            access_token:
+                token_handler: App\Security\AccessTokenHandler
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall

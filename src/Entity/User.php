@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -68,9 +70,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinColumn(nullable: false)]
     private ?Account $account = null;
 
+    #[ORM\OneToMany(mappedBy: 'ownedBy', targetEntity: AccessToken::class, orphanRemoval: true)]
+    private Collection $accessTokens;
+
     public function __construct()
     {
         $this->account = new Account;
+        $this->accessTokens = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -180,6 +186,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setAccount(Account $account): static
     {
         $this->account = $account;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AccessToken>
+     */
+    public function getAccessTokens(): Collection
+    {
+        return $this->accessTokens;
+    }
+
+    public function addAccessToken(AccessToken $accessToken): static
+    {
+        if (!$this->accessTokens->contains($accessToken)) {
+            $this->accessTokens->add($accessToken);
+            $accessToken->setOwnedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAccessToken(AccessToken $accessToken): static
+    {
+        if ($this->accessTokens->removeElement($accessToken)) {
+            // set the owning side to null (unless already changed)
+            if ($accessToken->getOwnedBy() === $this) {
+                $accessToken->setOwnedBy(null);
+            }
+        }
 
         return $this;
     }
