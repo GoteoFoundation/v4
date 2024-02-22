@@ -68,4 +68,9 @@ class AccessToken
 
         return $this;
     }
+
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->ownedBy->getUserIdentifier() === $user->getUserIdentifier();
+    }
 }

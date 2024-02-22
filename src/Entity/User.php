@@ -77,7 +77,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * The AccessTokens owned by this user. Owner only property.
      */
-    #[API\ApiProperty(writable: false, readableLink: true, security: 'is_granted("AUTH_OWNER")')]
+    #[API\ApiProperty(writable: false, readableLink: true, security: 'is_granted("AUTH_OWNER", object)')]
     #[ORM\OneToMany(mappedBy: 'ownedBy', targetEntity: AccessToken::class, orphanRemoval: true)]
     private Collection $accessTokens;
 
@@ -113,6 +113,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->username;
+    }
+
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->getUserIdentifier() === $user->getUserIdentifier();
     }
 
     /**
