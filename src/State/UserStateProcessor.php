@@ -17,6 +17,9 @@ class UserStateProcessor implements ProcessorInterface
     ) {
     }
 
+    /**
+     * @inheritdoc
+     */
     public function process(mixed $data, API\Operation $operation, array $uriVariables = [], array $context = [])
     {
         if ($data instanceof User && $data->getPlainPassword()) {

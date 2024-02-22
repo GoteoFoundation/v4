@@ -17,6 +17,9 @@ class GatewayCheckoutStateProcessor implements ProcessorInterface
     ) {
     }
 
+    /**
+     * @inheritdoc
+     */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         if ($data instanceof GatewayCheckout) {
