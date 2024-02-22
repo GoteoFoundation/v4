@@ -7,7 +7,12 @@ use App\Repository\ProjectRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
-#[API\ApiResource]
+#[API\GetCollection(security: 'is_granted("PUBLIC_ACCESS")')]
+#[API\Post(security: 'is_granted("ROLE_USER")')]
+#[API\Get(security: 'is_granted("PUBLIC_ACCESS")')]
+#[API\Put(security: 'is_granted("AUTH_PROJECT_EDIT")')]
+#[API\Delete(security: 'is_granted("AUTH_PROJECT_EDIT")')]
+#[API\Patch(security: 'is_granted("AUTH_PROJECT_EDIT")')]
 class Project
 {
     #[ORM\Id]
