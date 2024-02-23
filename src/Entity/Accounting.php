@@ -3,16 +3,16 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
-use App\Repository\AccountRepository;
+use App\Repository\AccountingRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Accounts are the senders and receivers of Transactions.
+ * Accountings are the senders and receivers of Transactions.
  */
-#[ORM\Entity(repositoryClass: AccountRepository::class)]
+#[ORM\Entity(repositoryClass: AccountingRepository::class)]
 #[API\ApiResource]
 #[API\Get()]
-class Account
+class Accounting
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

@@ -14,7 +14,10 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Users represent people who interact with the platform.
+ * Users represent people who interact with the platform.\
+ * \
+ * Users are the usual issuers of funding, however an User's Accounting can still be a Transaction recipient.
+ * This allows to keep an User's "wallet", witholding their non-raised fundings into their Accounting. 
  */
 #[API\GetCollection()]
 #[API\Post()]
@@ -72,7 +75,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Account $account = null;
+    private ?Accounting $accounting = null;
 
     /**
      * The AccessTokens owned by this user. Owner only property.
@@ -83,7 +86,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->account = new Account;
+        $this->accounting = new Accounting;
         $this->accessTokens = new ArrayCollection();
     }
 
@@ -192,14 +195,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getAccount(): ?Account
+    public function getAccounting(): ?Accounting
     {
-        return $this->account;
+        return $this->accounting;
     }
 
-    public function setAccount(Account $account): static
+    public function setAccounting(Accounting $accounting): static
     {
-        $this->account = $account;
+        $this->accounting = $accounting;
 
         return $this;
     }

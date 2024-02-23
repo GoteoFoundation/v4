@@ -9,8 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Projects describe a community-led event that is to be discovered, developed and funded by other Users.\
  * \
- * Since they can be recipients of funding, they are assigned an Account when created.
- * A Project's Account represents how much money the Project has raised from the community.
+ * Since they can be recipients of funding, they are assigned an Accounting when created.
+ * A Project's Accounting represents how much money the Project has raised from the community.
  */
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 #[API\GetCollection()]
@@ -32,11 +32,11 @@ class Project
     #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Account $account = null;
+    private ?Accounting $accounting = null;
 
     public function __construct()
     {
-        $this->account = new Account;
+        $this->accounting = new Accounting;
     }
 
     public function getId(): ?int
@@ -56,14 +56,14 @@ class Project
         return $this;
     }
 
-    public function getAccount(): ?Account
+    public function getAccounting(): ?Accounting
     {
-        return $this->account;
+        return $this->accounting;
     }
 
-    public function setAccount(Account $account): static
+    public function setAccounting(Accounting $accounting): static
     {
-        $this->account = $account;
+        $this->accounting = $accounting;
 
         return $this;
     }
