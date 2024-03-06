@@ -29,7 +29,7 @@ class GatewaySetupCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         try {
-            $this->gatewayLocator->makeBundleDir();
+            $this->gatewayLocator->compileGatewayNames();
 
             $io->success(self::SUCCESS_MESSAGE);
             return Command::SUCCESS;

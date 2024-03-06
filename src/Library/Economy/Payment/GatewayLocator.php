@@ -49,7 +49,7 @@ class GatewayLocator
         }
     }
 
-    private static function getGatewayBundleDir(): string
+    private static function getGatewayCompileDir(): string
     {
         return sprintf(
             '%s%svar%s%s',
@@ -60,11 +60,11 @@ class GatewayLocator
         );
     }
 
-    private static function getGatewayNamesStore(): string
+    private static function getGatewayNamesLockFile(): string
     {
         return sprintf(
             '%s%s%s',
-            self::getGatewayBundleDir(),
+            self::getGatewayCompileDir(),
             DIRECTORY_SEPARATOR,
             self::GATEWAY_NAMES_LOCK
         );
@@ -73,12 +73,12 @@ class GatewayLocator
     /**
      * Generates a directory for the gateways in the 'bundles' dir.
      */
-    public function makeBundleDir()
+    public function makeCompileDir()
     {
-        $bundleDir = self::getGatewayBundleDir();
+        $CompileDir = self::getGatewayCompileDir();
 
-        if (!\is_dir($bundleDir)) {
-            \mkdir($bundleDir, 0777, true);
+        if (!\is_dir($CompileDir)) {
+            \mkdir($CompileDir, 0777, true);
         }
     }
 
@@ -87,8 +87,10 @@ class GatewayLocator
      */
     public function compileGatewayNames()
     {
+        $this->makeCompileDir();
+
         \file_put_contents(
-            self::getGatewayNamesStore(),
+            self::getGatewayNamesLockFile(),
             implode(PHP_EOL, $this->getNames())
         );
     }
@@ -107,7 +109,7 @@ class GatewayLocator
      */
     public static function getNamesStatic(): array
     {
-        return explode(PHP_EOL, \file_get_contents(self::getGatewayNamesStore()));
+        return explode(PHP_EOL, \file_get_contents(self::getGatewayNamesLockFile()));
     }
 
     /**
