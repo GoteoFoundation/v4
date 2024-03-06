@@ -33,17 +33,17 @@ class Accounting
     private ?string $currency = null;
 
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToMany(mappedBy: 'target', targetEntity: Transaction::class)]
-    private Collection $transactionsReceived;
-
-    #[API\ApiProperty(writable: false)]
     #[ORM\OneToMany(mappedBy: 'origin', targetEntity: Transaction::class)]
     private Collection $transactionsIssued;
 
+    #[API\ApiProperty(writable: false)]
+    #[ORM\OneToMany(mappedBy: 'target', targetEntity: Transaction::class)]
+    private Collection $transactionsReceived;
+
     public function __construct()
     {
-        $this->transactionsReceived = new ArrayCollection();
         $this->transactionsIssued = new ArrayCollection();
+        $this->transactionsReceived = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -59,36 +59,6 @@ class Accounting
     public function setCurrency(string $currency): static
     {
         $this->currency = $currency;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Transaction>
-     */
-    public function getTransactionsReceived(): Collection
-    {
-        return $this->transactionsReceived;
-    }
-
-    public function addTransactionsReceived(Transaction $transactionsReceived): static
-    {
-        if (!$this->transactionsReceived->contains($transactionsReceived)) {
-            $this->transactionsReceived->add($transactionsReceived);
-            $transactionsReceived->setTarget($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTransactionsReceived(Transaction $transactionsReceived): static
-    {
-        if ($this->transactionsReceived->removeElement($transactionsReceived)) {
-            // set the owning side to null (unless already changed)
-            if ($transactionsReceived->getTarget() === $this) {
-                $transactionsReceived->setTarget(null);
-            }
-        }
 
         return $this;
     }
@@ -117,6 +87,36 @@ class Accounting
             // set the owning side to null (unless already changed)
             if ($transactionsIssued->getOrigin() === $this) {
                 $transactionsIssued->setOrigin(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Transaction>
+     */
+    public function getTransactionsReceived(): Collection
+    {
+        return $this->transactionsReceived;
+    }
+
+    public function addTransactionsReceived(Transaction $transactionsReceived): static
+    {
+        if (!$this->transactionsReceived->contains($transactionsReceived)) {
+            $this->transactionsReceived->add($transactionsReceived);
+            $transactionsReceived->setTarget($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransactionsReceived(Transaction $transactionsReceived): static
+    {
+        if ($this->transactionsReceived->removeElement($transactionsReceived)) {
+            // set the owning side to null (unless already changed)
+            if ($transactionsReceived->getTarget() === $this) {
+                $transactionsReceived->setTarget(null);
             }
         }
 
