@@ -40,8 +40,18 @@ class Accounting
     #[ORM\OneToMany(mappedBy: 'target', targetEntity: Transaction::class)]
     private Collection $transactionsReceived;
 
+    #[API\ApiProperty(writable: false, readable: false)]
+    #[ORM\Column(length: 255)]
+    private ?string $ownerClass = null;
+
     public function __construct()
     {
+        /**
+         * TODO: This property must be loaded from App's configuration,
+         * ideally a configuration that can be updated via a frontend, not env var only
+         */
+        $this->currency = 'EUR';
+
         $this->transactionsIssued = new ArrayCollection();
         $this->transactionsReceived = new ArrayCollection();
     }
@@ -119,6 +129,18 @@ class Accounting
                 $transactionsReceived->setTarget(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getOwnerClass(): ?string
+    {
+        return $this->ownerClass;
+    }
+
+    public function setOwnerClass(string $ownerClass): static
+    {
+        $this->ownerClass = $ownerClass;
 
         return $this;
     }

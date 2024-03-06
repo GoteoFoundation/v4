@@ -36,7 +36,8 @@ class Project
 
     public function __construct()
     {
-        $this->accounting = new Accounting;
+        $this->accounting = new Accounting();
+        $this->accounting->setOwnerClass(Project::class);
     }
 
     public function getId(): ?int

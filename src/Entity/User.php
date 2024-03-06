@@ -86,7 +86,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->accounting = new Accounting;
+        $this->accounting = new Accounting();
+        $this->accounting->setOwnerClass(User::class);
+
         $this->accessTokens = new ArrayCollection();
     }
 
