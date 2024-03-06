@@ -2,7 +2,7 @@
 
 namespace App\Library\Economy\Payment;
 
-use App\Entity\GatewayCheckout;
+use App\Entity\Transaction;
 
 interface GatewayInterface
 {
@@ -12,23 +12,11 @@ interface GatewayInterface
     public static function getName(): string;
 
     /**
-     * Create an actual Checkout at the Gateway and update the GatewayCheckout with the data from it
-     * @param GatewayCheckout
-     * @return GatewayCheckout
+     * When processing a Transaction a Gateway must validate it using it's own means.
+     * 
+     * Gateways are trusted to have secured the funds in the Transaction.
+     * @param Transaction
+     * @return Transaction
      */
-    public function process(GatewayCheckout $gatewayCheckout): GatewayCheckout;
-
-    /**
-     * Update a Checkout after the Gateway redirects successfully
-     * @param GatewayCheckout
-     * @return GatewayCheckout
-     */
-    public function onSuccess(GatewayCheckout $gatewayCheckout): GatewayCheckout;
-
-    /**
-     * Update a Checkout after the Gateway redirects with a failure
-     * @param GatewayCheckout
-     * @return GatewayCheckout
-     */
-    public function onFailure(GatewayCheckout $gatewayCheckout): GatewayCheckout;
+    public function process(Transaction $transaction): Transaction;
 }
