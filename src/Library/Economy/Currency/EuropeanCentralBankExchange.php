@@ -2,13 +2,13 @@
 
 namespace App\Library\Economy\Currency;
 
-use App\Library\Economy\Monetizable;
+use App\Entity\Money as EntityMoney;
 use Brick\Math\RoundingMode;
 use Brick\Money\CurrencyConverter;
 use Brick\Money\ExchangeRateProvider;
 use Brick\Money\ExchangeRateProvider\BaseCurrencyProvider;
 use Brick\Money\ExchangeRateProvider\ConfigurableProvider;
-use Brick\Money\Money;
+use Brick\Money\MoneyContainer;
 
 /**
  * Provides currency conversion using the daily updated exchanges rates by the European Central Bank
@@ -54,14 +54,19 @@ class EuropeanCentralBankExchange implements ExchangeInterface
         return 100;
     }
 
-    public function getConversion(Monetizable $money, string $currency): Monetizable
+    public function getConversion(MoneyContainer $money, string $currency): EntityMoney
     {
-        return Monetizable::ofBrickMoney($this->converter->convert(
-            Money::ofMinor($money->getAmount(), $money->getCurrency()),
+        $converted = $this->converter->convert(
+            $money,
             $currency,
             null,
             RoundingMode::HALF_EVEN
-        ));
+        );
+
+        return new EntityMoney(
+            $converted->getMinorAmount()->toInt(),
+            $converted->getCurrency()->getCurrencyCode()
+        );
     }
 
     public function getConversionRate(string $source, string $target): float
