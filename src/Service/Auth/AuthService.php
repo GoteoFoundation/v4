@@ -29,7 +29,7 @@ class AuthService
         $token = new UserToken;
 
         $token->setOwnedBy($user);
-        $token->setToken(sprintf('%s_%s', $type->value, hash(
+        $token->setToken(sprintf('%s%s', $type->value, hash(
             self::TOKEN_HASH_ALGO,
             join('', [
                 microtime(true),
