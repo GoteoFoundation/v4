@@ -53,10 +53,10 @@ class Transaction
     /**
      * The Gateway processing this Transaction.
      */
-    #[GatewayName]
+    #[Assert\Valid()]
     #[Assert\NotBlank()]
-    #[ORM\Column(length: 255)]
-    private ?string $gateway = null;
+    #[ORM\Embedded(class: TransactionGateway::class)]
+    private ?TransactionGateway $gateway = null;
 
     public function getId(): ?int
     {
@@ -99,12 +99,12 @@ class Transaction
         return $this;
     }
 
-    public function getGateway(): ?string
+    public function getGateway(): ?TransactionGateway
     {
         return $this->gateway;
     }
 
-    public function setGateway(string $gateway): static
+    public function setGateway(TransactionGateway $gateway): static
     {
         $this->gateway = $gateway;
 

@@ -21,7 +21,7 @@ class TransactionStateProcessor implements ProcessorInterface
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Transaction
     {
-        $gateway = $this->gatewayLocator->getGateway($data->getGateway());
+        $gateway = $this->gatewayLocator->getGatewayOf($data);
 
         $gateway->process($data);
 
