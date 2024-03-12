@@ -115,8 +115,11 @@ class OpenApiFactory implements OpenApiFactoryInterface
         $tags = [];
         foreach ($openApi->getComponents()->getSchemas() as $name => $schema) {
             if (\preg_match('/.*\.jsonld/', $name)) continue;
-            if (\preg_match('/.*Dto/', $name)) continue;
             if (empty($schema['description'])) continue;
+
+            if (\preg_match('/.*Dto/', $name)) {
+                $name = preg_replace('/\..*Dto/', '', $name);
+            }
 
             $tags[] = [
                 'name' => $name,
