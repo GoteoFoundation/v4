@@ -4,7 +4,10 @@ namespace App\Dto;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-final class AccessTokenLoginDto
+/**
+ * What the fuck?
+ */
+final class UserTokenLoginDto
 {
     /**
      * The username of the User to be authenticated.

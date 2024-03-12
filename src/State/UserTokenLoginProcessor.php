@@ -4,17 +4,17 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Dto\AccessTokenLoginDto;
-use App\Entity\AccessToken;
+use App\Dto\UserTokenLoginDto;
+use App\Entity\UserToken;
 use App\Repository\UserRepository;
-use App\Service\Auth\AccessTokenType;
+use App\Service\Auth\AuthTokenType;
 use App\Service\Auth\AuthService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 
-class AccessTokenLoginProcessor implements ProcessorInterface
+class UserTokenLoginProcessor implements ProcessorInterface
 {
     public function __construct(
         private AuthService $authService,
@@ -24,11 +24,11 @@ class AccessTokenLoginProcessor implements ProcessorInterface
     ) {
     }
 
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): AccessToken
+    /**
+     * @param UserTokenLoginDto $data
+     */
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): UserToken
     {
-        /** @var AccessTokenLoginDto */
-        $data;
-
         $user = $this->userRepository->findOneBy(['username' => $data->username]);
 
         if (!$user) {
@@ -39,7 +39,7 @@ class AccessTokenLoginProcessor implements ProcessorInterface
             throw new BadCredentialsException();
         }
 
-        $token = $this->authService->generateAccessToken($user, AccessTokenType::Personal);
+        $token = $this->authService->generateUserToken($user, AuthTokenType::Personal);
 
         $this->entityManager->persist($token);
         $this->entityManager->flush();

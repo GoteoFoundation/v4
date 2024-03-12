@@ -2,8 +2,8 @@
 
 namespace App\Service\Auth;
 
-use App\Entity\AccessToken;
 use App\Entity\User;
+use App\Entity\UserToken;
 
 class AuthService
 {
@@ -24,9 +24,9 @@ class AuthService
         return $this->config;
     }
 
-    public function generateAccessToken(User $user, AccessTokenType $type): AccessToken
+    public function generateUserToken(User $user, AuthTokenType $type): UserToken
     {
-        $token = new AccessToken;
+        $token = new UserToken;
 
         $token->setOwnedBy($user);
         $token->setToken(sprintf('%s_%s', $type->value, hash(

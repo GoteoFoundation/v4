@@ -78,11 +78,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?Accounting $accounting = null;
 
     /**
-     * The AccessTokens owned by this user. Owner only property.
+     * The UserTokens owned by this user. Owner only property.
      */
     #[API\ApiProperty(writable: false, readableLink: true, security: 'is_granted("AUTH_OWNER", object)')]
-    #[ORM\OneToMany(mappedBy: 'ownedBy', targetEntity: AccessToken::class, orphanRemoval: true)]
-    private Collection $accessTokens;
+    #[ORM\OneToMany(mappedBy: 'ownedBy', targetEntity: UserToken::class, orphanRemoval: true)]
+    private Collection $tokens;
 
     #[ORM\Column]
     private ?bool $active = null;
@@ -101,7 +101,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->accounting = new Accounting();
         $this->accounting->setOwnerClass(User::class);
 
-        $this->accessTokens = new ArrayCollection();
+        $this->tokens = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -227,29 +227,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, AccessToken>
+     * @return Collection<int, UserToken>
      */
-    public function getAccessTokens(): Collection
+    public function getTokens(): Collection
     {
-        return $this->accessTokens;
+        return $this->tokens;
     }
 
-    public function addAccessToken(AccessToken $accessToken): static
+    public function addToken(UserToken $token): static
     {
-        if (!$this->accessTokens->contains($accessToken)) {
-            $this->accessTokens->add($accessToken);
-            $accessToken->setOwnedBy($this);
+        if (!$this->tokens->contains($token)) {
+            $this->tokens->add($token);
+            $token->setOwnedBy($this);
         }
 
         return $this;
     }
 
-    public function removeAccessToken(AccessToken $accessToken): static
+    public function removeToken(UserToken $token): static
     {
-        if ($this->accessTokens->removeElement($accessToken)) {
+        if ($this->tokens->removeElement($token)) {
             // set the owning side to null (unless already changed)
-            if ($accessToken->getOwnedBy() === $this) {
-                $accessToken->setOwnedBy(null);
+            if ($token->getOwnedBy() === $this) {
+                $token->setOwnedBy(null);
             }
         }
 

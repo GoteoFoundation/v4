@@ -12,15 +12,17 @@ This API is still in early development and is not set to have backward compatibi
 
 # Authentication
 
-The v4 API uses AccessTokens to authenticate requests. AccessTokens exist under an User's scope, when you obtain a token this will only grant you as much permissions as the User under which it was created.
-
-To obtain an AccessToken you must send a POST request to [/v4/access_tokens](/v4/access_tokens) with the User login credentials (username and password) in the payload. If the credentials are correct an AccessToken will be created, the `token` property value of which you must include in future requests Authorization header using the [Bearer](https://swagger.io/docs/specification/authentication/bearer-authentication/) strategy.
+The v4 API uses Access Tokens to authenticate requests. To use a Token, include it in the Authorization header using the [Bearer](https://swagger.io/docs/specification/authentication/bearer-authentication/) strategy.
 
 ```shell
 curl -X 'GET' \
   'https://api.goteo.org/v4/projects?page=1' \
   -H 'accept: application/json' \
-  -H 'Authorization: Bearer <YOUR-ACCESS-TOKEN-HERE>'
+  -H 'Authorization: Bearer <THE-TOKEN-HERE>'
 ```
 
-Users can delete AccessTokens owned by them at any moment, revoking your application's access to the v4 API on their behalf. When an AccessToken fails to authenticate a request you will receive a 401 Unauthorized response from the API, at which point your application must look to get a new AccessToken from the User.
+UserTokens exist under an User's scope, when you obtain a token this will only grant you as much permissions as the User under which it was created.
+
+To obtain a UserToken you must send a POST request to [/v4/user_tokens](/v4/user_tokens) with the User login credentials (username and password) in the payload. If the credentials are correct a UserToken will be created, the `token` property value of which you must include in future requests.
+
+Users can delete UserTokens owned by them at any moment, revoking your application's access to the v4 API on their behalf. When a UserToken fails to authenticate a request you will receive a 401 Unauthorized response from the API, at which point your application must look to get a new UserToken from the User.

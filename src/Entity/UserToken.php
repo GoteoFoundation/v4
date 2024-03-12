@@ -3,24 +3,24 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
-use App\Dto\AccessTokenLoginDto;
-use App\Repository\AccessTokenRepository;
-use App\State\AccessTokenLoginProcessor;
+use App\Dto\UserTokenLoginDto;
+use App\Repository\UserTokenRepository;
+use App\State\UserTokenLoginProcessor;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * AccessTokens authenticate requests on behalf of the User who owns them.\
+ * UserTokens authenticates requests on behalf of the User who owns them.\
  * \
- * When an AccessToken is created the system generates a SHA-256 hash that is unique for the User it represents.
+ * When a UserToken is created v4 generates a SHA-256 hash that is unique for that Token and the User it represents.
  * The value of a token comes preceded by a 4-digit-length prefix based on the type of token it is.\
  * \
  * `oat_` means the token was created via an OAuth flow.\
  * `pat_` means the token was created via a login flow.
  */
-#[API\Post(input: AccessTokenLoginDto::class, processor: AccessTokenLoginProcessor::class)]
+#[API\Post(input: UserTokenLoginDto::class, processor: UserTokenLoginProcessor::class)]
 #[API\Delete(security: 'is_granted("AUTH_OWNER")')]
-#[ORM\Entity(repositoryClass: AccessTokenRepository::class)]
-class AccessToken
+#[ORM\Entity(repositoryClass: UserTokenRepository::class)]
+class UserToken
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -34,9 +34,9 @@ class AccessToken
     private ?string $token = null;
 
     /**
-     * The User on behalf of which this Token authenticates.
+     * The User on behalf of which this UserToken authenticates.
      */
-    #[ORM\ManyToOne(inversedBy: 'accessTokens')]
+    #[ORM\ManyToOne(inversedBy: 'tokens')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $ownedBy = null;
 

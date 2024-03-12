@@ -2,27 +2,27 @@
 
 namespace App\Repository;
 
-use App\Entity\AccessToken;
+use App\Entity\UserToken;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<AccessToken>
+ * @extends ServiceEntityRepository<UserToken>
  *
- * @method AccessToken|null find($id, $lockMode = null, $lockVersion = null)
- * @method AccessToken|null findOneBy(array $criteria, array $orderBy = null)
- * @method AccessToken[]    findAll()
- * @method AccessToken[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method UserToken|null find($id, $lockMode = null, $lockVersion = null)
+ * @method UserToken|null findOneBy(array $criteria, array $orderBy = null)
+ * @method UserToken[]    findAll()
+ * @method UserToken[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class AccessTokenRepository extends ServiceEntityRepository
+class UserTokenRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, AccessToken::class);
+        parent::__construct($registry, UserToken::class);
     }
 
     //    /**
-    //     * @return AccessToken[] Returns an array of AccessToken objects
+    //     * @return UserToken[] Returns an array of UserToken objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -36,7 +36,7 @@ class AccessTokenRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?AccessToken
+    //    public function findOneBySomeField($value): ?UserToken
     //    {
     //        return $this->createQueryBuilder('a')
     //            ->andWhere('a.exampleField = :val')
