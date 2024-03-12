@@ -9,7 +9,7 @@ use App\State\UserTokenLoginProcessor;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * UserTokens authenticates requests on behalf of the User who owns them.\
+ * UserTokens authenticate requests on behalf of the User who owns them.\
  * \
  * When a UserToken is created v4 generates a SHA-256 hash that is unique for that Token and the User it represents.
  * The value of a token comes preceded by a 4-digit-length prefix based on the type of token it is.\

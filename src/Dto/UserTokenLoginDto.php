@@ -5,7 +5,10 @@ namespace App\Dto;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * What the fuck?
+ * UserTokens are created via a login flow where v4:
+ * 1. Receives the User credentials
+ * 2. Validates them
+ * 3. Generates the UserToken for the authenticated User
  */
 final class UserTokenLoginDto
 {
