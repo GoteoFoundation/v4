@@ -40,7 +40,7 @@ class PdoReader implements ReaderInterface
         $count = $this->db->query("SELECT COUNT(*) FROM `$name`;")->fetchColumn();
         $query = $this->db->prepare("SELECT * FROM `$name` LIMIT ? OFFSET ?;");
 
-        $stream = new Stream(str_repeat("\n", $count));
+        $stream = new Stream(str_repeat("0", $count));
         return new PdoStream($stream, $query);
     }
 }

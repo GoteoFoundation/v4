@@ -18,27 +18,27 @@ class PdoStream implements StreamInterface
 
     public function eof(): bool
     {
-        return $this->stream->eof();
+        return $this->currentBatch > $this->length();
     }
 
     public function read(?int $length = null): mixed
     {
-        while (!$this->stream->eof()) {
-            $this->stream->read(self::BATCH_SIZE);
-            $this->pdo->execute([self::BATCH_SIZE, $this->currentBatch]);
+        $this->stream->read(self::BATCH_SIZE);
+        $this->pdo->execute([self::BATCH_SIZE, $this->currentBatch]);
 
-            $result = $this->pdo->fetchAll();
-            $this->currentBatch += self::BATCH_SIZE;
+        $this->currentBatch += self::BATCH_SIZE;
 
-            return $result;
-        }
-
-        $this->stream->close();
+        return $this->pdo->fetchAll();
     }
 
     public function close(): void
     {
         $this->stream->close();
+    }
+
+    public function tell(): int
+    {
+        return $this->currentBatch;
     }
 
     public function length(): int
