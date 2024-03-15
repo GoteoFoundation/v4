@@ -13,5 +13,7 @@ interface StreamInterface
 
     public function close(): void;
 
+    public function tell(): int;
+
     public function length(): int;
 }

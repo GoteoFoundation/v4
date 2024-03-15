@@ -71,6 +71,15 @@ class Stream implements StreamInterface
         }
     }
 
+    public function tell(): int
+    {
+        if (!isset($this->stream)) {
+            throw new \RuntimeException(self::MESSAGE_ERROR_DETACHED);
+        }
+
+        return ftell($this->stream);
+    }
+
     public function length(): int
     {
         if (!isset($this->stream)) {
