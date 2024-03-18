@@ -33,22 +33,22 @@ class Stream implements StreamInterface
         return \feof($this->stream);
     }
 
-    public function read(?int $length = null): string
+    public function read(?int $size = null): string
     {
         if (!isset($this->stream)) {
             throw new \RuntimeException(self::MESSAGE_ERROR_DETACHED);
         }
 
-        if ($length < 0) {
+        if ($size < 0) {
             throw new \RuntimeException("Length parameter cannot be negative");
         }
 
-        if ($length === 0) {
+        if ($size === 0) {
             return '';
         }
 
         try {
-            $string = \fgets($this->stream, $length);
+            $string = \fgets($this->stream, $size);
         } catch (\Exception $e) {
             throw new \RuntimeException(self::MESSAGE_ERROR_UNABLE_TO_READ, 0, $e);
         }
@@ -60,17 +60,6 @@ class Stream implements StreamInterface
         return $string;
     }
 
-    public function close(): void
-    {
-        if (isset($this->stream)) {
-            if (\is_resource($this->stream)) {
-                \fclose($this->stream);
-            }
-
-            unset($this->stream);
-        }
-    }
-
     public function tell(): int
     {
         if (!isset($this->stream)) {
@@ -80,13 +69,24 @@ class Stream implements StreamInterface
         return ftell($this->stream);
     }
 
-    public function length(): int
+    public function size(): int
     {
         if (!isset($this->stream)) {
             throw new \RuntimeException(self::MESSAGE_ERROR_DETACHED);
         }
 
         return \fstat($this->stream)['size'];
+    }
+
+    public function close(): void
+    {
+        if (isset($this->stream)) {
+            if (\is_resource($this->stream)) {
+                \fclose($this->stream);
+            }
+
+            unset($this->stream);
+        }
     }
 
     public function rewind(): void

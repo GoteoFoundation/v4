@@ -17,6 +17,13 @@ class StreamTest extends TestCase
         $this->stream = new Stream(\str_repeat("0", self::STREAM_SIZE));
     }
 
+    public function testStreamHasSize()
+    {
+        $size = $this->stream->size();
+
+        $this->assertEquals(self::STREAM_SIZE, $size);
+    }
+
     public function testStreamReadsLength()
     {
         $chunk = $this->stream->read(self::CHUNK_SIZE + 1);

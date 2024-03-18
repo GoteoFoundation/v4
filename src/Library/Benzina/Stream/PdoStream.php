@@ -4,7 +4,7 @@ namespace App\Library\Benzina\Stream;
 
 class PdoStream implements StreamInterface
 {
-    private int $length = 0;
+    private int $size = 0;
     private int $currentBatch = 0;
 
     private \PDO $db;
@@ -31,13 +31,14 @@ class PdoStream implements StreamInterface
             ]
         );
 
+        $this->size = $this->db->query("SELECT COUNT(*) FROM `$tablename`;")->fetchColumn();
+
         $this->query = $this->db->prepare("SELECT * FROM `$tablename` LIMIT ? OFFSET ?;");
-        $this->length = $this->db->query("SELECT COUNT(*) FROM `$tablename`;")->fetchColumn();
     }
 
     public function eof(): bool
     {
-        return $this->currentBatch > $this->length();
+        return $this->currentBatch > $this->size();
     }
 
     public function read(?int $length = null): mixed
@@ -63,9 +64,9 @@ class PdoStream implements StreamInterface
         return $this->currentBatch;
     }
 
-    public function length(): int
+    public function size(): int
     {
-        return $this->length;
+        return $this->size;
     }
 
     public function rewind(): void
