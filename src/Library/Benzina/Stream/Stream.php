@@ -88,4 +88,13 @@ class Stream implements StreamInterface
 
         return \fstat($this->stream)['size'];
     }
+
+    public function rewind(): void
+    {
+        if (!isset($this->stream)) {
+            throw new \RuntimeException(self::MESSAGE_ERROR_DETACHED);
+        }
+
+        \fseek($this->stream, 0);
+    }
 }

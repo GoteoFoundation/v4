@@ -67,4 +67,9 @@ class PdoStream implements StreamInterface
     {
         return $this->length;
     }
+
+    public function rewind(): void
+    {
+        $this->currentBatch = 0;
+    }
 }

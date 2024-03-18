@@ -16,4 +16,6 @@ interface StreamInterface
     public function tell(): int;
 
     public function length(): int;
+
+    public function rewind(): void;
 }
