@@ -1,8 +1,6 @@
 <?php
 
-namespace App\Library\Benzina\Pdo;
-
-use App\Library\Benzina\StreamInterface;
+namespace App\Library\Benzina\Stream;
 
 class PdoStream implements StreamInterface
 {

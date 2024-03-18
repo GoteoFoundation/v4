@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Tests\Library\Benzina;
+namespace App\Tests\Library\Benzina\Stream;
 
-use App\Library\Benzina\Stream;
+use App\Library\Benzina\Stream\Stream;
 use PHPUnit\Framework\TestCase;
 
 class StreamTest extends TestCase

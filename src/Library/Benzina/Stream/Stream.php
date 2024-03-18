@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Library\Benzina;
+namespace App\Library\Benzina\Stream;
 
 class Stream implements StreamInterface
 {
