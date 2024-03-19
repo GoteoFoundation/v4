@@ -3,7 +3,6 @@
 namespace App\Command;
 
 use App\Library\Benzina\Benzina;
-use App\Library\Benzina\Pump\PumpInterface;
 use App\Library\Benzina\Stream\PdoStream;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -18,9 +17,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class BenzinaPumpCommand extends Command
 {
-    private const SUCCESS_MESSAGE = "Gateways setup completed successfully!";
-    private const FAILURE_MESSAGE = "Could not setup Gateways. Please review the error.";
-
     public function __construct(
         private Benzina $benzina
     ) {
@@ -31,6 +27,18 @@ class BenzinaPumpCommand extends Command
     {
         $this->addArgument('database', InputArgument::REQUIRED);
         $this->addArgument('table', InputArgument::REQUIRED);
+
+        $this->addUsage('app:benzina:pump mysql://user:pass@mariadb:3306/benzina user --no-debug');
+        $this->setHelp(<<<'EOF'
+The <info>%command.name%</info> processes the data in the database table and supplies it to the available pumps:
+
+    <info>%command.full_name%</info>
+
+You can avoid possible memory leaks caused by the Symfony profiler with the <info>no-debug</info> flag:
+
+    <info>%command.full_name% --no-debug</info>
+EOF
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
