@@ -12,6 +12,8 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
     _instanceof:
+        App\Library\Benzina\Pump\PumpInterface:
+            tags: ['app.lib.benzina.pump.pump']
         App\Library\Economy\Currency\ExchangeInterface:
             tags: ['app.lib.economy.currency.exchange']
         App\Library\Economy\Payment\GatewayInterface:
@@ -35,6 +37,10 @@ services:
     App\Service\Auth\AuthService:
         arguments:
             - '%env(APP_SECRET)%'
+
+    App\Library\Benzina\Benzina:
+        arguments:
+            - !tagged 'app.lib.benzina.pump.pump'
 
     App\Library\Economy\Currency\ExchangeLocator:
         arguments:
