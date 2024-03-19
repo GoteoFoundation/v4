@@ -40,8 +40,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[Assert\NotBlank()]
     #[Assert\Length(min: 4, max: 30)]
-    #[Assert\Regex('/^[a-z0-9_-]+$/')]
-    #[ORM\Column(length: 30, unique: true)]
+    #[Assert\Regex('/^[a-z0-9_]+$/')]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $username = null;
 
     /**
@@ -114,7 +114,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->username;
     }
 
-    public function setUsername(string $username): static
+    public function setUsername(?string $username): static
     {
         $this->username = strtolower($username);
 
