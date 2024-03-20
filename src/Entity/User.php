@@ -101,10 +101,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\Column]
-    private bool $migrated = false;
+    private ?bool $migrated = null;
 
     public function __construct()
     {
+        $this->migrated = false;
+
         $this->accounting = new Accounting();
         $this->accounting->setOwnerClass(User::class);
 
