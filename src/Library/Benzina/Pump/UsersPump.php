@@ -33,9 +33,10 @@ class UsersPump implements PumpInterface
             $user->setUsername($this->normalizeUsername($userData['id']));
             $user->setPassword($userData['password'] ?? "");
             $user->setEmail($userData['email']);
+            $user->setName($userData['name']);
             $user->setActive(false);
             $user->setConfirmed(false);
-            $user->setName($userData['name']);
+            $user->setMigrated(true);
 
             $this->entityManager->persist($user);
         }
