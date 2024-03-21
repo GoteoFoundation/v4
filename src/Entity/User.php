@@ -41,7 +41,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank()]
     #[Assert\Length(min: 4, max: 30)]
     #[Assert\Regex('/^[a-z0-9_]+$/')]
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 255)]
     private ?string $username = null;
 
     /**
@@ -102,6 +102,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[API\ApiProperty(writable: false)]
     #[ORM\Column]
     private ?bool $migrated = null;
+
+    /**
+     * The previous id of this User in the Goteo v3 platform.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $migratedReference = null;
 
     public function __construct()
     {
@@ -321,6 +328,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setMigrated(bool $migrated): static
     {
         $this->migrated = $migrated;
+
+        return $this;
+    }
+
+    public function getMigratedReference(): ?string
+    {
+        return $this->migratedReference;
+    }
+
+    public function setMigratedReference(?string $migratedReference): static
+    {
+        $this->migratedReference = $migratedReference;
 
         return $this;
     }
