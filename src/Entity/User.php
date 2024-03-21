@@ -40,8 +40,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[Assert\NotBlank()]
     #[Assert\Length(min: 4, max: 30)]
-    #[Assert\Regex('/^[a-z0-9_-]+$/')]
-    #[ORM\Column(length: 30, unique: true)]
+    #[Assert\Regex('/^[a-z0-9_]+$/')]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $username = null;
 
     /**
@@ -96,8 +96,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
 
+    /**
+     * User was migrated from Goteo v3 platform. 
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\Column]
+    private ?bool $migrated = null;
+
     public function __construct()
     {
+        $this->migrated = false;
+
         $this->accounting = new Accounting();
         $this->accounting->setOwnerClass(User::class);
 
@@ -114,7 +123,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->username;
     }
 
-    public function setUsername(string $username): static
+    public function setUsername(?string $username): static
     {
         $this->username = strtolower($username);
 
@@ -300,6 +309,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setName(?string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function isMigrated(): ?bool
+    {
+        return $this->migrated;
+    }
+
+    public function setMigrated(bool $migrated): static
+    {
+        $this->migrated = $migrated;
 
         return $this;
     }
