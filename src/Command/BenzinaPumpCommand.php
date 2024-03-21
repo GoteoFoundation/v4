@@ -8,6 +8,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -25,12 +26,28 @@ class BenzinaPumpCommand extends Command
 
     protected function configure(): void
     {
-        $this->addArgument('database', InputArgument::REQUIRED);
         $this->addArgument('table', InputArgument::REQUIRED);
 
-        $this->addUsage('app:benzina:pump mysql://user:pass@mariadb:3306/benzina user --no-debug');
-        $this->setHelp(<<<'EOF'
-The <info>%command.name%</info> processes the data in the database table and supplies it to the available pumps:
+        $this->addOption(
+            'batch-size',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'The number of rows to process at once',
+            99
+        );
+
+        $this->addOption(
+            'database',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'The address of the database to read from',
+            'mysql://goteo:goteo@mariadb:3306/benzina'
+        );
+
+        $this->addUsage('app:benzina:pump --no-debug user');
+        $this->setHelp(
+            <<<'EOF'
+The <info>%command.name%</info> processes the data in the database table and supplies it to the supporting pumps:
 
     <info>%command.full_name%</info>
 
@@ -45,7 +62,12 @@ EOF
     {
         $io = new SymfonyStyle($input, $output);
 
-        $stream = new PdoStream($input->getArgument('database'), $input->getArgument('table'));
+        $stream = new PdoStream(
+            $input->getOption('database'),
+            $input->getArgument('table'),
+            $input->getOption('batch-size')
+        );
+
         $pumps = $this->benzina->getPumps($stream);
 
         $progress = $io->createProgressBar();
