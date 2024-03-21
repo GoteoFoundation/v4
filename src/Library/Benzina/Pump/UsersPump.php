@@ -28,15 +28,20 @@ class UsersPump implements PumpInterface
     public function process(mixed $data): void
     {
         foreach ($data as $key => $userData) {
+            $username = $this->normalizeUsername($userData['id']);
+            if (!$username) {
+                continue;
+            }
 
             $user = new User;
-            $user->setUsername($this->normalizeUsername($userData['id']));
+            $user->setUsername($username);
             $user->setPassword($userData['password'] ?? "");
             $user->setEmail($userData['email']);
             $user->setName($userData['name']);
             $user->setActive(false);
             $user->setConfirmed(false);
             $user->setMigrated(true);
+            $user->setMigratedReference($userData['id']);
 
             $this->entityManager->persist($user);
         }
