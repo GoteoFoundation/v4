@@ -13,23 +13,20 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class UserTokenLoginDto
 {
     /**
-     * The username of the User to be authenticated.
+     * The identifier (email, username) of the User to be authenticated.
      */
     #[Assert\NotBlank()]
-    #[Assert\Length(min: 4, max: 30)]
-    #[Assert\Regex('/^[a-z0-9_-]+$/')]
-    public readonly string $username;
+    public readonly string $identifier;
 
     /**
      * The password of the User to be authenticated.
      */
     #[Assert\NotBlank()]
-    #[Assert\Length(min: 12)]
     public readonly string $password;
 
-    public function __construct(string $username, string $password)
+    public function __construct(string $identifier, string $password)
     {
-        $this->username = $username;
+        $this->identifier = $identifier;
         $this->password = $password;
     }
 }

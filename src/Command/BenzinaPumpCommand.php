@@ -67,11 +67,32 @@ EOF
             $input->getArgument('table'),
             $input->getOption('batch-size')
         );
+        $streamSize = $stream->size();
+
+        if ($streamSize < 1) {
+            $io->writeln("No data found at the given source. Skipping execution.");
+
+            return Command::SUCCESS;
+        }
 
         $pumps = $this->benzina->getPumps($stream);
+        $pumpsCount = count($pumps);
+
+        if ($pumpsCount < 1) {
+            $io->writeln("No pumps available for the data. Skipping execution.");
+
+            return Command::SUCCESS;
+        }
+
+        $io->writeln(sprintf("Found %d pumps.", $pumpsCount));
+        $io->listing(\array_map(function ($pump) {
+            return $pump::class;
+        }, $pumps));
+
+        $io->writeln(sprintf("Processing %d records.", $streamSize));
 
         $progress = $io->createProgressBar();
-        $progress->start($stream->size());
+        $progress->start($streamSize);
 
         while (!$stream->eof()) {
             $data = $stream->read();
@@ -85,6 +106,8 @@ EOF
 
         $stream->close();
         $progress->finish();
+
+        $io->success("Data processed successfully!");
 
         return Command::SUCCESS;
     }
