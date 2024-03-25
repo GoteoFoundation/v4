@@ -34,8 +34,28 @@ class Project
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
 
+    #[ORM\ManyToOne(inversedBy: 'projects')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $owner = null;
+
+    /**
+     * Project was migrated from Goteo v3 platform.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\Column]
+    private ?bool $migrated = null;
+
+    /**
+     * The previous id of this Project in the Goteo v3 platform.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $migratedReference = null;
+
     public function __construct()
     {
+        $this->migrated = false;
+
         $this->accounting = new Accounting();
         $this->accounting->setOwnerClass(Project::class);
     }
@@ -65,6 +85,43 @@ class Project
     public function setAccounting(Accounting $accounting): static
     {
         $this->accounting = $accounting;
+        $this->accounting->setOwnerClass(self::class);
+
+        return $this;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): static
+    {
+        $this->owner = $owner;
+
+        return $this;
+    }
+
+    public function isMigrated(): ?bool
+    {
+        return $this->migrated;
+    }
+
+    public function setMigrated(bool $migrated): static
+    {
+        $this->migrated = $migrated;
+
+        return $this;
+    }
+
+    public function getMigratedReference(): ?string
+    {
+        return $this->migratedReference;
+    }
+
+    public function setMigratedReference(?string $migratedReference): static
+    {
+        $this->migratedReference = $migratedReference;
 
         return $this;
     }

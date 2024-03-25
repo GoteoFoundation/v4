@@ -110,6 +110,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $migratedReference = null;
 
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class)]
+    private Collection $projects;
+
     public function __construct()
     {
         $this->migrated = false;
@@ -118,6 +121,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->accounting->setOwnerClass(User::class);
 
         $this->tokens = new ArrayCollection();
+        $this->projects = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -340,6 +344,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setMigratedReference(?string $migratedReference): static
     {
         $this->migratedReference = $migratedReference;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Project>
+     */
+    public function getProjects(): Collection
+    {
+        return $this->projects;
+    }
+
+    public function addProject(Project $project): static
+    {
+        if (!$this->projects->contains($project)) {
+            $this->projects->add($project);
+            $project->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProject(Project $project): static
+    {
+        if ($this->projects->removeElement($project)) {
+            // set the owning side to null (unless already changed)
+            if ($project->getOwner() === $this) {
+                $project->setOwner(null);
+            }
+        }
 
         return $this;
     }
