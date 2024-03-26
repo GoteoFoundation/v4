@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -25,6 +26,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Put(security: 'is_granted("AUTH_USER_EDIT")')]
 #[API\Delete(security: 'is_granted("AUTH_USER_EDIT")')]
 #[API\Patch(security: 'is_granted("AUTH_USER_EDIT")')]
+#[API\ApiFilter(filterClass: SearchFilter::class, properties: [
+    'username' => 'partial',
+    'name' => 'partial'
+])]
 #[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
 #[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
