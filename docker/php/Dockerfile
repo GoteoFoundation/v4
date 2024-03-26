@@ -32,6 +32,12 @@ RUN apt install -y \
 && docker-php-ext-install \
     zip
 
+# Intl
+RUN apt install -y \
+    libicu-dev \
+&& docker-php-ext-install \
+    intl
+
 # Composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
