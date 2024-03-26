@@ -30,7 +30,7 @@ class UsersPump implements PumpInterface
         foreach ($data as $key => $userData) {
             $username = $this->normalizeUsername($userData['id']);
             if (!$username) {
-                continue;
+                $username = $this->normalizeUsername($userData['email']);
             }
 
             $user = new User;
