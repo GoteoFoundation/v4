@@ -72,7 +72,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
      */
     #[Assert\NotBlank(['groups' => ['postValidation']])]
     #[Assert\Length(min: 12)]
-    #[API\ApiProperty(writable: true, readable: false)]
+    #[API\ApiProperty(writable: true, readable: false, required: true)]
     #[SerializedName('password')]
     private ?string $plainPassword = null;
 
