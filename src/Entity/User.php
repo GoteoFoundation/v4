@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -20,12 +21,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Users are the usual issuers of funding, however an User's Accounting can still be a Transaction recipient.
  * This allows to keep an User's "wallet", witholding their non-raised fundings into their Accounting. 
  */
+#[Gedmo\Loggable()]
 #[API\GetCollection()]
-#[API\Post()]
+#[API\Post(validationContext: ['groups' => ['default', 'postValidation']])]
 #[API\Get()]
-#[API\Put(security: 'is_granted("AUTH_USER_EDIT")')]
-#[API\Delete(security: 'is_granted("AUTH_USER_EDIT")')]
-#[API\Patch(security: 'is_granted("AUTH_USER_EDIT")')]
+#[API\Put(security: 'is_granted("USER_EDIT", object)')]
+#[API\Delete(security: 'is_granted("USER_EDIT", object)')]
+#[API\Patch(security: 'is_granted("USER_EDIT", object)')]
 #[API\ApiFilter(filterClass: SearchFilter::class, properties: [
     'username' => 'partial',
     'name' => 'partial'
@@ -43,6 +45,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * Human readable, non white space, unique string.
      */
+    #[Gedmo\Versioned]
     #[Assert\NotBlank()]
     #[Assert\Length(min: 4, max: 30)]
     #[Assert\Regex('/^[a-z0-9_]+$/')]
@@ -66,12 +69,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * Plain-text, will be hashed by the platform.
      */
-    #[Assert\NotBlank()]
+    #[Assert\NotBlank(['groups' => ['postValidation']])]
     #[Assert\Length(min: 12)]
     #[API\ApiProperty(writable: true, readable: false)]
     #[SerializedName('password')]
     private ?string $plainPassword = null;
 
+    #[Gedmo\Versioned]
     #[Assert\NotBlank()]
     #[Assert\Email()]
     #[ORM\Column(length: 255)]
@@ -202,7 +206,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPlainPassword(): string
+    public function getPlainPassword(): ?string
     {
         return $this->plainPassword;
     }
