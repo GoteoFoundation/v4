@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
+use App\Entity\Interface\UserOwnedInterface;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -35,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
 #[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -89,8 +90,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * The UserTokens owned by this user. Owner only property.
      */
-    #[API\ApiProperty(writable: false, readableLink: true, security: 'is_granted("AUTH_OWNER", object)')]
-    #[ORM\OneToMany(mappedBy: 'ownedBy', targetEntity: UserToken::class, orphanRemoval: true)]
+    #[API\ApiProperty(writable: false, security: 'is_granted("USER_OWNED", object)')]
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: UserToken::class, orphanRemoval: true)]
     private Collection $tokens;
 
     #[ORM\Column]
@@ -155,6 +156,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->username;
+    }
+    
+    public function getOwner(): ?User
+    {
+        return $this;
     }
 
     public function isOwnedBy(User $user): bool
@@ -263,7 +269,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->tokens->contains($token)) {
             $this->tokens->add($token);
-            $token->setOwnedBy($this);
+            $token->setOwner($this);
         }
 
         return $this;
@@ -273,8 +279,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->tokens->removeElement($token)) {
             // set the owning side to null (unless already changed)
-            if ($token->getOwnedBy() === $this) {
-                $token->setOwnedBy(null);
+            if ($token->getOwner() === $this) {
+                $token->setOwner(null);
             }
         }
 
