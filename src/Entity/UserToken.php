@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
 use App\Dto\UserTokenLoginDto;
+use App\Entity\Interface\UserOwnedInterface;
 use App\Repository\UserTokenRepository;
 use App\State\UserTokenLoginProcessor;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,9 +19,10 @@ use Doctrine\ORM\Mapping as ORM;
  * `pat_` means the token was created via a login flow.
  */
 #[API\Post(input: UserTokenLoginDto::class, processor: UserTokenLoginProcessor::class)]
-#[API\Delete(security: 'is_granted("AUTH_OWNER")')]
+#[API\Get(security: 'is_granted("USER_OWNED", object)')]
+#[API\Delete(security: 'is_granted("USER_OWNED", object)')]
 #[ORM\Entity(repositoryClass: UserTokenRepository::class)]
-class UserToken
+class UserToken implements UserOwnedInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -38,7 +40,7 @@ class UserToken
      */
     #[ORM\ManyToOne(inversedBy: 'tokens')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $ownedBy = null;
+    private ?User $owner = null;
 
     public function getId(): ?int
     {
@@ -57,20 +59,20 @@ class UserToken
         return $this;
     }
 
-    public function getOwnedBy(): ?User
+    public function getOwner(): ?User
     {
-        return $this->ownedBy;
+        return $this->owner;
     }
 
-    public function setOwnedBy(?User $ownedBy): static
+    public function setOwner(?User $owner): static
     {
-        $this->ownedBy = $ownedBy;
+        $this->owner = $owner;
 
         return $this;
     }
 
     public function isOwnedBy(User $user): bool
     {
-        return $this->ownedBy->getUserIdentifier() === $user->getUserIdentifier();
+        return $this->owner->getUserIdentifier() === $user->getUserIdentifier();
     }
 }

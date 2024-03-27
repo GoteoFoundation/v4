@@ -28,7 +28,7 @@ class AuthService
     {
         $token = new UserToken;
 
-        $token->setOwnedBy($user);
+        $token->setOwner($user);
         $token->setToken(sprintf('%s%s', $type->value, hash(
             self::TOKEN_HASH_ALGO,
             join('', [
