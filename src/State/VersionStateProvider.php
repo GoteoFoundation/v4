@@ -49,7 +49,7 @@ class VersionStateProvider implements ProviderInterface
 
     private function getVersions(string $resource, int $resourceId)
     {
-        $entity = $this->entityManager->find(sprintf("App\\Entity\\%s", $resource), $resourceId);
+        $entity = $this->entityManager->find($this->resourceToEntity($resource), $resourceId);
         $logs = $this->versionRepository->getLogEntries($entity);
 
         $versions = [];
@@ -58,5 +58,10 @@ class VersionStateProvider implements ProviderInterface
         }
 
         return $versions;
+    }
+
+    private function resourceToEntity(string $resource): string
+    {
+        return sprintf("App\\Entity\\%s", ucfirst(strtolower($resource)));
     }
 }
