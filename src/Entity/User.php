@@ -4,10 +4,12 @@ namespace App\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
+use App\Entity\Interface\UserOwnedInterface;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -20,12 +22,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Users are the usual issuers of funding, however an User's Accounting can still be a Transaction recipient.
  * This allows to keep an User's "wallet", witholding their non-raised fundings into their Accounting. 
  */
+#[Gedmo\Loggable()]
 #[API\GetCollection()]
-#[API\Post()]
+#[API\Post(validationContext: ['groups' => ['default', 'postValidation']])]
 #[API\Get()]
-#[API\Put(security: 'is_granted("AUTH_USER_EDIT")')]
-#[API\Delete(security: 'is_granted("AUTH_USER_EDIT")')]
-#[API\Patch(security: 'is_granted("AUTH_USER_EDIT")')]
+#[API\Put(security: 'is_granted("USER_EDIT", object)')]
+#[API\Delete(security: 'is_granted("USER_EDIT", object)')]
+#[API\Patch(security: 'is_granted("USER_EDIT", object)')]
 #[API\ApiFilter(filterClass: SearchFilter::class, properties: [
     'username' => 'partial',
     'name' => 'partial'
@@ -33,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
 #[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -43,6 +46,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * Human readable, non white space, unique string.
      */
+    #[Gedmo\Versioned]
     #[Assert\NotBlank()]
     #[Assert\Length(min: 4, max: 30)]
     #[Assert\Regex('/^[a-z0-9_]+$/')]
@@ -66,12 +70,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * Plain-text, will be hashed by the platform.
      */
-    #[Assert\NotBlank()]
+    #[Assert\NotBlank(['groups' => ['postValidation']])]
     #[Assert\Length(min: 12)]
-    #[API\ApiProperty(writable: true, readable: false)]
+    #[API\ApiProperty(writable: true, readable: false, required: true)]
     #[SerializedName('password')]
     private ?string $plainPassword = null;
 
+    #[Gedmo\Versioned]
     #[Assert\NotBlank()]
     #[Assert\Email()]
     #[ORM\Column(length: 255)]
@@ -85,8 +90,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * The UserTokens owned by this user. Owner only property.
      */
-    #[API\ApiProperty(writable: false, readableLink: true, security: 'is_granted("AUTH_OWNER", object)')]
-    #[ORM\OneToMany(mappedBy: 'ownedBy', targetEntity: UserToken::class, orphanRemoval: true)]
+    #[API\ApiProperty(writable: false, security: 'is_granted("USER_OWNED", object)')]
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: UserToken::class, orphanRemoval: true)]
     private Collection $tokens;
 
     #[ORM\Column]
@@ -153,6 +158,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->username;
     }
 
+    public function getOwner(): ?User
+    {
+        return $this;
+    }
+
     public function isOwnedBy(User $user): bool
     {
         return $this->getUserIdentifier() === $user->getUserIdentifier();
@@ -202,7 +212,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPlainPassword(): string
+    public function getPlainPassword(): ?string
     {
         return $this->plainPassword;
     }
@@ -259,7 +269,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->tokens->contains($token)) {
             $this->tokens->add($token);
-            $token->setOwnedBy($this);
+            $token->setOwner($this);
         }
 
         return $this;
@@ -269,8 +279,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->tokens->removeElement($token)) {
             // set the owning side to null (unless already changed)
-            if ($token->getOwnedBy() === $this) {
-                $token->setOwnedBy(null);
+            if ($token->getOwner() === $this) {
+                $token->setOwner(null);
             }
         }
 
