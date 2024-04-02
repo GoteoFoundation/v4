@@ -3,9 +3,13 @@
 namespace App\ApiResource;
 
 use ApiPlatform\Metadata as API;
+use App\Filter\VersionResourceFilter;
+use App\Filter\VersionResourceIdFilter;
 use App\State\VersionStateProvider;
 use Gedmo\Loggable\Entity\LogEntry;
 
+#[API\ApiFilter(VersionResourceFilter::class, properties: ['resource'])]
+#[API\ApiFilter(VersionResourceIdFilter::class, properties: ['resourceId'])]
 #[API\GetCollection(provider: VersionStateProvider::class)]
 #[API\Get(provider: VersionStateProvider::class)]
 class Version

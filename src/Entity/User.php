@@ -157,7 +157,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     {
         return (string) $this->username;
     }
-    
+
     public function getOwner(): ?User
     {
         return $this;
