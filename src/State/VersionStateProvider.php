@@ -34,7 +34,10 @@ class VersionStateProvider implements ProviderInterface
         }
     }
 
-    private function getVersion(int $id)
+    /**
+     * @throws NotFoundHttpException
+     */
+    private function getVersion(int $id): Version
     {
         $log = $this->versionRepository->find($id);
 
@@ -47,7 +50,10 @@ class VersionStateProvider implements ProviderInterface
         return new Version($log, $entity);
     }
 
-    private function getVersions(string $resource, int $resourceId)
+    /**
+     * @return Version[]
+     */
+    private function getVersions(string $resource, int $resourceId): array
     {
         $entity = $this->entityManager->find($this->resourceToEntity($resource), $resourceId);
         $logs = $this->versionRepository->getLogEntries($entity);
