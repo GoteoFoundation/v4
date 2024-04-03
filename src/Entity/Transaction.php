@@ -4,8 +4,6 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
 use App\Repository\TransactionRepository;
-use App\State\TransactionStateProcessor;
-use App\Validator\GatewayName;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -17,7 +15,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[API\GetCollection()]
-#[API\Post(processor: TransactionStateProcessor::class)]
 #[API\Get()]
 class Transaction
 {
@@ -49,14 +46,6 @@ class Transaction
     #[ORM\ManyToOne(inversedBy: 'transactionsReceived')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $target = null;
-
-    /**
-     * The Gateway processing this Transaction.
-     */
-    #[Assert\Valid()]
-    #[Assert\NotBlank()]
-    #[ORM\Embedded(class: TransactionGateway::class)]
-    private ?TransactionGateway $gateway = null;
 
     public function getId(): ?int
     {
@@ -95,18 +84,6 @@ class Transaction
     public function setTarget(?Accounting $target): static
     {
         $this->target = $target;
-
-        return $this;
-    }
-
-    public function getGateway(): ?TransactionGateway
-    {
-        return $this->gateway;
-    }
-
-    public function setGateway(TransactionGateway $gateway): static
-    {
-        $this->gateway = $gateway;
 
         return $this;
     }
