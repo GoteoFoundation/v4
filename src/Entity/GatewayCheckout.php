@@ -12,7 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * GatewayCheckout
+ * A GatewayCheckout bundles the data to perform a charge operation at a Gateway.
+ * Use it in order to create Transactions and have the transferred money be backed by a Gateway's payment processing.
  */
 #[API\GetCollection()]
 #[API\Post(processor: GatewayCheckoutProcessor::class)]
