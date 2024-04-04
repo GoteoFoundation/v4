@@ -15,8 +15,8 @@ interface GatewayInterface
      * When processing a GatewayCheckout a Gateway must validate it using it's own means.
      * 
      * Gateways are trusted to have secured the funds in the GatewayCheckout.
-     * @param GatewayCheckout
+     * @param GatewayCheckout $checkout
      * @return GatewayCheckout
      */
-    public function process(GatewayCheckout $transaction): GatewayCheckout;
+    public function process(GatewayCheckout $checkout): GatewayCheckout;
 }
