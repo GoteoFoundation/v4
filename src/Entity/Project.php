@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Repository\ProjectRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,13 +13,14 @@ use Doctrine\ORM\Mapping as ORM;
  * Since they can be recipients of funding, they are assigned an Accounting when created.
  * A Project's Accounting represents how much money the Project has raised from the community.
  */
-#[ORM\Entity(repositoryClass: ProjectRepository::class)]
 #[API\GetCollection()]
 #[API\Post(security: 'is_granted("ROLE_USER")')]
 #[API\Get()]
 #[API\Put(security: 'is_granted("AUTH_PROJECT_EDIT")')]
 #[API\Delete(security: 'is_granted("AUTH_PROJECT_EDIT")')]
 #[API\Patch(security: 'is_granted("AUTH_PROJECT_EDIT")')]
+#[API\ApiFilter(filterClass: SearchFilter::class, properties: ['title' => 'partial'])]
+#[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project
 {
     #[ORM\Id]

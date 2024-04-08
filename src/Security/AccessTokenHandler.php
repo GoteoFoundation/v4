@@ -21,6 +21,6 @@ class AccessTokenHandler implements AccessTokenHandlerInterface
             throw new BadCredentialsException();
         }
 
-        return new UserBadge($token->getOwnedBy()->getUserIdentifier());
+        return new UserBadge($token->getOwner()->getUserIdentifier());
     }
 }

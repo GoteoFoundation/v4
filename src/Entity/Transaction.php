@@ -4,8 +4,6 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
 use App\Repository\TransactionRepository;
-use App\State\TransactionStateProcessor;
-use App\Validator\GatewayName;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -17,7 +15,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[API\GetCollection()]
-#[API\Post(processor: TransactionStateProcessor::class)]
 #[API\Get()]
 class Transaction
 {
@@ -27,7 +24,7 @@ class Transaction
     private ?int $id = null;
 
     /**
-     * The monetary value to be received at target and issued at origin.
+     * The monetary value received at target and issued at origin.
      */
     #[Assert\Valid()]
     #[Assert\NotBlank()]
@@ -51,12 +48,18 @@ class Transaction
     private ?Accounting $target = null;
 
     /**
-     * The Gateway processing this Transaction.
+     * The name of the Gateway implementation that secured the money in this Transaction.
      */
-    #[Assert\Valid()]
     #[Assert\NotBlank()]
-    #[ORM\Embedded(class: TransactionGateway::class)]
-    private ?TransactionGateway $gateway = null;
+    #[ORM\Column(length: 255)]
+    private ?string $gateway = null;
+
+    /**
+     * An external identifier provided by the Gateway for this Transaction.
+     */
+    #[Assert\NotBlank()]
+    #[ORM\Column(length: 255)]
+    private ?string $gatewayReference = null;
 
     public function getId(): ?int
     {
@@ -99,14 +102,26 @@ class Transaction
         return $this;
     }
 
-    public function getGateway(): ?TransactionGateway
+    public function getGateway(): ?string
     {
         return $this->gateway;
     }
 
-    public function setGateway(TransactionGateway $gateway): static
+    public function setGateway(string $gateway): static
     {
         $this->gateway = $gateway;
+
+        return $this;
+    }
+
+    public function getGatewayReference(): ?string
+    {
+        return $this->gatewayReference;
+    }
+
+    public function setGatewayReference(string $gatewayReference): static
+    {
+        $this->gatewayReference = $gatewayReference;
 
         return $this;
     }
