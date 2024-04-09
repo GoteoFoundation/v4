@@ -130,12 +130,12 @@ class InvestsPump implements PumpInterface
 
     private function getGatewayReference(array $data): string
     {
-        if (!empty($data['transaction'])) {
-            return $data['transaction'];
-        }
-
         if (!empty($data['payment'])) {
             return $data['payment'];
+        }
+
+        if (!empty($data['transaction'])) {
+            return $data['transaction'];
         }
 
         if (!empty($data['preapproval'])) {
