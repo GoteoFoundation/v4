@@ -30,21 +30,6 @@ class GatewayCheckout
     private ?int $id = null;
 
     /**
-     * The name of the Gateway implementation to checkout with.
-     */
-    #[GatewayName]
-    #[Assert\NotBlank()]
-    #[ORM\Column(length: 255)]
-    private ?string $gateway = null;
-
-    /**
-     * An external identifier provided by the Gateway for the payment.\
-     * Required when a GatewayCheckout is completed.
-     */
-    #[ORM\Column(length: 255)]
-    private ?string $gatewayReference = null;
-
-    /**
      * The Accounting that will issue the Transactions of the GatewayCharges after a successful checkout.
      */
     #[Assert\NotBlank()]
@@ -65,6 +50,21 @@ class GatewayCheckout
     )]
     private Collection $charges;
 
+    /**
+     * The name of the Gateway implementation to checkout with.
+     */
+    #[GatewayName]
+    #[Assert\NotBlank()]
+    #[ORM\Column(length: 255)]
+    private ?string $gateway = null;
+
+    /**
+     * An external identifier provided by the Gateway for the payment.\
+     * Required when a GatewayCheckout is completed.
+     */
+    #[ORM\Column(length: 255)]
+    private ?string $gatewayReference = null;
+
     public function __construct()
     {
         $this->charges = new ArrayCollection();
@@ -73,18 +73,6 @@ class GatewayCheckout
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getGateway(): ?string
-    {
-        return $this->gateway;
-    }
-
-    public function setGateway(string $gateway): static
-    {
-        $this->gateway = $gateway;
-
-        return $this;
     }
 
     public function getOrigin(): ?Accounting
@@ -125,6 +113,18 @@ class GatewayCheckout
                 $charge->setCheckout(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getGateway(): ?string
+    {
+        return $this->gateway;
+    }
+
+    public function setGateway(string $gateway): static
+    {
+        $this->gateway = $gateway;
 
         return $this;
     }
