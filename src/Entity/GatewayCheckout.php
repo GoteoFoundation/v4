@@ -3,8 +3,10 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
+use App\Dto\GatewayCheckoutUpdateDto;
 use App\Repository\GatewayCheckoutRepository;
 use App\State\GatewayCheckoutProcessor;
+use App\State\GatewayCheckoutUpdateProcessor;
 use App\Validator\GatewayName;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -18,6 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\GetCollection()]
 #[API\Post(processor: GatewayCheckoutProcessor::class)]
 #[API\Get()]
+#[API\Patch(input: GatewayCheckoutUpdateDto::class, processor: GatewayCheckoutUpdateProcessor::class)]
 #[ORM\Entity(repositoryClass: GatewayCheckoutRepository::class)]
 class GatewayCheckout
 {
@@ -33,6 +36,13 @@ class GatewayCheckout
     #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
     private ?string $gateway = null;
+
+    /**
+     * An external identifier provided by the Gateway for the payment.\
+     * Required when a GatewayCheckout is completed.
+     */
+    #[ORM\Column(length: 255)]
+    private ?string $gatewayReference = null;
 
     /**
      * The Accounting that will issue the Transactions of the GatewayCharges after a successful checkout.
@@ -115,6 +125,18 @@ class GatewayCheckout
                 $charge->setCheckout(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getGatewayReference(): ?string
+    {
+        return $this->gatewayReference;
+    }
+
+    public function setGatewayReference(string $gatewayReference): static
+    {
+        $this->gatewayReference = $gatewayReference;
 
         return $this;
     }
