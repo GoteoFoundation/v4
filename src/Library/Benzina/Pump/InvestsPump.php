@@ -2,6 +2,8 @@
 
 namespace App\Library\Benzina\Pump;
 
+use App\Entity\GatewayCharge;
+use App\Entity\GatewayCheckout;
 use App\Entity\Money;
 use App\Entity\Project;
 use App\Entity\Transaction;
@@ -68,9 +70,12 @@ class InvestsPump implements PumpInterface
         $investors = $this->getInvestors($data);
 
         foreach ($data as $key => $data) {
-            // Ignore invests to non-migrated projects
-            // Shouldn't be much, as the non-migrated are projects that were never funded in any way    
-            if (!\array_key_exists($data['project'], $invested)) {
+            if (
+                !$data['project'] ||
+                // Ignore invests to non-migrated projects
+                // Shouldn't be much, as the non-migrated are projects that were never funded in any way    
+                !\array_key_exists($data['project'], $invested)
+            ) {
                 continue;
             }
 
@@ -84,14 +89,33 @@ class InvestsPump implements PumpInterface
             /** @var Project */
             $project = $invested[$data['project']];
 
+            $origin = $user->getAccounting();
+            $target = $project->getAccounting();
+
             $money = new Money($data['amount'] * 100, $data['currency']);
+
+            $reference = $this->getGatewayReference($data);
+
+            if ($data['method'] === 'tpv') {
+                $charge = new GatewayCharge;
+                $charge->setMoney($money);
+                $charge->setTarget($target);
+                $charge->setExtradata([
+                    'migrated' => true,
+                    'migratedReference' => $data['id']
+                ]);
+
+                $checkout = new GatewayCheckout;
+                $checkout->setOrigin($origin);
+                $checkout->addCharge($charge);
+                $checkout->setGateway($data['method']);
+                $checkout->setGatewayReference($reference);
+            }
 
             $transaction = new Transaction;
             $transaction->setMoney($money);
-            $transaction->setOrigin($user->getAccounting());
-            $transaction->setTarget($project->getAccounting());
-            $transaction->setGateway($data['method']);
-            $transaction->setGatewayReference($this->getGatewayReference($data));
+            $transaction->setOrigin($origin);
+            $transaction->setTarget($target);
 
             $this->entityManager->persist($transaction);
         }
