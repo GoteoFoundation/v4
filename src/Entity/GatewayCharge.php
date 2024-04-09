@@ -37,10 +37,17 @@ class GatewayCharge
     #[ORM\Column(nullable: true)]
     private ?array $extradata = null;
 
-    #[API\ApiProperty(writable: false)]
+    #[API\ApiProperty(writable: false, readable: false)]
     #[ORM\ManyToOne(inversedBy: 'charges')]
     #[ORM\JoinColumn(nullable: false)]
     private ?GatewayCheckout $checkout = null;
+
+    /**
+     * The generated Transaction inside the platform for this GatewayCharge.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\OneToOne(inversedBy: 'gatewayCharge', cascade: ['persist', 'remove'])]
+    private ?Transaction $transaction = null;
 
     public function getId(): ?int
     {
@@ -91,6 +98,18 @@ class GatewayCharge
     public function setCheckout(?GatewayCheckout $checkout): static
     {
         $this->checkout = $checkout;
+
+        return $this;
+    }
+
+    public function getTransaction(): ?Transaction
+    {
+        return $this->transaction;
+    }
+
+    public function setTransaction(?Transaction $transaction): static
+    {
+        $this->transaction = $transaction;
 
         return $this;
     }
