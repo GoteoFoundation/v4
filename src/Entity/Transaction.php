@@ -47,20 +47,6 @@ class Transaction
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $target = null;
 
-    /**
-     * The name of the Gateway implementation that secured the money in this Transaction.
-     */
-    #[Assert\NotBlank()]
-    #[ORM\Column(length: 255)]
-    private ?string $gateway = null;
-
-    /**
-     * An external identifier provided by the Gateway for this Transaction.
-     */
-    #[Assert\NotBlank()]
-    #[ORM\Column(length: 255)]
-    private ?string $gatewayReference = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -98,30 +84,6 @@ class Transaction
     public function setTarget(?Accounting $target): static
     {
         $this->target = $target;
-
-        return $this;
-    }
-
-    public function getGateway(): ?string
-    {
-        return $this->gateway;
-    }
-
-    public function setGateway(string $gateway): static
-    {
-        $this->gateway = $gateway;
-
-        return $this;
-    }
-
-    public function getGatewayReference(): ?string
-    {
-        return $this->gatewayReference;
-    }
-
-    public function setGatewayReference(string $gatewayReference): static
-    {
-        $this->gatewayReference = $gatewayReference;
 
         return $this;
     }
