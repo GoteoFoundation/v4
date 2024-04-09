@@ -10,6 +10,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ProjectsPump implements PumpInterface
 {
+    use ArrayPumpTrait;
+
     private const PROJECT_KEYS = [
         'id',
         'name',
@@ -100,11 +102,7 @@ class ProjectsPump implements PumpInterface
             return false;
         }
 
-        if (count(\array_diff(\array_keys($data[0]), self::PROJECT_KEYS)) > 0) {
-            return true;
-        }
-
-        return true;
+        return $this->hasAllKeys($data[0], self::PROJECT_KEYS);
     }
 
     public function process(mixed $data): void
