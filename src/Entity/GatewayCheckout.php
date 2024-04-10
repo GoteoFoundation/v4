@@ -38,17 +38,19 @@ class GatewayCheckout
     private ?Accounting $origin = null;
 
     /**
-     * The charges to be made by the Gateway at checkout.\
-     * Each GatewayCharge will generate a separate Transaction after a successful checkout.
+     * The GatewayCharges to be charged at checkout with the Gateway.
      */
     #[Assert\NotBlank()]
     #[Assert\Count(min: 1)]
-    #[ORM\OneToMany(
-        mappedBy: 'checkout',
-        targetEntity: GatewayCharge::class,
-        cascade: ['persist']
-    )]
+    #[ORM\ManyToMany(targetEntity: GatewayCharge::class)]
     private Collection $charges;
+
+    /**
+     * The status of the checkout with the Gateway.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\Column()]
+    private ?GatewayCheckoutStatus $status = null;
 
     /**
      * The name of the Gateway implementation to checkout with.
@@ -68,6 +70,7 @@ class GatewayCheckout
     public function __construct()
     {
         $this->charges = new ArrayCollection();
+        $this->status = GatewayCheckoutStatus::Pending;
     }
 
     public function getId(): ?int
@@ -99,7 +102,6 @@ class GatewayCheckout
     {
         if (!$this->charges->contains($charge)) {
             $this->charges->add($charge);
-            $charge->setCheckout($this);
         }
 
         return $this;
@@ -107,12 +109,19 @@ class GatewayCheckout
 
     public function removeCharge(GatewayCharge $charge): static
     {
-        if ($this->charges->removeElement($charge)) {
-            // set the owning side to null (unless already changed)
-            if ($charge->getCheckout() === $this) {
-                $charge->setCheckout(null);
-            }
-        }
+        $this->charges->removeElement($charge);
+
+        return $this;
+    }
+
+    public function getStatus(): ?GatewayCheckoutStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(GatewayCheckoutStatus $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }
