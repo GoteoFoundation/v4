@@ -47,12 +47,6 @@ class Transaction
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $target = null;
 
-    /**
-     * GatewayCharges generate Transactions after a Gateway validates the charges.
-     */
-    #[ORM\OneToOne(mappedBy: 'transaction', cascade: ['persist', 'remove'])]
-    private ?GatewayCharge $gatewayCharge = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -90,28 +84,6 @@ class Transaction
     public function setTarget(?Accounting $target): static
     {
         $this->target = $target;
-
-        return $this;
-    }
-
-    public function getGatewayCharge(): ?GatewayCharge
-    {
-        return $this->gatewayCharge;
-    }
-
-    public function setGatewayCharge(?GatewayCharge $gatewayCharge): static
-    {
-        // unset the owning side of the relation if necessary
-        if ($gatewayCharge === null && $this->gatewayCharge !== null) {
-            $this->gatewayCharge->setTransaction(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($gatewayCharge !== null && $gatewayCharge->getTransaction() !== $this) {
-            $gatewayCharge->setTransaction($this);
-        }
-
-        $this->gatewayCharge = $gatewayCharge;
 
         return $this;
     }
