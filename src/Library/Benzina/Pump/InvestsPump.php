@@ -3,11 +3,13 @@
 namespace App\Library\Benzina\Pump;
 
 use App\Entity\GatewayCharge;
+use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
+use App\Entity\GatewayCheckoutStatus;
 use App\Entity\Money;
 use App\Entity\Project;
-use App\Entity\Transaction;
-use App\Entity\User;
+use App\Library\Economy\Payment\StripeGateway;
+use App\Library\Economy\Payment\WalletGateway;
 use App\Repository\ProjectRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,6 +17,8 @@ use Doctrine\ORM\EntityManagerInterface;
 class InvestsPump implements PumpInterface
 {
     use ArrayPumpTrait;
+
+    private const MAX_INT = 2147483647;
 
     private const INVEST_KEYS = [
         'id',
@@ -66,93 +70,109 @@ class InvestsPump implements PumpInterface
 
     public function process(mixed $data): void
     {
-        $invested = $this->getInvested($data);
-        $investors = $this->getInvestors($data);
+        $users = $this->getUsers($data);
+        $projects = $this->getProjects($data);
 
         foreach ($data as $key => $data) {
-            if (
-                !$data['project'] ||
-                // Ignore invests to non-migrated projects
-                // Shouldn't be much, as the non-migrated are projects that were never funded in any way    
-                !\array_key_exists($data['project'], $invested)
-            ) {
+            if (!\array_key_exists($data['project'], $projects)) {
                 continue;
             }
 
-            if ($data['amount'] === 0) {
+            if (!$data['amount'] || $data['amount'] < 1) {
                 continue;
             }
 
-            /** @var User */
-            $user = $investors[$data['user']];
+            $user = $users[$data['user']];
+            $project = $projects[$data['project']];
 
-            /** @var Project */
-            $project = $invested[$data['project']];
+            $charge = new GatewayCharge;
+            $charge->setType($this->getChargeType($data));
+            $charge->setMoney($this->getChargeMoney($data, $project));
+            $charge->setTarget($project->getAccounting());
 
-            $origin = $user->getAccounting();
-            $target = $project->getAccounting();
-
-            $money = new Money($data['amount'] * 100, $data['currency']);
-
-            $reference = $this->getGatewayReference($data);
-
-            if ($data['method'] === 'tpv') {
-                $charge = new GatewayCharge;
-                $charge->setMoney($money);
-                $charge->setTarget($target);
-                $charge->setExtradata([
-                    'migrated' => true,
-                    'migratedReference' => $data['id']
-                ]);
-
-                $checkout = new GatewayCheckout;
-                $checkout->setOrigin($origin);
-                $checkout->addCharge($charge);
-                $checkout->setGateway($data['method']);
-                $checkout->setGatewayReference($reference);
-            }
-
-            $transaction = new Transaction;
-            $transaction->setMoney($money);
-            $transaction->setOrigin($origin);
-            $transaction->setTarget($target);
-
-            $this->entityManager->persist($transaction);
+            $checkout = new GatewayCheckout;
+            $checkout->setOrigin($user->getAccounting());
+            $checkout->addCharge($charge);
+            $checkout->setStatus($this->getCheckoutStatus($data));
+            $checkout->setGateway($this->getCheckoutGateway($data));
+            $checkout->setGatewayReference($this->getCheckoutReference($data));
         }
 
         $this->entityManager->flush();
         $this->entityManager->clear();
     }
 
-    private function getInvested(array $data): array
-    {
-        $projects = $this->projectRepository->findBy(['migratedReference' => \array_map(function ($data) {
-            return $data['project'];
-        }, $data)]);
-
-        $invested = [];
-        foreach ($projects as $project) {
-            $invested[$project->getMigratedReference()] = $project;
-        }
-
-        return $invested;
-    }
-
-    private function getInvestors(array $data): array
+    private function getUsers(array $data): array
     {
         $users = $this->userRepository->findBy(['migratedReference' => \array_map(function ($data) {
             return $data['user'];
         }, $data)]);
 
-        $investors = [];
+        $usersByMigratedReference = [];
         foreach ($users as $user) {
-            $investors[$user->getMigratedReference()] = $user;
+            $usersByMigratedReference[$user->getMigratedReference()] = $user;
         }
 
-        return $investors;
+        return $usersByMigratedReference;
     }
 
-    private function getGatewayReference(array $data): string
+    private function getProjects(array $data): array
+    {
+        $projects = $this->projectRepository->findBy(['migratedReference' => \array_map(function ($data) {
+            return $data['project'];
+        }, $data)]);
+
+        $projectsByMigratedReference = [];
+        foreach ($projects as $project) {
+            $projectsByMigratedReference[$project->getMigratedReference()] = $project;
+        }
+
+        return $projectsByMigratedReference;
+    }
+
+    private function getChargeType(array $data): GatewayChargeType
+    {
+        if (\in_array($data['method'], ['stripe_subscription'])) {
+            return GatewayChargeType::Recurring;
+        }
+
+        return GatewayChargeType::Single;
+    }
+
+    private function getChargeMoney(array $data, Project $project): Money
+    {
+        $amount = $data['amount'] * 100;
+
+        if ($amount >= self::MAX_INT) {
+            $amount = $data['amount'];
+        }
+
+        return new Money($amount, $project->getAccounting()->getCurrency());
+    }
+
+    private function getCheckoutStatus(array $data): GatewayCheckoutStatus
+    {
+        if ($data['status'] === -1) {
+            return GatewayCheckoutStatus::Pending;
+        }
+
+        if ($data['status'] === 1) {
+            return GatewayCheckoutStatus::Charged;
+        }
+    }
+
+    private function getCheckoutGateway(array $data): string
+    {
+        if ($data['method'] === 'stripe_subscription') {
+            return StripeGateway::getName();
+        }
+
+        if ($data['method'] === 'pool') {
+            return WalletGateway::getName();
+        }
+    }
+
+    private function getCheckoutReference(array $data): string
     {
         if (!empty($data['payment'])) {
             return $data['payment'];
