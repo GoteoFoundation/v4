@@ -33,6 +33,10 @@ class Accounting
     private ?string $currency = null;
 
     #[API\ApiProperty(writable: false, readable: false)]
+    #[ORM\Column]
+    private ?int $ownerId = null;
+
+    #[API\ApiProperty(writable: false, readable: false)]
     #[ORM\Column(length: 255)]
     private ?string $ownerClass = null;
 
@@ -62,6 +66,18 @@ class Accounting
         return $this;
     }
 
+    public function getOwnerId(): ?int
+    {
+        return $this->ownerId;
+    }
+
+    public function setOwnerId(int $ownerId): static
+    {
+        $this->ownerId = $ownerId;
+
+        return $this;
+    }
+
     public function getOwnerClass(): ?string
     {
         return $this->ownerClass;
@@ -72,5 +88,23 @@ class Accounting
         $this->ownerClass = $ownerClass;
 
         return $this;
+    }
+
+    /**
+     * The type of the owner resource.
+     */
+    public function getOwnerResource(): string
+    {
+        $classPieces = explode('\\', $this->getOwnerClass());
+
+        return end($classPieces);
+    }
+
+     /**
+     * The ID of the recorded resource.
+     */
+    public function getOwnerResourceId(): int
+    {
+        return $this->getOwnerId();
     }
 }
