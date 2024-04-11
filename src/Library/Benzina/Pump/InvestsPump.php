@@ -144,7 +144,7 @@ class InvestsPump implements PumpInterface
         $amount = $data['amount'] * 100;
 
         if ($amount >= self::MAX_INT) {
-            $amount = $data['amount'];
+            $amount = self::MAX_INT;
         }
 
         return new Money($amount, $project->getAccounting()->getCurrency());
