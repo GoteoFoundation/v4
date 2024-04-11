@@ -32,6 +32,10 @@ class Accounting
     #[ORM\Column(length: 3)]
     private ?string $currency = null;
 
+    #[API\ApiProperty(writable: false)]
+    #[ORM\OneToMany(mappedBy: 'accounting', targetEntity: AccountingStatement::class)]
+    private Collection $statements;
+
     #[API\ApiProperty(writable: false, readable: false)]
     #[ORM\Column]
     private ?int $ownerId = null;
@@ -47,6 +51,7 @@ class Accounting
          * ideally a configuration that can be updated via a frontend, not env var only
          */
         $this->currency = 'EUR';
+        $this->statements = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -62,6 +67,36 @@ class Accounting
     public function setCurrency(string $currency): static
     {
         $this->currency = $currency;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AccountingStatement>
+     */
+    public function getStatements(): Collection
+    {
+        return $this->statements;
+    }
+
+    public function addStatement(AccountingStatement $statement): static
+    {
+        if (!$this->statements->contains($statement)) {
+            $this->statements->add($statement);
+            $statement->setAccounting($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatement(AccountingStatement $statement): static
+    {
+        if ($this->statements->removeElement($statement)) {
+            // set the owning side to null (unless already changed)
+            if ($statement->getAccounting() === $this) {
+                $statement->setAccounting(null);
+            }
+        }
 
         return $this;
     }

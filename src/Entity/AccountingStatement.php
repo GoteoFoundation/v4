@@ -14,7 +14,19 @@ use Doctrine\ORM\Mapping as ORM;
  * \
  * The sum of available money in the statements is the available money at that Accounting.
  */
-#[API\ApiResource]
+#[API\GetCollection(
+    uriTemplate: '/accountings/{id}/statements',
+    uriVariables: [
+        'id' => new API\Link(fromClass: Accounting::class, toProperty: 'accounting'),
+    ],
+)]
+#[API\Get(
+    uriTemplate: '/accountings/{id}/statements/{statementId}',
+    uriVariables: [
+        'id' => new API\Link(fromClass: Accounting::class, toProperty: 'accounting'),
+        'statementId' => new API\Link(fromClass: AccountingStatement::class)
+    ],
+)]
 #[ORM\Entity(repositoryClass: AccountingStatementRepository::class)]
 class AccountingStatement
 {
@@ -22,6 +34,11 @@ class AccountingStatement
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[API\ApiProperty(readable: false)]
+    #[ORM\ManyToOne(inversedBy: 'statements')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Accounting $accounting = null;
 
     /**
      * The money held in this Statement.
@@ -47,6 +64,18 @@ class AccountingStatement
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getAccounting(): ?Accounting
+    {
+        return $this->accounting;
+    }
+
+    public function setAccounting(?Accounting $accounting): static
+    {
+        $this->accounting = $accounting;
+
+        return $this;
     }
 
     public function getMoney(): ?Money
