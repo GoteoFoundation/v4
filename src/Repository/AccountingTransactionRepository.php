@@ -2,27 +2,27 @@
 
 namespace App\Repository;
 
-use App\Entity\Transaction;
+use App\Entity\AccountingTransaction;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Transaction>
+ * @extends ServiceEntityRepository<AccountingTransaction>
  *
- * @method Transaction|null find($id, $lockMode = null, $lockVersion = null)
- * @method Transaction|null findOneBy(array $criteria, array $orderBy = null)
- * @method Transaction[]    findAll()
- * @method Transaction[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method AccountingTransaction|null find($id, $lockMode = null, $lockVersion = null)
+ * @method AccountingTransaction|null findOneBy(array $criteria, array $orderBy = null)
+ * @method AccountingTransaction[]    findAll()
+ * @method AccountingTransaction[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class TransactionRepository extends ServiceEntityRepository
+class AccountingTransactionRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Transaction::class);
+        parent::__construct($registry, AccountingTransaction::class);
     }
 
     //    /**
-    //     * @return Transaction[] Returns an array of Transaction objects
+    //     * @return AccountingTransaction[] Returns an array of AccountingTransaction objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -36,7 +36,7 @@ class TransactionRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Transaction
+    //    public function findOneBySomeField($value): ?AccountingTransaction
     //    {
     //        return $this->createQueryBuilder('t')
     //            ->andWhere('t.exampleField = :val')
