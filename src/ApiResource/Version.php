@@ -63,7 +63,7 @@ class Version
     /**
      * The ID of the recorded resource.
      */
-    public function getResouceId(): int
+    public function getResourceId(): int
     {
         return $this->log->getObjectId();
     }
