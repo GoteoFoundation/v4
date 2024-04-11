@@ -105,8 +105,8 @@ EOF
 
         $stream->close();
         $progress->finish();
-        $io->writeln("");
 
+        $io->writeln("\n");
         $io->success("Data processed successfully!");
 
         return Command::SUCCESS;
