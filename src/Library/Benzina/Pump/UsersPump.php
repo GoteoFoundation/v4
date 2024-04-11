@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class UsersPump implements PumpInterface
 {
     use ArrayPumpTrait;
+    use ProgressivePumpTrait;
 
     private const USER_KEYS = [
         'id',
@@ -62,21 +63,22 @@ class UsersPump implements PumpInterface
 
     public function process(mixed $data): void
     {
-        foreach ($data as $key => $userData) {
-            $username = $this->normalizeUsername($userData['id']);
-            if (!$username) {
-                $username = $this->normalizeUsername($userData['email']);
+        $pumped = $this->getPumped(User::class, $data, ['migratedReference' => 'id']);
+
+        foreach ($data as $key => $record) {
+            if ($this->isPumped($record, $pumped)) {
+                continue;
             }
 
             $user = new User;
-            $user->setUsername($username);
-            $user->setPassword($userData['password'] ?? "");
-            $user->setEmail($userData['email']);
-            $user->setName($userData['name']);
+            $user->setUsername($this->getUsername($record));
+            $user->setPassword($record['password'] ?? "");
+            $user->setEmail($record['email']);
+            $user->setName($record['name']);
             $user->setActive(false);
             $user->setConfirmed(false);
             $user->setMigrated(true);
-            $user->setMigratedReference($userData['id']);
+            $user->setMigratedReference($record['id']);
 
             $this->entityManager->persist($user);
         }
@@ -98,6 +100,17 @@ class UsersPump implements PumpInterface
 
         if (strlen(str_replace('_', '', $username)) < 1) {
             return null;
+        }
+
+        return $username;
+    }
+
+    private function getUsername(array $data): string
+    {
+        $username = $this->normalizeUsername($data['id']);
+
+        if (!$username) {
+            $username = $this->normalizeUsername($data['email']);
         }
 
         return $username;
