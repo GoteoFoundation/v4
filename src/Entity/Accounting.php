@@ -37,7 +37,7 @@ class Accounting
     private Collection $statements;
 
     #[API\ApiProperty(writable: false, readable: false)]
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $ownerId = null;
 
     #[API\ApiProperty(writable: false, readable: false)]
@@ -106,7 +106,7 @@ class Accounting
         return $this->ownerId;
     }
 
-    public function setOwnerId(int $ownerId): static
+    public function setOwnerId(?int $ownerId): static
     {
         $this->ownerId = $ownerId;
 

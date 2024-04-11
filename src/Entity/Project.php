@@ -57,9 +57,6 @@ class Project
     public function __construct()
     {
         $this->migrated = false;
-
-        $this->accounting = new Accounting();
-        $this->accounting->setOwnerClass(Project::class);
     }
 
     public function getId(): ?int
@@ -87,6 +84,7 @@ class Project
     public function setAccounting(Accounting $accounting): static
     {
         $this->accounting = $accounting;
+        $this->accounting->setOwnerId($this->id);
         $this->accounting->setOwnerClass(self::class);
 
         return $this;

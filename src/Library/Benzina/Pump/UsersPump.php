@@ -2,6 +2,7 @@
 
 namespace App\Library\Benzina\Pump;
 
+use App\Entity\Accounting;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -34,6 +35,7 @@ class UsersPump implements PumpInterface
             }
 
             $user = new User;
+            $user->setAccounting(new Accounting);
             $user->setUsername($username);
             $user->setPassword($userData['password'] ?? "");
             $user->setEmail($userData['email']);

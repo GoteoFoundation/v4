@@ -127,9 +127,6 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     {
         $this->migrated = false;
 
-        $this->accounting = new Accounting();
-        $this->accounting->setOwnerClass(User::class);
-
         $this->tokens = new ArrayCollection();
         $this->projects = new ArrayCollection();
     }
@@ -257,6 +254,8 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     public function setAccounting(Accounting $accounting): static
     {
         $this->accounting = $accounting;
+        $this->accounting->setOwnerId($this->id);
+        $this->accounting->setOwnerClass(self::class);
 
         return $this;
     }
