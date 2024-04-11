@@ -7,6 +7,45 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class UsersPump implements PumpInterface
 {
+    use ArrayPumpTrait;
+
+    private const USER_KEYS = [
+        'id',
+        'name',
+        'location',
+        'email',
+        'password',
+        'gender',
+        'birthyear',
+        'entity_type',
+        'legal_entity',
+        'origin_register',
+        'about',
+        'keywords',
+        'active',
+        'avatar',
+        'contribution',
+        'twitter',
+        'facebook',
+        'instagram',
+        'identica',
+        'linkedin',
+        'amount',
+        'num_patron',
+        'num_patron_active',
+        'worth',
+        'created',
+        'modified',
+        'token',
+        'rememberme',
+        'hide',
+        'confirmed',
+        'lang',
+        'node',
+        'num_invested',
+        'num_owned',
+    ];
+
     public function __construct(
         private EntityManagerInterface $entityManager
     ) {
@@ -18,11 +57,7 @@ class UsersPump implements PumpInterface
             return false;
         }
 
-        if (!\array_key_exists('email', $data[0]) && !\array_key_exists('password', $data[0])) {
-            return false;
-        }
-
-        return true;
+        return $this->hasAllKeys($data[0], self::USER_KEYS);
     }
 
     public function process(mixed $data): void
