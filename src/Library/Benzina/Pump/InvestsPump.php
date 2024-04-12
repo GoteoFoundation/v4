@@ -21,6 +21,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class InvestsPump implements PumpInterface
 {
     use ArrayPumpTrait;
+    use ProgressivePumpTrait;
 
     private const MAX_INT = 2147483647;
 
@@ -77,7 +78,13 @@ class InvestsPump implements PumpInterface
         $users = $this->getUsers($data);
         $projects = $this->getProjects($data);
 
+        $pumped = $this->getPumped(GatewayCheckout::class, $data, ['migratedReference' => 'id']);
+
         foreach ($data as $key => $record) {
+            if ($this->isPumped($record, $pumped)) {
+                continue;
+            }
+
             if (!\array_key_exists($record['project'], $projects)) {
                 continue;
             }
