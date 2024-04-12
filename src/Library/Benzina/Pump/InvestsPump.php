@@ -77,35 +77,35 @@ class InvestsPump implements PumpInterface
         $users = $this->getUsers($data);
         $projects = $this->getProjects($data);
 
-        foreach ($data as $key => $data) {
-            if (!\array_key_exists($data['project'], $projects)) {
+        foreach ($data as $key => $record) {
+            if (!\array_key_exists($record['project'], $projects)) {
                 continue;
             }
 
-            if (!$data['amount'] || $data['amount'] < 1) {
+            if (!$record['amount'] || $record['amount'] < 1) {
                 continue;
             }
 
-            if (!$data['method'] || empty($data['method'])) {
+            if (!$record['method'] || empty($record['method'])) {
                 continue;
             }
 
-            $user = $users[$data['user']];
-            $project = $projects[$data['project']];
+            $user = $users[$record['user']];
+            $project = $projects[$record['project']];
 
             $charge = new GatewayCharge;
-            $charge->setType($this->getChargeType($data));
-            $charge->setMoney($this->getChargeMoney($data, $project));
+            $charge->setType($this->getChargeType($record));
+            $charge->setMoney($this->getChargeMoney($record, $project));
             $charge->setTarget($project->getAccounting());
 
             $checkout = new GatewayCheckout;
             $checkout->setOrigin($user->getAccounting());
             $checkout->addCharge($charge);
-            $checkout->setStatus($this->getCheckoutStatus($data));
-            $checkout->setGateway($this->getCheckoutGateway($data));
-            $checkout->setGatewayReference($this->getCheckoutReference($data));
+            $checkout->setStatus($this->getCheckoutStatus($record));
+            $checkout->setGateway($this->getCheckoutGateway($record));
+            $checkout->setGatewayReference($this->getCheckoutReference($record));
             $checkout->setMigrated(true);
-            $checkout->setMigratedReference($data['id']);
+            $checkout->setMigratedReference($record['id']);
         }
 
         $this->entityManager->flush();
@@ -140,18 +140,18 @@ class InvestsPump implements PumpInterface
         return $projectsByMigratedReference;
     }
 
-    private function getChargeType(array $data): GatewayChargeType
+    private function getChargeType(array $record): GatewayChargeType
     {
-        if (\in_array($data['method'], ['stripe_subscription'])) {
+        if (\in_array($record['method'], ['stripe_subscription'])) {
             return GatewayChargeType::Recurring;
         }
 
         return GatewayChargeType::Single;
     }
 
-    private function getChargeMoney(array $data, Project $project): Money
+    private function getChargeMoney(array $record, Project $project): Money
     {
-        $amount = $data['amount'] * 100;
+        $amount = $record['amount'] * 100;
 
         if ($amount >= self::MAX_INT) {
             $amount = self::MAX_INT;
@@ -160,54 +160,54 @@ class InvestsPump implements PumpInterface
         return new Money($amount, $project->getAccounting()->getCurrency());
     }
 
-    private function getCheckoutStatus(array $data): GatewayCheckoutStatus
+    private function getCheckoutStatus(array $record): GatewayCheckoutStatus
     {
-        if ($data['status'] < 1) {
+        if ($record['status'] < 1) {
             return GatewayCheckoutStatus::Pending;
         }
 
         return GatewayCheckoutStatus::Charged;
     }
 
-    private function getCheckoutGateway(array $data): string
+    private function getCheckoutGateway(array $record): string
     {
-        if ($data['method'] === 'stripe_subscription') {
+        if ($record['method'] === 'stripe_subscription') {
             return StripeGateway::getName();
         }
 
-        if ($data['method'] === 'pool') {
+        if ($record['method'] === 'pool') {
             return WalletGateway::getName();
         }
 
-        if ($data['method'] === 'tpv') {
+        if ($record['method'] === 'tpv') {
             return CecaGateway::getName();
         }
 
-        if ($data['method'] === 'paypal') {
+        if ($record['method'] === 'paypal') {
             return PaypalGateway::getName();
         }
 
-        if ($data['method'] === 'cash') {
+        if ($record['method'] === 'cash') {
             return CashGateway::getName();
         }
 
-        if ($data['method'] === 'drop') {
+        if ($record['method'] === 'drop') {
             return DropGateway::getName();
         }
     }
 
-    private function getCheckoutReference(array $data): string
+    private function getCheckoutReference(array $record): string
     {
-        if (!empty($data['payment'])) {
-            return $data['payment'];
+        if (!empty($record['payment'])) {
+            return $record['payment'];
         }
 
-        if (!empty($data['transaction'])) {
-            return $data['transaction'];
+        if (!empty($record['transaction'])) {
+            return $record['transaction'];
         }
 
-        if (!empty($data['preapproval'])) {
-            return $data['preapproval'];
+        if (!empty($record['preapproval'])) {
+            return $record['preapproval'];
         }
 
         return '';
