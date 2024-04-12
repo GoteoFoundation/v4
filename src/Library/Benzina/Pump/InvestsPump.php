@@ -104,6 +104,8 @@ class InvestsPump implements PumpInterface
             $checkout->setStatus($this->getCheckoutStatus($data));
             $checkout->setGateway($this->getCheckoutGateway($data));
             $checkout->setGatewayReference($this->getCheckoutReference($data));
+            $checkout->setMigrated(true);
+            $checkout->setMigratedReference($data['id']);
         }
 
         $this->entityManager->flush();

@@ -67,6 +67,20 @@ class GatewayCheckout
     #[ORM\Column(length: 255)]
     private ?string $gatewayReference = null;
 
+    /**
+     * GatewayCheckout was migrated from an invest record in Goteo v3 platform. 
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\Column]
+    private ?bool $migrated = null;
+
+    /**
+     * The id of the original invest record in the Goteo v3 platform.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $migratedReference = null;
+
     public function __construct()
     {
         $this->charges = new ArrayCollection();
@@ -146,6 +160,30 @@ class GatewayCheckout
     public function setGatewayReference(string $gatewayReference): static
     {
         $this->gatewayReference = $gatewayReference;
+
+        return $this;
+    }
+
+    public function isMigrated(): ?bool
+    {
+        return $this->migrated;
+    }
+
+    public function setMigrated(bool $migrated): static
+    {
+        $this->migrated = $migrated;
+
+        return $this;
+    }
+
+    public function getMigratedReference(): ?string
+    {
+        return $this->migratedReference;
+    }
+
+    public function setMigratedReference(?string $migratedReference): static
+    {
+        $this->migratedReference = $migratedReference;
 
         return $this;
     }
