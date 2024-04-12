@@ -72,6 +72,7 @@ class UsersPump implements PumpInterface
             }
 
             $user = new User;
+            $user->setAccounting(new Accounting);
             $user->setUsername($this->getUsername($record));
             $user->setPassword($record['password'] ?? "");
             $user->setEmail($record['email']);
