@@ -8,6 +8,10 @@ use App\Entity\GatewayCheckout;
 use App\Entity\GatewayCheckoutStatus;
 use App\Entity\Money;
 use App\Entity\Project;
+use App\Library\Economy\Payment\CashGateway;
+use App\Library\Economy\Payment\CecaGateway;
+use App\Library\Economy\Payment\DropGateway;
+use App\Library\Economy\Payment\PaypalGateway;
 use App\Library\Economy\Payment\StripeGateway;
 use App\Library\Economy\Payment\WalletGateway;
 use App\Repository\ProjectRepository;
@@ -82,6 +86,10 @@ class InvestsPump implements PumpInterface
                 continue;
             }
 
+            if (!$data['method'] || empty($data['method'])) {
+                continue;
+            }
+
             $user = $users[$data['user']];
             $project = $projects[$data['project']];
 
@@ -152,13 +160,11 @@ class InvestsPump implements PumpInterface
 
     private function getCheckoutStatus(array $data): GatewayCheckoutStatus
     {
-        if ($data['status'] === -1) {
+        if ($data['status'] < 1) {
             return GatewayCheckoutStatus::Pending;
         }
 
-        if ($data['status'] === 1) {
-            return GatewayCheckoutStatus::Charged;
-        }
+        return GatewayCheckoutStatus::Charged;
     }
 
     private function getCheckoutGateway(array $data): string
@@ -169,6 +175,22 @@ class InvestsPump implements PumpInterface
 
         if ($data['method'] === 'pool') {
             return WalletGateway::getName();
+        }
+
+        if ($data['method'] === 'tpv') {
+            return CecaGateway::getName();
+        }
+
+        if ($data['method'] === 'paypal') {
+            return PaypalGateway::getName();
+        }
+
+        if ($data['method'] === 'cash') {
+            return CashGateway::getName();
+        }
+
+        if ($data['method'] === 'drop') {
+            return DropGateway::getName();
         }
     }
 
