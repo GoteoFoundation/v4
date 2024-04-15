@@ -47,7 +47,7 @@ class Project
     private User $owner;
 
     #[API\ApiProperty(writable: true)]
-    #[ORM\Column(type: 'int', enumType: Status::class)]
+    #[ORM\Column(type: 'string', enumType: Status::class)]
     private Status $status;
 
     #[API\ApiProperty(writable: false)]

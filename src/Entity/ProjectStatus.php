@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-enum ProjectStatus: int
+enum ProjectStatus: string
 {
-    case REJECTED = 0;
-    case EDITING = 1;
-    case REVIEWING = 2;
-    case IN_CAMPAIGN = 3;
-    case FUNDED = 4;
-    case FULFILLED = 5;
-    case UNFUNDED = 6;
+    case Rejected = 'rejected';
+    case Editing = 'editing';
+    case Reviewing = 'reviewing';
+    case InCampaign = 'in_campaign';
+    case Funded = 'funded';
+    case Fulfilled = 'fulfilled';
+    case Unfunded = 'unfunded';
 }
