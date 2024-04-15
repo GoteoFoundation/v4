@@ -7,7 +7,7 @@ use ApiPlatform\Metadata as API;
 use App\Repository\ProjectRepository;
 use App\Entity\ProjectStatus as Status;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\Entity;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
  * Projects describe a community-led event that is to be discovered, developed and funded by other Users.\
@@ -53,6 +53,8 @@ class Project
     #[Orm\Column()]
     #[API\ApiProperty(writable: false)]
     private int $amount;
+
+    use TimestampableEntity;
 
     public function __construct()
     {
@@ -108,7 +110,7 @@ class Project
         return $this;
     }
 
-    public function getStatus(): string
+    public function getStatus(): Status
     {
         return $this->status;
     }
