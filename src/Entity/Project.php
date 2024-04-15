@@ -50,9 +50,9 @@ class Project
     #[ORM\Column(type: 'int', enumType: Status::class)]
     private Status $status;
 
-    #[Orm\Column()]
     #[API\ApiProperty(writable: false)]
-    private int $amount;
+    #[ORM\Column(type: 'int')]
+    private ?Money $amount;
 
     use TimestampableEntity;
 
