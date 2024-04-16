@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Dto\GatewayCheckoutUpdateDto;
 use App\Repository\GatewayCheckoutRepository;
@@ -49,6 +50,7 @@ class GatewayCheckout
      * The status of the checkout with the Gateway.
      */
     #[API\ApiProperty(writable: false)]
+    #[API\ApiFilter(SearchFilter::class)]
     #[ORM\Column()]
     private ?GatewayCheckoutStatus $status = null;
 
@@ -57,6 +59,7 @@ class GatewayCheckout
      */
     #[GatewayName]
     #[Assert\NotBlank()]
+    #[API\ApiFilter(SearchFilter::class)]
     #[ORM\Column(length: 255)]
     private ?string $gateway = null;
 
@@ -64,6 +67,7 @@ class GatewayCheckout
      * An external identifier provided by the Gateway for the payment.\
      * Required when a GatewayCheckout is completed.
      */
+    #[API\ApiFilter(SearchFilter::class)]
     #[ORM\Column(length: 255)]
     private ?string $gatewayReference = null;
 
@@ -80,6 +84,12 @@ class GatewayCheckout
     #[API\ApiProperty(writable: false)]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $migratedReference = null;
+
+    /**
+     * A free-form collection of additional data associated with this checkout operation.
+     */
+    #[ORM\Column(nullable: true)]
+    private ?array $metadata = null;
 
     public function __construct()
     {
@@ -184,6 +194,18 @@ class GatewayCheckout
     public function setMigratedReference(?string $migratedReference): static
     {
         $this->migratedReference = $migratedReference;
+
+        return $this;
+    }
+
+    public function getMetadata(): ?array
+    {
+        return $this->metadata;
+    }
+
+    public function setMetadata(?array $metadata): static
+    {
+        $this->metadata = $metadata;
 
         return $this;
     }
