@@ -113,6 +113,18 @@ class InvestsPump implements PumpInterface
             $checkout->setGatewayReference($this->getCheckoutReference($record));
             $checkout->setMigrated(true);
             $checkout->setMigratedReference($record['id']);
+            $checkout->setMetadata([
+                'payment' => $record['payment'],
+                'transaction' => $record['transaction'],
+                'preapproval' => $record['preapproval']
+            ]);
+
+            $this->entityManager->persist($charge);
+            $this->entityManager->persist($checkout);
+
+            if ($checkout->getStatus() === GatewayCheckoutStatus::Pending) {
+                continue;
+            }
         }
 
         $this->entityManager->flush();
