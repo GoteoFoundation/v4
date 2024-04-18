@@ -7,6 +7,46 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class UsersPump implements PumpInterface
 {
+    use ArrayPumpTrait;
+    use ProgressivePumpTrait;
+
+    private const USER_KEYS = [
+        'id',
+        'name',
+        'location',
+        'email',
+        'password',
+        'gender',
+        'birthyear',
+        'entity_type',
+        'legal_entity',
+        'origin_register',
+        'about',
+        'keywords',
+        'active',
+        'avatar',
+        'contribution',
+        'twitter',
+        'facebook',
+        'instagram',
+        'identica',
+        'linkedin',
+        'amount',
+        'num_patron',
+        'num_patron_active',
+        'worth',
+        'created',
+        'modified',
+        'token',
+        'rememberme',
+        'hide',
+        'confirmed',
+        'lang',
+        'node',
+        'num_invested',
+        'num_owned',
+    ];
+
     public function __construct(
         private EntityManagerInterface $entityManager
     ) {
@@ -18,30 +58,27 @@ class UsersPump implements PumpInterface
             return false;
         }
 
-        if (!\array_key_exists('email', $data[0]) && !\array_key_exists('password', $data[0])) {
-            return false;
-        }
-
-        return true;
+        return $this->hasAllKeys($data[0], self::USER_KEYS);
     }
 
     public function process(mixed $data): void
     {
-        foreach ($data as $key => $userData) {
-            $username = $this->normalizeUsername($userData['id']);
-            if (!$username) {
-                $username = $this->normalizeUsername($userData['email']);
+        $pumped = $this->getPumped(User::class, $data, ['migratedReference' => 'id']);
+
+        foreach ($data as $key => $record) {
+            if ($this->isPumped($record, $pumped)) {
+                continue;
             }
 
             $user = new User;
-            $user->setUsername($username);
-            $user->setPassword($userData['password'] ?? "");
-            $user->setEmail($userData['email']);
-            $user->setName($userData['name']);
+            $user->setUsername($this->getUsername($record));
+            $user->setPassword($record['password'] ?? "");
+            $user->setEmail($record['email']);
+            $user->setName($record['name']);
             $user->setActive(false);
             $user->setConfirmed(false);
             $user->setMigrated(true);
-            $user->setMigratedReference($userData['id']);
+            $user->setMigratedReference($record['id']);
 
             $this->entityManager->persist($user);
         }
@@ -63,6 +100,17 @@ class UsersPump implements PumpInterface
 
         if (strlen(str_replace('_', '', $username)) < 1) {
             return null;
+        }
+
+        return $username;
+    }
+
+    private function getUsername(array $data): string
+    {
+        $username = $this->normalizeUsername($data['id']);
+
+        if (!$username) {
+            $username = $this->normalizeUsername($data['email']);
         }
 
         return $username;

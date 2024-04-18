@@ -90,7 +90,6 @@ EOF
         }, $pumps));
 
         $io->writeln(sprintf("Processing %d records.", $streamSize));
-
         $progress = $io->createProgressBar();
         $progress->start($streamSize);
 
@@ -107,6 +106,7 @@ EOF
         $stream->close();
         $progress->finish();
 
+        $io->writeln("\n");
         $io->success("Data processed successfully!");
 
         return Command::SUCCESS;
