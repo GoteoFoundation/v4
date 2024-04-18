@@ -22,6 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Post(processor: GatewayCheckoutProcessor::class)]
 #[API\Get()]
 #[API\Patch(input: GatewayCheckoutUpdateDto::class, processor: GatewayCheckoutUpdateProcessor::class)]
+#[API\ApiFilter(filterClass: SearchFilter::class, properties: ['origin' => 'exact', 'charges.target' => 'exact'])]
 #[ORM\Entity(repositoryClass: GatewayCheckoutRepository::class)]
 class GatewayCheckout
 {
