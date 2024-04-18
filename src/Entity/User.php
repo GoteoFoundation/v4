@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
 use App\Entity\Interface\UserOwnedInterface;
+use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -30,6 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Delete(security: 'is_granted("USER_EDIT", object)')]
 #[API\Patch(security: 'is_granted("USER_EDIT", object)')]
 #[API\ApiFilter(filterClass: UserQueryFilter::class, properties: ['query'])]
+#[API\ApiFilter(filterClass: OrderedLikeFilter::class, properties: ['username'])]
 #[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
 #[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
