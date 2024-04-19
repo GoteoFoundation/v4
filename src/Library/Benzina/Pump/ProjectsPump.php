@@ -120,12 +120,15 @@ class ProjectsPump implements PumpInterface
 
             $project = new Project;
             $project->setTitle($data['name']);
-            $project->setAccounting($this->getAccounting($data));
             $project->setOwner($owners[$data['owner']]);
             $project->setMigrated(true);
             $project->setMigratedReference($data['id']);
 
+            $accounting = $this->getAccounting($data);
+            $accounting->setProject($project);
+
             $this->entityManager->persist($project);
+            $this->entityManager->persist($accounting);
         }
 
         $this->entityManager->flush();
