@@ -83,8 +83,6 @@ class Project
     public function setAccounting(Accounting $accounting): static
     {
         $this->accounting = $accounting;
-        $this->accounting->setOwnerId($this->id);
-        $this->accounting->setOwnerClass(self::class);
 
         return $this;
     }
