@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
 use App\Repository\AccountingRepository;
+use App\Service\ApiResourceNormalizer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -43,6 +44,12 @@ class Accounting
     #[API\ApiProperty(writable: false, readable: false)]
     #[ORM\Column(length: 255)]
     private ?string $ownerClass = null;
+
+    #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
+    private ?User $user = null;
+
+    #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
+    private ?Project $project = null;
 
     public function __construct()
     {
@@ -120,26 +127,61 @@ class Accounting
 
     public function setOwnerClass(string $ownerClass): static
     {
+        // ensure ownership does not change
+        if (
+            $this->ownerClass !== null &&
+            $this->ownerClass !== $ownerClass
+        ) {
+            throw new \Exception("Are you trying to commit fraud? Cannot change ownership of an Accounting.");
+        }
+
         $this->ownerClass = $ownerClass;
 
         return $this;
     }
 
-    /**
-     * The type of the owner resource.
-     */
     public function getOwnerResource(): string
     {
-        $classPieces = explode('\\', $this->getOwnerClass());
-
-        return end($classPieces);
+        return ApiResourceNormalizer::toResource($this->ownerClass);
     }
 
-     /**
-     * The ID of the recorded resource.
-     */
-    public function getOwnerResourceId(): int
+    public function getUser(): ?User
     {
-        return $this->getOwnerId();
+        return $this->user;
+    }
+
+    public function setUser(User $user): static
+    {
+        // set the owning side of the relation if necessary
+        if ($user->getAccounting() !== $this) {
+            $user->setAccounting($this);
+        }
+
+        // set the owner class
+        $this->setOwnerClass($user::class);
+
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function getProject(): ?Project
+    {
+        return $this->project;
+    }
+
+    public function setProject(Project $project): static
+    {
+        // set the owning side of the relation if necessary
+        if ($project->getAccounting() !== $this) {
+            $project->setAccounting($this);
+        }
+
+        // set the owner class
+        $this->setOwnerClass($project::class);
+
+        $this->project = $project;
+
+        return $this;
     }
 }

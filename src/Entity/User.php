@@ -81,8 +81,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
-    #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
 

@@ -31,8 +31,7 @@ class Project
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'project', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
 

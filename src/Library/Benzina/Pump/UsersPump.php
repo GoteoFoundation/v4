@@ -82,7 +82,11 @@ class UsersPump implements PumpInterface
             $user->setMigrated(true);
             $user->setMigratedReference($record['id']);
 
+            $accounting = new Accounting();
+            $accounting->setUser($user);
+
             $this->entityManager->persist($user);
+            $this->entityManager->persist($accounting);
         }
 
         $this->entityManager->flush();
