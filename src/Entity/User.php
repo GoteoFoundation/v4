@@ -81,8 +81,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
-    #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
 
@@ -122,9 +121,6 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     public function __construct()
     {
         $this->migrated = false;
-
-        $this->accounting = new Accounting();
-        $this->accounting->setOwnerClass(User::class);
 
         $this->tokens = new ArrayCollection();
     }
