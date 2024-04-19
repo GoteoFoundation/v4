@@ -5,6 +5,7 @@ namespace App\ApiResource;
 use ApiPlatform\Metadata as API;
 use App\Filter\VersionResourceFilter;
 use App\Filter\VersionResourceIdFilter;
+use App\Service\ApiResourceNormalizer;
 use App\State\VersionStateProvider;
 use Gedmo\Loggable\Entity\LogEntry;
 
@@ -55,9 +56,7 @@ class Version
      */
     public function getResource(): string
     {
-        $classPieces = explode('\\', $this->log->getObjectClass());
-
-        return end($classPieces);
+        return ApiResourceNormalizer::toResource($this->log->getObjectClass());
     }
 
     /**
