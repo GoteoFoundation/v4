@@ -47,6 +47,9 @@ class Accounting
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
     private ?Project $project = null;
 
+    #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
+    private ?Tipjar $tipjar = null;
+
     public function __construct()
     {
         /**
@@ -165,6 +168,26 @@ class Accounting
         $this->setOwnerClass($project::class);
 
         $this->project = $project;
+
+        return $this;
+    }
+
+    public function getTipjar(): ?Tipjar
+    {
+        return $this->tipjar;
+    }
+
+    public function setTipjar(Tipjar $tipjar): static
+    {
+        // set the owning side of the relation if necessary
+        if ($tipjar->getAccounting() !== $this) {
+            $tipjar->setAccounting($this);
+        }
+
+        // set the owner class
+        $this->setOwnerClass($tipjar::class);
+
+        $this->tipjar = $tipjar;
 
         return $this;
     }
