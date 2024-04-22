@@ -2,12 +2,13 @@
 
 namespace App\Library\Benzina\Pump;
 
+use App\Entity\Accounting;
 use App\Entity\GatewayCharge;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
 use App\Entity\GatewayCheckoutStatus;
 use App\Entity\Money;
-use App\Entity\Project;
+use App\Entity\Tipjar;
 use App\Library\Economy\Payment\CashGateway;
 use App\Library\Economy\Payment\CecaGateway;
 use App\Library\Economy\Payment\DropGateway;
@@ -15,6 +16,7 @@ use App\Library\Economy\Payment\PaypalGateway;
 use App\Library\Economy\Payment\StripeGateway;
 use App\Library\Economy\Payment\WalletGateway;
 use App\Repository\ProjectRepository;
+use App\Repository\TipjarRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -22,6 +24,8 @@ class InvestsPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use ProgressivePumpTrait;
+
+    private const PLATFORM_TIPJAR_NAME = 'platform';
 
     private const MAX_INT = 2147483647;
 
@@ -60,6 +64,7 @@ class InvestsPump implements PumpInterface
     public function __construct(
         private UserRepository $userRepository,
         private ProjectRepository $projectRepository,
+        private TipjarRepository $tipjarRepository,
         private EntityManagerInterface $entityManager
     ) {
     }
@@ -77,6 +82,8 @@ class InvestsPump implements PumpInterface
     {
         $users = $this->getUsers($data);
         $projects = $this->getProjects($data);
+
+        $tipjar = $this->getPlatformTipjar();
 
         $pumped = $this->getPumped(GatewayCheckout::class, $data, ['migratedReference' => 'id']);
 
@@ -100,14 +107,8 @@ class InvestsPump implements PumpInterface
             $user = $users[$record['user']];
             $project = $projects[$record['project']];
 
-            $charge = new GatewayCharge;
-            $charge->setType($this->getChargeType($record));
-            $charge->setMoney($this->getChargeMoney($record, $project));
-            $charge->setTarget($project->getAccounting());
-
             $checkout = new GatewayCheckout;
             $checkout->setOrigin($user->getAccounting());
-            $checkout->addCharge($charge);
             $checkout->setStatus($this->getCheckoutStatus($record));
             $checkout->setGateway($this->getCheckoutGateway($record));
             $checkout->setGatewayReference($this->getCheckoutReference($record));
@@ -119,7 +120,29 @@ class InvestsPump implements PumpInterface
                 'preapproval' => $record['preapproval']
             ]);
 
+            $charge = new GatewayCharge;
+            $charge->setType($this->getChargeType($record));
+            $charge->setMoney($this->getChargeMoney($record['amount'], $record['currency']));
+            $charge->setTarget($project->getAccounting());
+
+            if ($record['donate_amount'] > 0) {
+                $charge->setMoney($this->getChargeMoney(
+                    $record['amount'] - $record['donate_amount'],
+                    $record['currency']
+                ));
+
+                $tip = new GatewayCharge;
+                $tip->setType(GatewayChargeType::Single);
+                $tip->setMoney($this->getChargeMoney($record['donate_amount'], $record['currency']));
+                $tip->setTarget($tipjar->getAccounting());
+
+                $this->entityManager->persist($tip);
+                $checkout->addCharge($tip);
+            }
+
             $this->entityManager->persist($charge);
+            $checkout->addCharge($charge);
+
             $this->entityManager->persist($checkout);
 
             if ($checkout->getStatus() === GatewayCheckoutStatus::Pending) {
@@ -159,6 +182,27 @@ class InvestsPump implements PumpInterface
         return $projectsByMigratedReference;
     }
 
+    private function getPlatformTipjar(): Tipjar
+    {
+        $tipjar = $this->tipjarRepository->findOneBy(['name' => self::PLATFORM_TIPJAR_NAME]);
+
+        if ($tipjar) {
+            return $tipjar;
+        }
+
+        $tipjar = new Tipjar;
+        $tipjar->setName(SELF::PLATFORM_TIPJAR_NAME);
+
+        $accounting = new Accounting;
+        $accounting->setTipjar($tipjar);
+
+        $this->entityManager->persist($tipjar);
+        $this->entityManager->persist($accounting);
+        $this->entityManager->flush();
+
+        return $tipjar;
+    }
+
     private function getChargeType(array $record): GatewayChargeType
     {
         if (\in_array($record['method'], ['stripe_subscription'])) {
@@ -168,15 +212,15 @@ class InvestsPump implements PumpInterface
         return GatewayChargeType::Single;
     }
 
-    private function getChargeMoney(array $record, Project $project): Money
+    private function getChargeMoney(int $amount, string $currency): Money
     {
-        $amount = $record['amount'] * 100;
+        $amount = $amount * 100;
 
         if ($amount >= self::MAX_INT) {
             $amount = self::MAX_INT;
         }
 
-        return new Money($amount, $project->getAccounting()->getCurrency());
+        return new Money($amount, $currency);
     }
 
     private function getCheckoutStatus(array $record): GatewayCheckoutStatus
