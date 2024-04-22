@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata as API;
 use App\Repository\GatewayChargeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -10,8 +9,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * A GatewayCharge represents a monetary payment that can be done by an issuer at checkout with the Gateway.
  */
-#[API\Post()]
-#[API\Get()]
 #[ORM\Entity(repositoryClass: GatewayChargeRepository::class)]
 class GatewayCharge
 {
