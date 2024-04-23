@@ -5,6 +5,7 @@ namespace App\Filter;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use App\Service\VersionedResourceService;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
@@ -14,10 +15,11 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 final class VersionResourceFilter extends AbstractFilter
 {
     public function __construct(
+        private VersionedResourceService $versionedResourceService,
         protected ManagerRegistry $managerRegistry,
         ?LoggerInterface $logger = null,
         protected ?array $properties = null,
-        protected ?NameConverterInterface $nameConverter = null
+        protected ?NameConverterInterface $nameConverter = null,
     ) {
         parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
     }
@@ -45,7 +47,7 @@ final class VersionResourceFilter extends AbstractFilter
                 'description' => 'The name of the resource.',
                 'schema' => [
                     'type' => Type::BUILTIN_TYPE_STRING,
-                    'enum' => ['User']
+                    'enum' => $this->versionedResourceService->getNames()
                 ],
                 'openapi' => [
                     'allowEmptyValue' => false,
