@@ -5,25 +5,11 @@ namespace App\Filter;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
-use App\Service\VersionedResourceService;
 use Doctrine\ORM\QueryBuilder;
-use Doctrine\Persistence\ManagerRegistry;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\PropertyInfo\Type;
-use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
-final class VersionResourceFilter extends AbstractFilter
+final class ResourceVersionResourceIdFilter extends AbstractFilter
 {
-    public function __construct(
-        private VersionedResourceService $versionedResourceService,
-        protected ManagerRegistry $managerRegistry,
-        ?LoggerInterface $logger = null,
-        protected ?array $properties = null,
-        protected ?NameConverterInterface $nameConverter = null,
-    ) {
-        parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
-    }
-
     protected function filterProperty(
         string $property,
         $value,
@@ -42,13 +28,9 @@ final class VersionResourceFilter extends AbstractFilter
         foreach ($this->properties as $property => $strategy) {
             $description["$property"] = [
                 'property' => $property,
-                'type' => Type::BUILTIN_TYPE_STRING,
+                'type' => Type::BUILTIN_TYPE_INT,
                 'required' => true,
-                'description' => 'The name of the resource.',
-                'schema' => [
-                    'type' => Type::BUILTIN_TYPE_STRING,
-                    'enum' => $this->versionedResourceService->getNames()
-                ],
+                'description' => 'The ID of the named resource.',
                 'openapi' => [
                     'allowEmptyValue' => false,
                 ],

@@ -12,7 +12,7 @@ use Gedmo\Loggable\Entity\LogEntry;
 use Gedmo\Loggable\Entity\Repository\LogEntryRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class VersionStateProvider implements ProviderInterface
+class ResourceVersionStateProvider implements ProviderInterface
 {
     private LogEntryRepository $versionRepository;
 
