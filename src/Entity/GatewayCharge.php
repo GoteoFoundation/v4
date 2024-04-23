@@ -17,14 +17,23 @@ class GatewayCharge
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * The type of a GatewayCharge represents the kind of payment.
+     */
     #[Assert\NotBlank()]
     #[ORM\Column()]
     private ?GatewayChargeType $type = null;
 
+    /**
+     * The charged monetary sum.
+     */
     #[Assert\NotBlank()]
     #[ORM\Embedded(Money::class)]
     private ?Money $money = null;
 
+    /**
+     * The Accounting receiving the consequent Transaction for this GatewayCharge.
+     */
     #[Assert\NotBlank()]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
