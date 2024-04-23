@@ -119,6 +119,8 @@ class InvestsPump implements PumpInterface
                 'transaction' => $record['transaction'],
                 'preapproval' => $record['preapproval']
             ]);
+            $checkout->setCreatedAt(new \DateTime($record['invested']));
+            $checkout->setUpdatedAt(new \DateTime());
 
             $charge = new GatewayCharge;
             $charge->setType($this->getChargeType($record));
