@@ -12,12 +12,14 @@ use App\Validator\GatewayName;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * A GatewayCheckout bundles the data to perform a charge operation at a Gateway.
  * Use it in order to create Transactions and have the transferred money be backed by a Gateway's payment processing.
  */
+#[Gedmo\Loggable()]
 #[API\GetCollection()]
 #[API\Post(processor: GatewayCheckoutProcessor::class)]
 #[API\Get()]
@@ -51,6 +53,7 @@ class GatewayCheckout
     /**
      * The status of the checkout with the Gateway.
      */
+    #[Gedmo\Versioned]
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(SearchFilter::class)]
     #[ORM\Column()]
