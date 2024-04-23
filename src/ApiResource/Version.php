@@ -68,21 +68,6 @@ class Version
     }
 
     /**
-     * The full resource data, reconstructed from the current resource data merged with versioned data.
-     */
-    public function getResourceData()
-    {
-        $entity = $this->entity;
-
-        foreach ($this->log->getData() as $changedProperty => $changedValue) {
-            $setter = sprintf("set%s", ucfirst($changedProperty));
-            $entity->$setter($changedValue);
-        }
-
-        return $entity;
-    }
-
-    /**
      * The changed resource data, i.e the new values of the changed properties.
      */
     public function getResourceChanges()
