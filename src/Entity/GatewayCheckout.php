@@ -40,6 +40,7 @@ class GatewayCheckout
      * The Accounting that will issue the Transactions of the GatewayCharges after a successful checkout.
      */
     #[Assert\NotBlank()]
+    #[API\ApiProperty(readableLink: true)]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $origin = null;
