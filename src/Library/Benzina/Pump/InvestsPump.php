@@ -128,11 +128,6 @@ class InvestsPump implements PumpInterface
             $charge->setTarget($project->getAccounting());
 
             if ($record['donate_amount'] > 0) {
-                $charge->setMoney($this->getChargeMoney(
-                    $record['amount'] - $record['donate_amount'],
-                    $record['currency']
-                ));
-
                 $tip = new GatewayCharge;
                 $tip->setType(GatewayChargeType::Single);
                 $tip->setMoney($this->getChargeMoney($record['donate_amount'], $record['currency']));
