@@ -50,10 +50,6 @@ class Project
     #[ORM\Column(type: 'string', enumType: Status::class)]
     private Status $status;
 
-    #[API\ApiProperty(writable: false)]
-    #[ORM\Column(type: 'int')]
-    private ?Money $amount;
-
     use TimestampableEntity;
 
     public function __construct()
@@ -113,17 +109,5 @@ class Project
     public function getStatus(): Status
     {
         return $this->status;
-    }
-
-    public function setAmount(int $amount): static
-    {
-        $this->amount = $amount;
-
-        return $this;
-    }
-
-    public function getAmount(): int
-    {
-        return $this->amount;
     }
 }
