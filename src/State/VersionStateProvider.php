@@ -6,6 +6,7 @@ use ApiPlatform\Metadata as API;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Version;
+use App\Service\ApiResourceNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Loggable\Entity\LogEntry;
 use Gedmo\Loggable\Entity\Repository\LogEntryRepository;
@@ -53,9 +54,11 @@ class VersionStateProvider implements ProviderInterface
     /**
      * @return Version[]
      */
-    private function getVersions(string $resource, int $resourceId): array
+    private function getVersions(string $resourceName, int $resourceId): array
     {
-        $entity = $this->entityManager->find($this->resourceToEntity($resource), $resourceId);
+        $resourceClass = ApiResourceNormalizer::toEntity($resourceName);
+
+        $entity = $this->entityManager->find($resourceClass, $resourceId);
         $logs = $this->versionRepository->getLogEntries($entity);
 
         $versions = [];
@@ -64,10 +67,5 @@ class VersionStateProvider implements ProviderInterface
         }
 
         return $versions;
-    }
-
-    private function resourceToEntity(string $resource): string
-    {
-        return sprintf("App\\Entity\\%s", ucfirst(strtolower($resource)));
     }
 }

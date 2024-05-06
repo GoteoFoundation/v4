@@ -2,9 +2,10 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Entity\Interface\UserOwnedInterface;
+use App\Filter\OrderedLikeFilter;
+use App\Filter\UserQueryFilter;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -29,10 +30,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Put(security: 'is_granted("USER_EDIT", object)')]
 #[API\Delete(security: 'is_granted("USER_EDIT", object)')]
 #[API\Patch(security: 'is_granted("USER_EDIT", object)')]
-#[API\ApiFilter(filterClass: SearchFilter::class, properties: [
-    'username' => 'partial',
-    'name' => 'partial'
-])]
+#[API\ApiFilter(filterClass: UserQueryFilter::class, properties: ['query'])]
+#[API\ApiFilter(filterClass: OrderedLikeFilter::class, properties: ['username'])]
 #[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
 #[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -82,8 +81,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
-    #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
 
@@ -123,9 +121,6 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     public function __construct()
     {
         $this->migrated = false;
-
-        $this->accounting = new Accounting();
-        $this->accounting->setOwnerClass(User::class);
 
         $this->tokens = new ArrayCollection();
     }
