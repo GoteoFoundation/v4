@@ -5,7 +5,9 @@ namespace App\Entity;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Repository\ProjectRepository;
+use App\Entity\ProjectStatus as Status;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
  * Projects describe a community-led event that is to be discovered, developed and funded by other Users.\
@@ -19,7 +21,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[API\Put(security: 'is_granted("AUTH_PROJECT_EDIT")')]
 #[API\Delete(security: 'is_granted("AUTH_PROJECT_EDIT")')]
 #[API\Patch(security: 'is_granted("AUTH_PROJECT_EDIT")')]
-#[API\ApiFilter(filterClass: SearchFilter::class, properties: ['title' => 'partial'])]
+#[API\ApiFilter(filterClass: SearchFilter::class, properties: [
+    'title' => 'partial',
+    'status', 'owner'
+])]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project
 {
@@ -34,6 +39,17 @@ class Project
     #[ORM\OneToOne(inversedBy: 'project', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
+
+    #[API\ApiProperty(writable: false)]
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private User $owner;
+
+    #[API\ApiProperty(writable: true)]
+    #[ORM\Column(type: 'string', enumType: Status::class)]
+    private Status $status;
+
+    use TimestampableEntity;
 
     public function getId(): ?int
     {
@@ -62,5 +78,29 @@ class Project
         $this->accounting = $accounting;
 
         return $this;
+    }
+
+    public function setOwner(User $owner): static
+    {
+        $this->owner = $owner;
+
+        return $this;
+    }
+
+    public function getOwner(): User
+    {
+        return $this->owner;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getStatus(): Status
+    {
+        return $this->status;
     }
 }
