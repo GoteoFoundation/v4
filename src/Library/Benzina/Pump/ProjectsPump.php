@@ -4,6 +4,7 @@ namespace App\Library\Benzina\Pump;
 
 use App\Entity\Accounting;
 use App\Entity\Project;
+use App\Entity\ProjectStatus;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -109,22 +110,23 @@ class ProjectsPump implements PumpInterface
     {
         $owners = $this->getOwners($data);
 
-        foreach ($data as $key => $data) {
-            if (!\array_key_exists($data['owner'], $owners)) {
+        foreach ($data as $key => $record) {
+            if (!\array_key_exists($record['owner'], $owners)) {
                 continue;
             }
 
-            if (empty($data['name'])) {
+            if (empty($record['name'])) {
                 continue;
             }
 
             $project = new Project;
-            $project->setTitle($data['name']);
-            $project->setOwner($owners[$data['owner']]);
+            $project->setTitle($record['name']);
+            $project->setOwner($owners[$record['owner']]);
+            $project->setStatus($this->getProjectStatus($record['status']));
             $project->setMigrated(true);
-            $project->setMigratedReference($data['id']);
+            $project->setMigratedReference($record['id']);
 
-            $accounting = $this->getAccounting($data);
+            $accounting = $this->getAccounting($record);
             $accounting->setProject($project);
 
             $this->entityManager->persist($project);
@@ -152,10 +154,30 @@ class ProjectsPump implements PumpInterface
         return $owners;
     }
 
-    private function getAccounting(array $data): Accounting
+    private function getProjectStatus(int $status): ProjectStatus
+    {
+        switch ($status) {
+            case 0:
+                return ProjectStatus::Rejected;
+            case 1:
+                return ProjectStatus::Editing;
+            case 2:
+                return ProjectStatus::Reviewing;
+            case 3:
+                return ProjectStatus::InCampaign;
+            case 4:
+                return ProjectStatus::Funded;
+            case 5:
+                return ProjectStatus::Fulfilled;
+            case 6:
+                return ProjectStatus::Unfunded;
+        }
+    }
+
+    private function getAccounting(array $record): Accounting
     {
         $accounting = new Accounting;
-        $accounting->setCurrency($data['currency']);
+        $accounting->setCurrency($record['currency']);
 
         return $accounting;
     }
