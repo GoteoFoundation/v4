@@ -5,7 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Repository\ProjectRepository;
-use App\Entity\ProjectStatus as Status;
+use App\Entity\ProjectStatus;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
@@ -48,8 +48,8 @@ class Project
     private ?User $owner = null;
 
     #[API\ApiProperty(writable: true)]
-    #[ORM\Column(type: 'string', enumType: Status::class)]
-    private Status $status;
+    #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
+    private ProjectStatus $status;
 
     /**
      * Project was migrated from Goteo v3 platform.
@@ -111,12 +111,12 @@ class Project
         return $this;
     }
 
-    public function getStatus(): Status
+    public function getStatus(): ProjectStatus
     {
         return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(ProjectStatus $status): static
     {
         $this->status = $status;
 
