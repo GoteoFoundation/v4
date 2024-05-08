@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class ProjectsPump implements PumpInterface
 {
     use ArrayPumpTrait;
+    use ProgressivePumpTrait;
 
     private const PROJECT_KEYS = [
         'id',
@@ -108,9 +109,14 @@ class ProjectsPump implements PumpInterface
 
     public function process(mixed $data): void
     {
+        $pumped = $this->getPumped(Project::class, $data, ['migratedReference' => 'id']);
         $owners = $this->getOwners($data);
 
         foreach ($data as $key => $record) {
+            if ($this->isPumped($record, $pumped)) {
+                continue;
+            }
+
             if (!\array_key_exists($record['owner'], $owners)) {
                 continue;
             }
