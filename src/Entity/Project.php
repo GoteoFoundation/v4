@@ -5,7 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Repository\ProjectRepository;
-use App\Entity\ProjectStatus as Status;
+use App\Entity\ProjectStatus;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
@@ -28,6 +28,8 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project
 {
+    use TimestampableEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -41,15 +43,32 @@ class Project
     private ?Accounting $accounting = null;
 
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(inversedBy: 'projects')]
     #[ORM\JoinColumn(nullable: false)]
-    private User $owner;
+    private ?User $owner = null;
 
     #[API\ApiProperty(writable: true)]
-    #[ORM\Column(type: 'string', enumType: Status::class)]
-    private Status $status;
+    #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
+    private ProjectStatus $status;
 
-    use TimestampableEntity;
+    /**
+     * Project was migrated from Goteo v3 platform.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\Column]
+    private ?bool $migrated = null;
+
+    /**
+     * The previous id of this Project in the Goteo v3 platform.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $migratedReference = null;
+
+    public function __construct()
+    {
+        $this->migrated = false;
+    }
 
     public function getId(): ?int
     {
@@ -80,6 +99,11 @@ class Project
         return $this;
     }
 
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
     public function setOwner(User $owner): static
     {
         $this->owner = $owner;
@@ -87,20 +111,39 @@ class Project
         return $this;
     }
 
-    public function getOwner(): User
+    public function getStatus(): ProjectStatus
     {
-        return $this->owner;
+        return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(ProjectStatus $status): static
     {
         $this->status = $status;
 
         return $this;
     }
 
-    public function getStatus(): Status
+    public function isMigrated(): ?bool
     {
-        return $this->status;
+        return $this->migrated;
+    }
+
+    public function setMigrated(bool $migrated): static
+    {
+        $this->migrated = $migrated;
+
+        return $this;
+    }
+
+    public function getMigratedReference(): ?string
+    {
+        return $this->migratedReference;
+    }
+
+    public function setMigratedReference(?string $migratedReference): static
+    {
+        $this->migratedReference = $migratedReference;
+
+        return $this;
     }
 }
