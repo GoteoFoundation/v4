@@ -231,28 +231,21 @@ class InvestsPump implements PumpInterface
 
     private function getCheckoutGateway(array $record): string
     {
-        if ($record['method'] === 'stripe_subscription') {
-            return StripeGateway::getName();
-        }
-
-        if ($record['method'] === 'pool') {
-            return WalletGateway::getName();
-        }
-
-        if ($record['method'] === 'tpv') {
-            return CecaGateway::getName();
-        }
-
-        if ($record['method'] === 'paypal') {
-            return PaypalGateway::getName();
-        }
-
-        if ($record['method'] === 'cash') {
-            return CashGateway::getName();
-        }
-
-        if ($record['method'] === 'drop') {
-            return DropGateway::getName();
+        switch ($record['method']) {
+            case 'stripe_subscription':
+                return StripeGateway::getName();
+            case 'pool':
+                return WalletGateway::getName();
+            case 'paypal':
+                return PaypalGateway::getName();
+            case 'tpv':
+                return CecaGateway::getName();
+            case 'cash':
+                return CashGateway::getName();
+            case 'drop':
+                return DropGateway::getName();
+            default:
+                return '';
         }
     }
 
