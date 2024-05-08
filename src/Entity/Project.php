@@ -5,7 +5,9 @@ namespace App\Entity;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Repository\ProjectRepository;
+use App\Entity\ProjectStatus;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
  * Projects describe a community-led event that is to be discovered, developed and funded by other Users.\
@@ -19,10 +21,15 @@ use Doctrine\ORM\Mapping as ORM;
 #[API\Put(security: 'is_granted("AUTH_PROJECT_EDIT")')]
 #[API\Delete(security: 'is_granted("AUTH_PROJECT_EDIT")')]
 #[API\Patch(security: 'is_granted("AUTH_PROJECT_EDIT")')]
-#[API\ApiFilter(filterClass: SearchFilter::class, properties: ['title' => 'partial'])]
+#[API\ApiFilter(filterClass: SearchFilter::class, properties: [
+    'title' => 'partial',
+    'status', 'owner'
+])]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project
 {
+    use TimestampableEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -35,9 +42,14 @@ class Project
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
 
+    #[API\ApiProperty(writable: false)]
     #[ORM\ManyToOne(inversedBy: 'projects')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $owner = null;
+
+    #[API\ApiProperty(writable: true)]
+    #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
+    private ProjectStatus $status;
 
     /**
      * Project was migrated from Goteo v3 platform.
@@ -92,9 +104,21 @@ class Project
         return $this->owner;
     }
 
-    public function setOwner(?User $owner): static
+    public function setOwner(User $owner): static
     {
         $this->owner = $owner;
+
+        return $this;
+    }
+
+    public function getStatus(): ProjectStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(ProjectStatus $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }
