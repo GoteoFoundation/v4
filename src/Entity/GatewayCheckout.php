@@ -11,6 +11,7 @@ use App\State\GatewayCheckoutUpdateProcessor;
 use App\Validator\GatewayName;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -22,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[Gedmo\Loggable()]
 #[API\GetCollection()]
-#[API\Post(processor: GatewayCheckoutProcessor::class)]
+#[API\Post(processor: GatewayCheckoutProcessor::class, validationContext: ['groups' => ['default', 'postValidation']])]
 #[API\Get()]
 #[API\Patch(input: GatewayCheckoutUpdateDto::class, processor: GatewayCheckoutUpdateProcessor::class)]
 #[API\ApiFilter(filterClass: SearchFilter::class, properties: ['origin' => 'exact', 'charges.target' => 'exact'])]
@@ -76,9 +77,17 @@ class GatewayCheckout
      * An external identifier provided by the Gateway for the payment.\
      * Required when a GatewayCheckout is completed.
      */
+    #[Assert\NotBlank(['groups' => ['postValidation']])]
     #[API\ApiFilter(SearchFilter::class)]
     #[ORM\Column(length: 255)]
     private ?string $gatewayReference = null;
+
+    /**
+     * The URL where the checkout with the Gateway is available.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $checkoutUrl = null;
 
     /**
      * GatewayCheckout was migrated from an invest record in Goteo v3 platform. 
@@ -179,6 +188,18 @@ class GatewayCheckout
     public function setGatewayReference(string $gatewayReference): static
     {
         $this->gatewayReference = $gatewayReference;
+
+        return $this;
+    }
+
+    public function getCheckoutUrl(): ?string
+    {
+        return $this->checkoutUrl;
+    }
+
+    public function setCheckoutUrl(string $checkoutUrl): static
+    {
+        $this->checkoutUrl = $checkoutUrl;
 
         return $this;
     }
