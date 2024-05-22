@@ -26,8 +26,6 @@ class GatewayCheckoutProcessor implements ProcessorInterface
         $this->entityManager->persist($data);
         $this->entityManager->flush();
 
-        $gateway->process($data);
-
-        return $data;
+        return $gateway->create($data);
     }
 }

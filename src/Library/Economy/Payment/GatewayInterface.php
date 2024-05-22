@@ -12,11 +12,11 @@ interface GatewayInterface
     public static function getName(): string;
 
     /**
-     * When processing a GatewayCheckout a Gateway must validate it using it's own means.
+     * Connects with the payment gateway and creates a checkout session to process payment.
      * 
      * Gateways are trusted to have secured the funds in the GatewayCheckout.
      * @param GatewayCheckout $checkout
      * @return GatewayCheckout
      */
-    public function process(GatewayCheckout $checkout): GatewayCheckout;
+    public function create(GatewayCheckout $checkout): GatewayCheckout;
 }
