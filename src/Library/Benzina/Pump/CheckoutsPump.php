@@ -22,7 +22,7 @@ use App\Repository\TipjarRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class InvestsPump implements PumpInterface
+class CheckoutsPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use ProgressivePumpTrait;
@@ -145,10 +145,6 @@ class InvestsPump implements PumpInterface
             $checkout->addCharge($charge);
 
             $this->entityManager->persist($checkout);
-
-            if ($checkout->getStatus() === GatewayCheckoutStatus::Pending) {
-                continue;
-            }
         }
 
         $this->entityManager->flush();
