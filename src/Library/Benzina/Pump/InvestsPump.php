@@ -9,6 +9,8 @@ use App\Entity\GatewayCheckout;
 use App\Entity\GatewayCheckoutStatus;
 use App\Entity\Money;
 use App\Entity\Tipjar;
+use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
+use App\Library\Benzina\Pump\Trait\ProgressivePumpTrait;
 use App\Library\Economy\Payment\CashGateway;
 use App\Library\Economy\Payment\CecaGateway;
 use App\Library\Economy\Payment\DropGateway;

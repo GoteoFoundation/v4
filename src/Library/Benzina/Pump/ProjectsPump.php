@@ -6,6 +6,8 @@ use App\Entity\Accounting;
 use App\Entity\Project;
 use App\Entity\ProjectStatus;
 use App\Entity\User;
+use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
+use App\Library\Benzina\Pump\Trait\ProgressivePumpTrait;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
