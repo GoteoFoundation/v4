@@ -131,6 +131,8 @@ class ProjectsPump implements PumpInterface
             $project->setStatus($this->getProjectStatus($record['status']));
             $project->setMigrated(true);
             $project->setMigratedReference($record['id']);
+            $project->setCreatedAt(new \DateTime($record['created']));
+            $project->setUpdatedAt(new \DateTime());
 
             $accounting = $this->getAccounting($record);
             $accounting->setProject($project);
