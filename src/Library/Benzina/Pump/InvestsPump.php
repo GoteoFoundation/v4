@@ -26,6 +26,7 @@ class InvestsPump implements PumpInterface
     use ProgressivePumpTrait;
 
     private const PLATFORM_TIPJAR_NAME = 'platform';
+    private const CHECKOUT_URL_DEFAULT = 'https://www.goteo.org/invest';
 
     private const MAX_INT = 2147483647;
 
@@ -112,6 +113,7 @@ class InvestsPump implements PumpInterface
             $checkout->setStatus($this->getCheckoutStatus($record));
             $checkout->setGateway($this->getCheckoutGateway($record));
             $checkout->setGatewayReference($this->getCheckoutReference($record));
+            $checkout->setCheckoutUrl(self::CHECKOUT_URL_DEFAULT);
             $checkout->setMigrated(true);
             $checkout->setMigratedReference($record['id']);
             $checkout->setMetadata([
