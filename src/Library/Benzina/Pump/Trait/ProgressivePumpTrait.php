@@ -61,8 +61,8 @@ trait ProgressivePumpTrait
     {
         if (
             $this->config !== null &&
-            \array_key_exists('progressive', $this->config) &&
-            $this->config['progressive'] === false
+            \array_key_exists('progress', $this->config) &&
+            $this->config['progress'] === false
         ) {
             return false;
         }
