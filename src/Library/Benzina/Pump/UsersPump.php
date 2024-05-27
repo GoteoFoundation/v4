@@ -8,7 +8,7 @@ use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
 use App\Library\Benzina\Pump\Trait\ProgressivePumpTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
-class UsersPump implements PumpInterface
+class UsersPump extends AbstractPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use ProgressivePumpTrait;

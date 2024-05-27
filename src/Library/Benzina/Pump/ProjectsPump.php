@@ -11,7 +11,7 @@ use App\Library\Benzina\Pump\Trait\ProgressivePumpTrait;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ProjectsPump implements PumpInterface
+class ProjectsPump extends AbstractPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use ProgressivePumpTrait;
@@ -115,7 +115,12 @@ class ProjectsPump implements PumpInterface
         $owners = $this->getOwners($data);
 
         foreach ($data as $key => $record) {
-            if ($this->isPumped($record, $pumped)) {
+            $isPumped = $this->isPumped($record, $pumped);
+
+            var_dump($isPumped);
+            exit;
+
+            if ($isPumped) {
                 continue;
             }
 

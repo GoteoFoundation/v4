@@ -22,7 +22,7 @@ use App\Repository\TipjarRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class CheckoutsPump implements PumpInterface
+class CheckoutsPump extends AbstractPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use ProgressivePumpTrait;
