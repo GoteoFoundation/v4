@@ -13,10 +13,18 @@ interface PumpInterface
     public function supports(mixed $data): bool;
 
     /**
+     * Sets flexible configuration values for this pump.
+     * 
+     * @param array|null $data The configuration array.
+     * @return void
+     */
+    public function configure(?array $config = null): void;
+
+    /**
      * Process the data to be pumped.
      * 
      * @param mixed $data The streamed records, e.g. rows from an user table
-     * @return bool
+     * @return void
      */
     public function process(mixed $data): void;
 }
