@@ -117,9 +117,6 @@ class ProjectsPump extends AbstractPump implements PumpInterface
         foreach ($data as $key => $record) {
             $isPumped = $this->isPumped($record, $pumped);
 
-            var_dump($isPumped);
-            exit;
-
             if ($isPumped) {
                 continue;
             }
