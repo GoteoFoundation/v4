@@ -34,12 +34,8 @@ class Accounting
     private ?string $currency = null;
 
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToMany(mappedBy: 'origin', targetEntity: Transaction::class)]
-    private Collection $transactionsIssued;
-
-    #[API\ApiProperty(writable: false)]
-    #[ORM\OneToMany(mappedBy: 'target', targetEntity: Transaction::class)]
-    private Collection $transactionsReceived;
+    #[ORM\OneToMany(mappedBy: 'accounting', targetEntity: AccountingStatement::class)]
+    private Collection $statements;
 
     #[API\ApiProperty(writable: false, readable: false)]
     #[ORM\Column(length: 255)]
@@ -51,6 +47,9 @@ class Accounting
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
     private ?Project $project = null;
 
+    #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
+    private ?Tipjar $tipjar = null;
+
     public function __construct()
     {
         /**
@@ -58,9 +57,7 @@ class Accounting
          * ideally a configuration that can be updated via a frontend, not env var only
          */
         $this->currency = 'EUR';
-
-        $this->transactionsIssued = new ArrayCollection();
-        $this->transactionsReceived = new ArrayCollection();
+        $this->statements = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -81,59 +78,29 @@ class Accounting
     }
 
     /**
-     * @return Collection<int, Transaction>
+     * @return Collection<int, AccountingStatement>
      */
-    public function getTransactionsIssued(): Collection
+    public function getStatements(): Collection
     {
-        return $this->transactionsIssued;
+        return $this->statements;
     }
 
-    public function addTransactionsIssued(Transaction $transactionsIssued): static
+    public function addStatement(AccountingStatement $statement): static
     {
-        if (!$this->transactionsIssued->contains($transactionsIssued)) {
-            $this->transactionsIssued->add($transactionsIssued);
-            $transactionsIssued->setOrigin($this);
+        if (!$this->statements->contains($statement)) {
+            $this->statements->add($statement);
+            $statement->setAccounting($this);
         }
 
         return $this;
     }
 
-    public function removeTransactionsIssued(Transaction $transactionsIssued): static
+    public function removeStatement(AccountingStatement $statement): static
     {
-        if ($this->transactionsIssued->removeElement($transactionsIssued)) {
+        if ($this->statements->removeElement($statement)) {
             // set the owning side to null (unless already changed)
-            if ($transactionsIssued->getOrigin() === $this) {
-                $transactionsIssued->setOrigin(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Transaction>
-     */
-    public function getTransactionsReceived(): Collection
-    {
-        return $this->transactionsReceived;
-    }
-
-    public function addTransactionsReceived(Transaction $transactionsReceived): static
-    {
-        if (!$this->transactionsReceived->contains($transactionsReceived)) {
-            $this->transactionsReceived->add($transactionsReceived);
-            $transactionsReceived->setTarget($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTransactionsReceived(Transaction $transactionsReceived): static
-    {
-        if ($this->transactionsReceived->removeElement($transactionsReceived)) {
-            // set the owning side to null (unless already changed)
-            if ($transactionsReceived->getTarget() === $this) {
-                $transactionsReceived->setTarget(null);
+            if ($statement->getAccounting() === $this) {
+                $statement->setAccounting(null);
             }
         }
 
@@ -201,6 +168,26 @@ class Accounting
         $this->setOwnerClass($project::class);
 
         $this->project = $project;
+
+        return $this;
+    }
+
+    public function getTipjar(): ?Tipjar
+    {
+        return $this->tipjar;
+    }
+
+    public function setTipjar(Tipjar $tipjar): static
+    {
+        // set the owning side of the relation if necessary
+        if ($tipjar->getAccounting() !== $this) {
+            $tipjar->setAccounting($this);
+        }
+
+        // set the owner class
+        $this->setOwnerClass($tipjar::class);
+
+        $this->tipjar = $tipjar;
 
         return $this;
     }

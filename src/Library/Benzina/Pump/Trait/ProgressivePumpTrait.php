@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Library\Benzina\Pump;
+namespace App\Library\Benzina\Pump\Trait;
 
 use Doctrine\ORM\EntityManagerInterface;
 

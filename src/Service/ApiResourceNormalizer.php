@@ -14,7 +14,7 @@ class ApiResourceNormalizer
     {
         $classPieces = explode("\\", $className);
 
-        return strtolower(end($classPieces));
+        return lcfirst(end($classPieces));
     }
 
     /**
@@ -22,6 +22,6 @@ class ApiResourceNormalizer
      */
     public static function toEntity(string $resourceName): string
     {
-        return sprintf("App\\Entity\\%s", ucfirst(strtolower($resourceName)));
+        return sprintf("App\\Entity\\%s", ucfirst($resourceName));
     }
 }

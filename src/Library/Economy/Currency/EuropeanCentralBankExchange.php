@@ -25,14 +25,13 @@ class EuropeanCentralBankExchange implements ExchangeInterface
 
     public function __construct()
     {
-        $data = json_decode(json_encode(\simplexml_load_file(self::ECB_DATA)), true)['Cube']['Cube'];
+        $data = $this->getData();
 
         $this->date = \DateTime::createFromFormat(
             \DateTimeInterface::RFC3339,
             sprintf('%sT16:00:00+01:00', $data['@attributes']['time']),
             new \DateTimeZone('CET')
         );
-
 
         $provider = new ConfigurableProvider();
         foreach ($data['Cube'] as $item) {
@@ -42,6 +41,38 @@ class EuropeanCentralBankExchange implements ExchangeInterface
 
         $this->provider = new BaseCurrencyProvider($provider, self::ISO_4217);
         $this->converter = new CurrencyConverter($this->provider);
+    }
+
+    private function getDataLatest(): array
+    {
+        $data = \simplexml_load_file(self::ECB_DATA);
+        if (!$data) {
+            throw new \Exception("Could not retrieve XML data");
+        }
+
+        return \json_decode(\json_encode($data), true)['Cube']['Cube'];
+    }
+
+    private function getDataCached(): array
+    {
+        $data = \apcu_fetch(self::ECB_DATA);
+        if (!$data) {
+            throw new \Exception("Could not retrieve cached data");
+        }
+
+        return \json_decode($data, true);
+    }
+
+    public function getData(): array
+    {
+        try {
+            return $this->getDataCached();
+        } catch (\Exception $e) {
+            $data = $this->getDataLatest();
+
+            \apcu_store(self::ECB_DATA, json_encode($data));
+            return $this->getData();
+        }
     }
 
     public function getName(): string
@@ -71,7 +102,7 @@ class EuropeanCentralBankExchange implements ExchangeInterface
 
     public function getConversionRate(string $source, string $target): float
     {
-        return $this->provider->getExchangeRate($source, $target);
+        return $this->provider->getExchangeRate($source, $target)->toFloat();
     }
 
     public function getConversionDate(string $source, string $target): \DateTimeInterface

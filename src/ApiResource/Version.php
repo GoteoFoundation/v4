@@ -3,10 +3,10 @@
 namespace App\ApiResource;
 
 use ApiPlatform\Metadata as API;
-use App\Filter\VersionResourceFilter;
-use App\Filter\VersionResourceIdFilter;
+use App\Filter\ResourceVersionResourceFilter;
+use App\Filter\ResourceVersionResourceIdFilter;
 use App\Service\ApiResourceNormalizer;
-use App\State\VersionStateProvider;
+use App\State\ResourceVersionStateProvider;
 use Gedmo\Loggable\Entity\LogEntry;
 
 /**
@@ -15,10 +15,10 @@ use Gedmo\Loggable\Entity\LogEntry;
  * This allows us to keep track of the flow and the evolution of records in the platform.
  * Looking at the changes done between one version and the next one we can reconstruct how a resource was at a certain point in time.
  */
-#[API\ApiFilter(VersionResourceFilter::class, properties: ['resource'])]
-#[API\ApiFilter(VersionResourceIdFilter::class, properties: ['resourceId'])]
-#[API\GetCollection(provider: VersionStateProvider::class)]
-#[API\Get(provider: VersionStateProvider::class)]
+#[API\ApiFilter(ResourceVersionResourceFilter::class, properties: ['resource'])]
+#[API\ApiFilter(ResourceVersionResourceIdFilter::class, properties: ['resourceId'])]
+#[API\GetCollection(provider: ResourceVersionStateProvider::class)]
+#[API\Get(provider: ResourceVersionStateProvider::class)]
 class Version
 {
     public function __construct(
@@ -65,21 +65,6 @@ class Version
     public function getResourceId(): int
     {
         return $this->log->getObjectId();
-    }
-
-    /**
-     * The full resource data, reconstructed from the current resource data merged with versioned data.
-     */
-    public function getResourceData()
-    {
-        $entity = $this->entity;
-
-        foreach ($this->log->getData() as $changedProperty => $changedValue) {
-            $setter = sprintf("set%s", ucfirst($changedProperty));
-            $entity->$setter($changedValue);
-        }
-
-        return $entity;
     }
 
     /**

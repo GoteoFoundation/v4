@@ -6,6 +6,8 @@ use App\Entity\Accounting;
 use App\Entity\Project;
 use App\Entity\ProjectStatus;
 use App\Entity\User;
+use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
+use App\Library\Benzina\Pump\Trait\ProgressivePumpTrait;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -131,6 +133,8 @@ class ProjectsPump implements PumpInterface
             $project->setStatus($this->getProjectStatus($record['status']));
             $project->setMigrated(true);
             $project->setMigratedReference($record['id']);
+            $project->setCreatedAt(new \DateTime($record['created']));
+            $project->setUpdatedAt(new \DateTime());
 
             $accounting = $this->getAccounting($record);
             $accounting->setProject($project);

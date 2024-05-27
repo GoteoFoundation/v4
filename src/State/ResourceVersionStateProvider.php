@@ -8,11 +8,12 @@ use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Version;
 use App\Service\ApiResourceNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\Mapping\MappingException;
 use Gedmo\Loggable\Entity\LogEntry;
 use Gedmo\Loggable\Entity\Repository\LogEntryRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class VersionStateProvider implements ProviderInterface
+class ResourceVersionStateProvider implements ProviderInterface
 {
     private LogEntryRepository $versionRepository;
 
@@ -58,7 +59,16 @@ class VersionStateProvider implements ProviderInterface
     {
         $resourceClass = ApiResourceNormalizer::toEntity($resourceName);
 
-        $entity = $this->entityManager->find($resourceClass, $resourceId);
+        try {
+            $entity = $this->entityManager->find($resourceClass, $resourceId);
+        } catch (MappingException $e) {
+            throw new NotFoundHttpException(sprintf("Resource '%s' does not exist", $resourceName));
+        }
+
+        if (!$entity) {
+            throw new NotFoundHttpException(sprintf("Resource '%s' with ID '%s' not found", $resourceName, $resourceId));
+        }
+
         $logs = $this->versionRepository->getLogEntries($entity);
 
         $versions = [];
