@@ -37,6 +37,13 @@ class BenzinaPumpCommand extends Command
         );
 
         $this->addOption(
+            'progressive',
+            null,
+            InputOption::VALUE_NEGATABLE,
+            'For progressive pumps, enables or disables the override of already pumped progress'
+        );
+
+        $this->addOption(
             'database',
             null,
             InputOption::VALUE_OPTIONAL,
@@ -97,6 +104,10 @@ EOF
             $data = $stream->read();
 
             foreach ($pumps as $pump) {
+                $pump->configure([
+                    'progressive' => $input->getOption('progressive')
+                ]);
+
                 $pump->process($data);
             }
 
