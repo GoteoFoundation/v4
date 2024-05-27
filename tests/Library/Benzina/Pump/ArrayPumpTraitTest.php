@@ -2,7 +2,7 @@
 
 namespace App\Tests\Library\Benzina\Pump;
 
-use App\Library\Benzina\Pump\ArrayPumpTrait;
+use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
 use PHPUnit\Framework\TestCase;
 
 class ArrayPumpTraitTest extends TestCase
