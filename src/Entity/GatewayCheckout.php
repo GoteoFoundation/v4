@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[Gedmo\Loggable()]
 #[API\GetCollection()]
-#[API\Post(processor: GatewayCheckoutProcessor::class, validationContext: ['groups' => ['default', 'postValidation']])]
+#[API\Post(processor: GatewayCheckoutProcessor::class)]
 #[API\Get()]
 #[API\Patch(input: GatewayCheckoutUpdateDto::class, processor: GatewayCheckoutUpdateProcessor::class)]
 #[API\ApiFilter(filterClass: SearchFilter::class, properties: ['origin' => 'exact', 'charges.target' => 'exact'])]
@@ -77,16 +77,16 @@ class GatewayCheckout
      * An external identifier provided by the Gateway for the payment.\
      * Required when a GatewayCheckout is completed.
      */
-    #[Assert\NotBlank(['groups' => ['postValidation']])]
+    #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(SearchFilter::class)]
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $gatewayReference = null;
 
     /**
      * The URL where the checkout with the Gateway is available.
      */
     #[API\ApiProperty(writable: false)]
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $checkoutUrl = null;
 
     /**
@@ -94,7 +94,7 @@ class GatewayCheckout
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\Column]
-    private ?bool $migrated = null;
+    private ?bool $migrated = false;
 
     /**
      * The id of the original invest record in the Goteo v3 platform.
