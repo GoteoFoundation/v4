@@ -19,22 +19,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 class SystemVariable
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
-    #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
     #[Assert\NotBlank()]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $value = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getName(): ?string
     {
