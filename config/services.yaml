@@ -28,6 +28,9 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\DependencyInjection\SystemVarLoader:
+        tags: ['container.env_var_loader']
+
     App\OpenApi\OpenApiFactory:
         autoconfigure: false
         decorates: 'api_platform.openapi.factory'
