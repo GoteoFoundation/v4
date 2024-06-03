@@ -13,7 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'app:gateways:setup',
     description: 'Post install setup for Gateways.',
 )]
-class GatewaySetupCommand extends Command
+class GatewaysSetupCommand extends Command
 {
     private const SUCCESS_MESSAGE = "Gateways setup completed successfully!";
     private const FAILURE_MESSAGE = "Could not setup Gateways. Please review the error.";

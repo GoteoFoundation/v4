@@ -6,9 +6,7 @@ use App\Entity\SystemVar;
 use App\Repository\SystemVarRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -31,8 +29,8 @@ class SystemVarsListCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $io->table(['Name', 'Value'], \array_map(function (SystemVar $systemVar) {
-            return [$systemVar->getName(), $systemVar->getValue()];
+        $io->table(['Name', 'Value'], \array_map(function (SystemVar $var) {
+            return [$var->getName(), $var->getValue()];
         }, $this->systemVarRepository->findAll()));
 
         return Command::SUCCESS;

@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[AsCommand(
     name: 'app:system:vars:set',
-    description: 'Set the value for a SystemVar',
+    description: 'Set the value for a system var',
 )]
 class SystemVarsSetCommand extends Command
 {
@@ -30,8 +30,8 @@ class SystemVarsSetCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('name', InputArgument::REQUIRED, 'The name of the SystemVar')
-            ->addArgument('value', InputArgument::REQUIRED, 'The value of the SystemVar');
+            ->addArgument('name', InputArgument::REQUIRED, 'The name of the system var')
+            ->addArgument('value', InputArgument::REQUIRED, 'The value of the system var');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -39,25 +39,25 @@ class SystemVarsSetCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $name = $input->getArgument('name');
 
-        $systemVar = $this->systemVarRepository->findOneBy(['name' => $name]);
-        if (!$systemVar) {
-            $systemVar = new SystemVar;
+        $var = $this->systemVarRepository->findOneBy(['name' => $name]);
+        if (!$var) {
+            $var = new SystemVar;
         }
 
-        $systemVar->setName($name);
-        $systemVar->setValue($input->getArgument('value'));
+        $var->setName($name);
+        $var->setValue($input->getArgument('value'));
 
-        $errors = $this->validator->validate($systemVar);
+        $errors = $this->validator->validate($var);
         if (count($errors) > 0) {
             $io->error((string) $errors);
 
             return Command::FAILURE;
         }
 
-        $this->entityManager->persist($systemVar);
+        $this->entityManager->persist($var);
         $this->entityManager->flush();
 
-        $io->table(['Name', 'Value'], [[$systemVar->getName(), $systemVar->getValue()]]);
+        $io->table(['Name', 'Value'], [[$var->getName(), $var->getValue()]]);
 
         return Command::SUCCESS;
     }
