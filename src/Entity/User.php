@@ -121,6 +121,9 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class)]
     private Collection $projects;
 
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?UserPersonal $personalData = null;
+
     public function __construct()
     {
         $this->migrated = false;
@@ -384,6 +387,23 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
                 $project->setOwner(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPersonalData(): ?UserPersonal
+    {
+        return $this->personalData;
+    }
+
+    public function setPersonalData(UserPersonal $personalData): static
+    {
+        // set the owning side of the relation if necessary
+        if ($personalData->getUser() !== $this) {
+            $personalData->setUser($this);
+        }
+
+        $this->personalData = $personalData;
 
         return $this;
     }
