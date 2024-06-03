@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Repository\SystemVarRepository;
+use App\Repository\SystemVariableRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -12,11 +12,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Stores values referenced across different system-level services.\
  * Works like environment variables but are stored at database level.
  * 
- * @see src\DependencyInjection\SystemVarLoader.php
+ * @see src\DependencyInjection\SystemVariablesLoader.php
  */
 #[UniqueEntity(fields: ['name'], message: 'A system var with that name already exists.')]
-#[ORM\Entity(repositoryClass: SystemVarRepository::class)]
-class SystemVar
+#[ORM\Entity(repositoryClass: SystemVariableRepository::class)]
+class SystemVariable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

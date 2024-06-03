@@ -2,7 +2,7 @@
 
 namespace App\DependencyInjection;
 
-use App\Repository\SystemVarRepository;
+use App\Repository\SystemVariableRepository;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Symfony\Component\DependencyInjection\EnvVarLoaderInterface;
@@ -10,10 +10,10 @@ use Symfony\Component\DependencyInjection\EnvVarLoaderInterface;
 /**
  * Loads SystemVar records as environment variables for the code to use.
  */
-final class SystemVarLoader implements EnvVarLoaderInterface
+final class SystemVariablesLoader implements EnvVarLoaderInterface
 {
     public function __construct(
-        private SystemVarRepository $systemVarRepository
+        private SystemVariableRepository $systemVarRepository
     ) {
     }
 

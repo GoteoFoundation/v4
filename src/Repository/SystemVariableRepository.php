@@ -2,27 +2,27 @@
 
 namespace App\Repository;
 
-use App\Entity\SystemVar;
+use App\Entity\SystemVariable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<SystemVar>
+ * @extends ServiceEntityRepository<SystemVariable>
  *
- * @method SystemVar|null find($id, $lockMode = null, $lockVersion = null)
- * @method SystemVar|null findOneBy(array $criteria, array $orderBy = null)
- * @method SystemVar[]    findAll()
- * @method SystemVar[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method SystemVariable|null find($id, $lockMode = null, $lockVersion = null)
+ * @method SystemVariable|null findOneBy(array $criteria, array $orderBy = null)
+ * @method SystemVariable[]    findAll()
+ * @method SystemVariable[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class SystemVarRepository extends ServiceEntityRepository
+class SystemVariableRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, SystemVar::class);
+        parent::__construct($registry, SystemVariable::class);
     }
 
     //    /**
-    //     * @return SystemVar[] Returns an array of SystemVar objects
+    //     * @return SystemVariable[] Returns an array of SystemVariable objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -36,7 +36,7 @@ class SystemVarRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?SystemVar
+    //    public function findOneBySomeField($value): ?SystemVariable
     //    {
     //        return $this->createQueryBuilder('s')
     //            ->andWhere('s.exampleField = :val')

@@ -2,8 +2,8 @@
 
 namespace App\Command;
 
-use App\Entity\SystemVar;
-use App\Repository\SystemVarRepository;
+use App\Entity\SystemVariable;
+use App\Repository\SystemVariableRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -21,7 +21,7 @@ class SystemVarsSetCommand extends Command
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private SystemVarRepository $systemVarRepository,
+        private SystemVariableRepository $systemVarRepository,
         private ValidatorInterface $validator,
     ) {
         parent::__construct();
@@ -41,7 +41,7 @@ class SystemVarsSetCommand extends Command
 
         $var = $this->systemVarRepository->findOneBy(['name' => $name]);
         if (!$var) {
-            $var = new SystemVar;
+            $var = new SystemVariable;
         }
 
         $var->setName($name);

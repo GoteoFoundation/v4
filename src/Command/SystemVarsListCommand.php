@@ -2,8 +2,8 @@
 
 namespace App\Command;
 
-use App\Entity\SystemVar;
-use App\Repository\SystemVarRepository;
+use App\Entity\SystemVariable;
+use App\Repository\SystemVariableRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class SystemVarsListCommand extends Command
 {
     public function __construct(
-        private SystemVarRepository $systemVarRepository
+        private SystemVariableRepository $systemVarRepository
     ) {
         parent::__construct();
     }
@@ -29,7 +29,7 @@ class SystemVarsListCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $io->table(['Name', 'Value'], \array_map(function (SystemVar $var) {
+        $io->table(['Name', 'Value'], \array_map(function (SystemVariable $var) {
             return [$var->getName(), $var->getValue()];
         }, $this->systemVarRepository->findAll()));
 
