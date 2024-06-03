@@ -82,7 +82,7 @@ class SystemVar
         }
 
         if (\in_array($lowercase, ['null', 'none'])) {
-            return "null:null";
+            return 'null:null';
         }
 
         return "str:$value";
@@ -114,12 +114,12 @@ class SystemVar
 
     public function getValue(): ?string
     {
-        return $this->value;
+        return self::unserializeValue($this->value);
     }
 
     public function setValue(?string $value): static
     {
-        $this->value = $value;
+        $this->value = self::seralizeValue($value);
 
         return $this;
     }
