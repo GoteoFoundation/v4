@@ -50,11 +50,11 @@ class SystemVariable
             return "int:$value";
         }
 
-        if (\is_bool($value) && true === $value) {
+        if (\is_bool($value) && $value === true) {
             return 'bool:true';
         }
 
-        if (\is_bool($value) && false === $value) {
+        if (\is_bool($value) && $value === false) {
             return 'bool:false';
         }
 

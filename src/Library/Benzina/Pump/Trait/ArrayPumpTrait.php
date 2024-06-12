@@ -12,7 +12,7 @@ trait ArrayPumpTrait
      */
     public function hasAllKeys(array $data, array $keys): bool
     {
-        if (0 === count(\array_diff($keys, \array_keys($data)))) {
+        if (count(\array_diff($keys, \array_keys($data))) === 0) {
             return true;
         }
 

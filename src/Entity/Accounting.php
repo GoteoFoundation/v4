@@ -116,7 +116,7 @@ class Accounting
     {
         // ensure ownership does not change
         if (
-            null !== $this->ownerClass
+            $this->ownerClass !== null
             && $this->ownerClass !== $ownerClass
         ) {
             throw new \Exception('Are you trying to commit fraud? Cannot change ownership of an Accounting.');

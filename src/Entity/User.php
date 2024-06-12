@@ -193,7 +193,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
 
     public function hasRoles(array $roles): bool
     {
-        return 0 < count(array_intersect($this->getRoles(), $roles));
+        return count(array_intersect($this->getRoles(), $roles)) > 0;
     }
 
     /**

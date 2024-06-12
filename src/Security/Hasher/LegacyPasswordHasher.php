@@ -48,6 +48,6 @@ class LegacyPasswordHasher implements PasswordHasherInterface
 
     private function isOldBcrypt(string $str): bool
     {
-        return 0 === strpos($str, '$1$');
+        return strpos($str, '$1$') === 0;
     }
 }
