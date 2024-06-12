@@ -4,9 +4,9 @@ namespace App\Library\Benzina\Pump;
 
 abstract class AbstractPump implements PumpInterface
 {
-    protected ?array $config;
+    protected array $config;
 
-    public function configure(?array $config = null): void
+    public function configure(array $config = []): void
     {
         $this->config = $config;
     }
