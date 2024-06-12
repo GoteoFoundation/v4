@@ -15,10 +15,10 @@ interface PumpInterface
     /**
      * Sets flexible configuration values for this pump.
      * 
-     * @param array|null $data The configuration array.
+     * @param array $config The configuration array.
      * @return void
      */
-    public function configure(?array $config = null): void;
+    public function configure(array $config = []): void;
 
     /**
      * Process the data to be pumped.
