@@ -24,7 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
     uriTemplate: '/accountings/{id}/statements/{statementId}',
     uriVariables: [
         'id' => new API\Link(fromClass: Accounting::class, toProperty: 'accounting'),
-        'statementId' => new API\Link(fromClass: AccountingStatement::class)
+        'statementId' => new API\Link(fromClass: AccountingStatement::class),
     ],
 )]
 #[ORM\Entity(repositoryClass: AccountingStatementRepository::class)]

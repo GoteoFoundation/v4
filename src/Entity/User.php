@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Users represent people who interact with the platform.\
  * \
  * Users are the usual issuers of funding, however an User's Accounting can still be a Transaction recipient.
- * This allows to keep an User's "wallet", witholding their non-raised fundings into their Accounting. 
+ * This allows to keep an User's "wallet", witholding their non-raised fundings into their Accounting.
  */
 #[Gedmo\Loggable()]
 #[API\GetCollection()]
@@ -105,7 +105,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     private ?string $name = null;
 
     /**
-     * User was migrated from Goteo v3 platform. 
+     * User was migrated from Goteo v3 platform.
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\Column]

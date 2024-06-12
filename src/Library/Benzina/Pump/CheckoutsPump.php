@@ -61,7 +61,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         'matcher',
         'issue',
         'pool',
-        'extra_info'
+        'extra_info',
     ];
 
     public function __construct(
@@ -110,7 +110,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             $user = $users[$record['user']];
             $project = $projects[$record['project']];
 
-            $checkout = new GatewayCheckout;
+            $checkout = new GatewayCheckout();
             $checkout->setOrigin($user->getAccounting());
             $checkout->setStatus($this->getCheckoutStatus($record));
             $checkout->setGateway($this->getCheckoutGateway($record));
@@ -121,18 +121,18 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             $checkout->setMetadata([
                 'payment' => $record['payment'],
                 'transaction' => $record['transaction'],
-                'preapproval' => $record['preapproval']
+                'preapproval' => $record['preapproval'],
             ]);
             $checkout->setCreatedAt(new \DateTime($record['invested']));
             $checkout->setUpdatedAt(new \DateTime());
 
-            $charge = new GatewayCharge;
+            $charge = new GatewayCharge();
             $charge->setType($this->getChargeType($record));
             $charge->setMoney($this->getChargeMoney($record['amount'], $record['currency']));
             $charge->setTarget($project->getAccounting());
 
             if ($record['donate_amount'] > 0) {
-                $tip = new GatewayCharge;
+                $tip = new GatewayCharge();
                 $tip->setType(GatewayChargeType::Single);
                 $tip->setMoney($this->getChargeMoney($record['donate_amount'], $record['currency']));
                 $tip->setTarget($tipjar->getAccounting());
@@ -187,10 +187,10 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             return $tipjar;
         }
 
-        $tipjar = new Tipjar;
-        $tipjar->setName(SELF::PLATFORM_TIPJAR_NAME);
+        $tipjar = new Tipjar();
+        $tipjar->setName(self::PLATFORM_TIPJAR_NAME);
 
-        $accounting = new Accounting;
+        $accounting = new Accounting();
         $accounting->setTipjar($tipjar);
 
         $this->entityManager->persist($tipjar);

@@ -90,7 +90,7 @@ class GatewayCheckout
     private ?string $checkoutUrl = null;
 
     /**
-     * GatewayCheckout was migrated from an invest record in Goteo v3 platform. 
+     * GatewayCheckout was migrated from an invest record in Goteo v3 platform.
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\Column]

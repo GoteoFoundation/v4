@@ -26,7 +26,7 @@ class AuthService
 
     public function generateUserToken(User $user, AuthTokenType $type): UserToken
     {
-        $token = new UserToken;
+        $token = new UserToken();
 
         $token->setOwner($user);
         $token->setToken(sprintf('%s%s', $type->value, hash(

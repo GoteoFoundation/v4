@@ -5,7 +5,8 @@ namespace App\Security\Hasher;
 use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
 /**
- * Ported from Goteo v3 src/Goteo/Library/Password.php
+ * Ported from Goteo v3 src/Goteo/Library/Password.php.
+ *
  * @see Goteo v3
  */
 class LegacyPasswordHasher implements PasswordHasherInterface
@@ -47,6 +48,6 @@ class LegacyPasswordHasher implements PasswordHasherInterface
 
     private function isOldBcrypt(string $str): bool
     {
-        return strpos($str, '$1$') === 0;
+        return 0 === strpos($str, '$1$');
     }
 }

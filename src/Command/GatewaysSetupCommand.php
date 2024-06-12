@@ -15,8 +15,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class GatewaysSetupCommand extends Command
 {
-    private const SUCCESS_MESSAGE = "Gateways setup completed successfully!";
-    private const FAILURE_MESSAGE = "Could not setup Gateways. Please review the error.";
+    private const SUCCESS_MESSAGE = 'Gateways setup completed successfully!';
+    private const FAILURE_MESSAGE = 'Could not setup Gateways. Please review the error.';
 
     public function __construct(
         private GatewayLocator $gatewayLocator
@@ -32,6 +32,7 @@ class GatewaysSetupCommand extends Command
             $this->gatewayLocator->compileGatewayNames();
 
             $io->success(self::SUCCESS_MESSAGE);
+
             return Command::SUCCESS;
         } catch (\Exception $e) {
             $io->error(self::FAILURE_MESSAGE);

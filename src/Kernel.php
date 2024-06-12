@@ -16,12 +16,12 @@ class Kernel extends BaseKernel
     protected function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(
-            new GatewayPass,
+            new GatewayPass(),
             PassConfig::TYPE_AFTER_REMOVING
         );
 
         $container->addCompilerPass(
-            new VersionedResourcePass,
+            new VersionedResourcePass(),
             PassConfig::TYPE_AFTER_REMOVING
         );
     }

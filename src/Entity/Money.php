@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * NOT FINANCIALLY SAFE.\
  * Use `Brick\Money` to perform monetary calculations.
- * 
+ *
  * @see \Brick\Money
  */
 #[ORM\Embeddable]

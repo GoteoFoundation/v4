@@ -30,7 +30,7 @@ final class ResourceVersionResourceFilter extends AbstractFilter
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        Operation $operation = null,
+        ?Operation $operation = null,
         array $context = []
     ): void {
         return;
@@ -47,7 +47,7 @@ final class ResourceVersionResourceFilter extends AbstractFilter
                 'description' => 'The name of the resource.',
                 'schema' => [
                     'type' => Type::BUILTIN_TYPE_STRING,
-                    'enum' => $this->versionedResourceService->getNames()
+                    'enum' => $this->versionedResourceService->getNames(),
                 ],
                 'openapi' => [
                     'allowEmptyValue' => false,

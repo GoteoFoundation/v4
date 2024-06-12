@@ -7,8 +7,8 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Dto\UserTokenLoginDto;
 use App\Entity\UserToken;
 use App\Repository\UserRepository;
-use App\Service\Auth\AuthTokenType;
 use App\Service\Auth\AuthService;
+use App\Service\Auth\AuthTokenType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -36,7 +36,7 @@ class UserTokenLoginProcessor implements ProcessorInterface
         }
 
         if (!$this->userPasswordHasher->isPasswordValid($user, $data->password)) {
-            throw new HttpException(Response::HTTP_UNAUTHORIZED, sprintf("The password could not be validated"));
+            throw new HttpException(Response::HTTP_UNAUTHORIZED, sprintf('The password could not be validated'));
         }
 
         $token = $this->authService->generateUserToken($user, AuthTokenType::Personal);
