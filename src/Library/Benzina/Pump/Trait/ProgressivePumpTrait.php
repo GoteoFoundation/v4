@@ -60,7 +60,6 @@ trait ProgressivePumpTrait
     public function isPumped(array $pumpingRecord, array $pumpedBatch): bool
     {
         if (
-            $this->config !== null &&
             \array_key_exists('progress', $this->config) &&
             $this->config['progress'] === false
         ) {
