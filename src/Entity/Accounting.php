@@ -33,10 +33,6 @@ class Accounting
     #[ORM\Column(length: 3)]
     private ?string $currency = null;
 
-    #[API\ApiProperty(writable: false)]
-    #[ORM\OneToMany(mappedBy: 'accounting', targetEntity: AccountingStatement::class)]
-    private Collection $statements;
-
     #[API\ApiProperty(writable: false, readable: false)]
     #[ORM\Column(length: 255)]
     private ?string $ownerClass = null;
@@ -50,14 +46,21 @@ class Accounting
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
     private ?Tipjar $tipjar = null;
 
+    #[ORM\OneToMany(mappedBy: 'origin', targetEntity: AccountingTransaction::class)]
+    private Collection $transactionsIssued;
+
+    #[ORM\OneToMany(mappedBy: 'target', targetEntity: AccountingTransaction::class)]
+    private Collection $transactionsReceived;
+
     public function __construct()
     {
         /**
-         * TODO: This property must be loaded from App's configuration,
+         * TO-DO: This property must be loaded from App's configuration,
          * ideally a configuration that can be updated via a frontend, not env var only
          */
         $this->currency = 'EUR';
-        $this->statements = new ArrayCollection();
+        $this->transactionsIssued = new ArrayCollection();
+        $this->transactionsReceived = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -73,36 +76,6 @@ class Accounting
     public function setCurrency(string $currency): static
     {
         $this->currency = $currency;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, AccountingStatement>
-     */
-    public function getStatements(): Collection
-    {
-        return $this->statements;
-    }
-
-    public function addStatement(AccountingStatement $statement): static
-    {
-        if (!$this->statements->contains($statement)) {
-            $this->statements->add($statement);
-            $statement->setAccounting($this);
-        }
-
-        return $this;
-    }
-
-    public function removeStatement(AccountingStatement $statement): static
-    {
-        if ($this->statements->removeElement($statement)) {
-            // set the owning side to null (unless already changed)
-            if ($statement->getAccounting() === $this) {
-                $statement->setAccounting(null);
-            }
-        }
 
         return $this;
     }
@@ -188,6 +161,66 @@ class Accounting
         $this->setOwnerClass($tipjar::class);
 
         $this->tipjar = $tipjar;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AccountingTransaction>
+     */
+    public function getTransactionsIssued(): Collection
+    {
+        return $this->transactionsIssued;
+    }
+
+    public function addTransactionsIssued(AccountingTransaction $transactionsIssued): static
+    {
+        if (!$this->transactionsIssued->contains($transactionsIssued)) {
+            $this->transactionsIssued->add($transactionsIssued);
+            $transactionsIssued->setOrigin($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransactionsIssued(AccountingTransaction $transactionsIssued): static
+    {
+        if ($this->transactionsIssued->removeElement($transactionsIssued)) {
+            // set the owning side to null (unless already changed)
+            if ($transactionsIssued->getOrigin() === $this) {
+                $transactionsIssued->setOrigin(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AccountingTransaction>
+     */
+    public function getTransactionsReceived(): Collection
+    {
+        return $this->transactionsReceived;
+    }
+
+    public function addTransactionsReceived(AccountingTransaction $transactionsReceived): static
+    {
+        if (!$this->transactionsReceived->contains($transactionsReceived)) {
+            $this->transactionsReceived->add($transactionsReceived);
+            $transactionsReceived->setTarget($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransactionsReceived(AccountingTransaction $transactionsReceived): static
+    {
+        if ($this->transactionsReceived->removeElement($transactionsReceived)) {
+            // set the owning side to null (unless already changed)
+            if ($transactionsReceived->getTarget() === $this) {
+                $transactionsReceived->setTarget(null);
+            }
+        }
 
         return $this;
     }
