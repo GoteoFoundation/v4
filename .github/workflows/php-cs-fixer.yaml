@@ -1,0 +1,11 @@
+name: PHP CS Fixer
+on: [pull_request, push]
+jobs:
+  php-cs-fixer:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: PHP-CS-Fixer
+        uses: docker://ghcr.io/php-cs-fixer/php-cs-fixer:3-php8.3
+        with:
+          args: check
+
