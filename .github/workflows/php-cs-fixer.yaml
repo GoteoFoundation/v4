@@ -9,5 +9,9 @@ jobs:
         with:
           php-version: '8.2'
           tools: php-cs-fixer
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Run PHP CS Fixer
         run: php-cs-fixer check
