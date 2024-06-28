@@ -3,6 +3,7 @@
 namespace App\Library\Economy\Payment;
 
 use App\Entity\GatewayCheckout;
+use Symfony\Component\HttpFoundation\Request;
 
 interface GatewayInterface
 {
@@ -17,4 +18,12 @@ interface GatewayInterface
      * Gateways are trusted to have secured the funds in the GatewayCheckout.
      */
     public function create(GatewayCheckout $checkout): GatewayCheckout;
+
+    /**
+     * Updates a GatewayCheckout after the payment gateway redirects the user
+     * 
+     * @param Request $request The HTTP Request object
+     * @return GatewayCheckout 
+     */
+    public function handleRedirect(Request $request): GatewayCheckout;
 }
