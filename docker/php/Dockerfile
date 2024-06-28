@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.2.19-fpm
 
 # System dependencies
 RUN apt update && apt install -y \
