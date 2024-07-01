@@ -91,7 +91,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
         'execution_plan_url',
         'sustainability_model_url',
         'sign_url',
-        'sign_url_action'
+        'sign_url_action',
     ];
 
     public function __construct(
@@ -129,7 +129,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
                 continue;
             }
 
-            $project = new Project;
+            $project = new Project();
             $project->setTitle($record['name']);
             $project->setOwner($owners[$record['owner']]);
             $project->setStatus($this->getProjectStatus($record['status']));
@@ -188,7 +188,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
 
     private function getAccounting(array $record): Accounting
     {
-        $accounting = new Accounting;
+        $accounting = new Accounting();
         $accounting->setCurrency($record['currency']);
 
         return $accounting;

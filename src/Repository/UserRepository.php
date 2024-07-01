@@ -42,7 +42,8 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * Find an User by any of it's unique properties
+     * Find an User by any of it's unique properties.
+     *
      * @param string $identifier An id, email or username
      */
     public function findOneByIdentifier(string $identifier): ?User

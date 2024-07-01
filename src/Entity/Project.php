@@ -5,7 +5,6 @@ namespace App\Entity;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Repository\ProjectRepository;
-use App\Entity\ProjectStatus;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
@@ -23,7 +22,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 #[API\Patch(security: 'is_granted("AUTH_PROJECT_EDIT")')]
 #[API\ApiFilter(filterClass: SearchFilter::class, properties: [
     'title' => 'partial',
-    'status', 'owner'
+    'status', 'owner',
 ])]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project

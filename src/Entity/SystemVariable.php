@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Stores values referenced across different system-level services.\
  * Works like environment variables but are stored at database level.
- * 
+ *
  * @see src\DependencyInjection\SystemVariablesLoader.php
  */
 #[UniqueEntity(fields: ['name'], message: 'A system var with that name already exists.')]
@@ -43,6 +43,7 @@ class SystemVariable
         if (\is_numeric($value)) {
             if (\is_float($value) || \preg_match('/\./', $value)) {
                 $float = (float) $value;
+
                 return "float:$float";
             }
 
@@ -82,7 +83,7 @@ class SystemVariable
     {
         \preg_match('/[a-z]+\:/', $value, $colons);
         if (empty($colons) || !\in_array($colons[0], ['int:', 'float:', 'bool:', 'null:', 'str:'])) {
-            throw new \Exception("The given value was not serialized as a SystemVar value");
+            throw new \Exception('The given value was not serialized as a SystemVar value');
         }
 
         $marker = $colons[0];

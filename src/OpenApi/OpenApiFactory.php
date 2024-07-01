@@ -12,7 +12,6 @@ use ApiPlatform\OpenApi\OpenApi;
 
 class OpenApiFactory implements OpenApiFactoryInterface
 {
-
     public function __construct(private OpenApiFactoryInterface $decorated)
     {
     }
@@ -96,7 +95,7 @@ class OpenApiFactory implements OpenApiFactoryInterface
         $openApi = $this->decorated->__invoke($context);
 
         $openApi = $openApi->withServers([
-            new Model\Server(sprintf('%s://%s', $_SERVER['REQUEST_SCHEME'], $_SERVER['HTTP_HOST']))
+            new Model\Server(sprintf('%s://%s', $_SERVER['REQUEST_SCHEME'], $_SERVER['HTTP_HOST'])),
         ]);
 
         $openApi = $openApi->withInfo(
@@ -114,8 +113,12 @@ class OpenApiFactory implements OpenApiFactoryInterface
 
         $tags = [];
         foreach ($openApi->getComponents()->getSchemas() as $name => $schema) {
-            if (\preg_match('/.*\.jsonld/', $name)) continue;
-            if (empty($schema['description'])) continue;
+            if (\preg_match('/.*\.jsonld/', $name)) {
+                continue;
+            }
+            if (empty($schema['description'])) {
+                continue;
+            }
 
             if (\preg_match('/.*Dto/', $name)) {
                 $name = preg_replace('/\..*Dto/', '', $name);
@@ -123,7 +126,7 @@ class OpenApiFactory implements OpenApiFactoryInterface
 
             $tags[] = [
                 'name' => $name,
-                'description' => $schema['description']
+                'description' => $schema['description'],
             ];
         }
 

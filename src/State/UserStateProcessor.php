@@ -19,7 +19,6 @@ class UserStateProcessor implements ProcessorInterface
 
     /**
      * @return T2
-     * @inheritdoc
      */
     public function process(mixed $data, API\Operation $operation, array $uriVariables = [], array $context = [])
     {

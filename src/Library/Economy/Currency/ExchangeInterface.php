@@ -19,9 +19,11 @@ interface ExchangeInterface
     public function getWeight(): int;
 
     /**
-     * @param MoneyContainer $money The money to be converted
-     * @param string $currency The currency to convert to
+     * @param MoneyContainer $money    The money to be converted
+     * @param string         $currency The currency to convert to
+     *
      * @return EntityMoney The converted Money
+     *
      * @throws CurrencyConversionException If the exchange rate is not available
      */
     public function getConversion(MoneyContainer $money, string $currency): EntityMoney;
@@ -29,7 +31,9 @@ interface ExchangeInterface
     /**
      * @param string $source The currency to convert from
      * @param string $target The currency to convert to
+     *
      * @return float The rate of the conversion
+     *
      * @throws CurrencyConversionException If the exchange rate is not available
      */
     public function getConversionRate(string $source, string $target): float;
@@ -37,7 +41,9 @@ interface ExchangeInterface
     /**
      * @param string $source The currency to convert from
      * @param string $target The currency to convert to
+     *
      * @return \DateTimeInterface The date and time at which the rate was last updated
+     *
      * @throws CurrencyConversionException If the exchange rate is not available
      */
     public function getConversionDate(string $source, string $target): \DateTimeInterface;

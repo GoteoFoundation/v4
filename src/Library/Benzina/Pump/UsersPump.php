@@ -73,10 +73,10 @@ class UsersPump extends AbstractPump implements PumpInterface
                 continue;
             }
 
-            $user = new User;
-            $user->setAccounting(new Accounting);
+            $user = new User();
+            $user->setAccounting(new Accounting());
             $user->setUsername($this->getUsername($record));
-            $user->setPassword($record['password'] ?? "");
+            $user->setPassword($record['password'] ?? '');
             $user->setEmail($record['email']);
             $user->setName($record['name']);
             $user->setActive(false);

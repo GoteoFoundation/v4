@@ -11,8 +11,9 @@ use Brick\Money\ExchangeRateProvider\ConfigurableProvider;
 use Brick\Money\MoneyContainer;
 
 /**
- * Provides currency conversion using the daily updated exchanges rates by the European Central Bank
- * @link https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html
+ * Provides currency conversion using the daily updated exchanges rates by the European Central Bank.
+ *
+ * @see https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html
  */
 class EuropeanCentralBankExchange implements ExchangeInterface
 {
@@ -47,7 +48,7 @@ class EuropeanCentralBankExchange implements ExchangeInterface
     {
         $data = \simplexml_load_file(self::ECB_DATA);
         if (!$data) {
-            throw new \Exception("Could not retrieve XML data");
+            throw new \Exception('Could not retrieve XML data');
         }
 
         return \json_decode(\json_encode($data), true)['Cube']['Cube'];
@@ -57,7 +58,7 @@ class EuropeanCentralBankExchange implements ExchangeInterface
     {
         $data = \apcu_fetch(self::ECB_DATA);
         if (!$data) {
-            throw new \Exception("Could not retrieve cached data");
+            throw new \Exception('Could not retrieve cached data');
         }
 
         return \json_decode($data, true);
@@ -71,6 +72,7 @@ class EuropeanCentralBankExchange implements ExchangeInterface
             $data = $this->getDataLatest();
 
             \apcu_store(self::ECB_DATA, json_encode($data));
+
             return $this->getData();
         }
     }

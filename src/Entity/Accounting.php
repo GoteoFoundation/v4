@@ -52,7 +52,7 @@ class Accounting
 
     public function __construct()
     {
-        /**
+        /*
          * TODO: This property must be loaded from App's configuration,
          * ideally a configuration that can be updated via a frontend, not env var only
          */
@@ -116,10 +116,10 @@ class Accounting
     {
         // ensure ownership does not change
         if (
-            $this->ownerClass !== null &&
-            $this->ownerClass !== $ownerClass
+            $this->ownerClass !== null
+            && $this->ownerClass !== $ownerClass
         ) {
-            throw new \Exception("Are you trying to commit fraud? Cannot change ownership of an Accounting.");
+            throw new \Exception('Are you trying to commit fraud? Cannot change ownership of an Accounting.');
         }
 
         $this->ownerClass = $ownerClass;
