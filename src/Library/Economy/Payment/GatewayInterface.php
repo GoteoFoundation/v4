@@ -20,10 +20,9 @@ interface GatewayInterface
     public function create(GatewayCheckout $checkout): GatewayCheckout;
 
     /**
-     * Updates a GatewayCheckout after the payment gateway redirects the user
-     * 
+     * Updates a GatewayCheckout after the payment gateway redirects the user.
+     *
      * @param Request $request The HTTP Request object
-     * @return GatewayCheckout 
      */
     public function handleRedirect(Request $request): GatewayCheckout;
 }

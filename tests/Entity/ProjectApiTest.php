@@ -27,7 +27,7 @@ class ProjectApiTest extends ApiTestCase
             'POST',
             '/v4/projects',
             ['json' => [
-                'title' => 'ProjectApiTest Project'
+                'title' => 'ProjectApiTest Project',
             ]]
         );
 

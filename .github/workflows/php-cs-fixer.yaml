@@ -1,0 +1,17 @@
+name: PHP CS Fixer
+on: [pull_request, push]
+jobs:
+  php-cs-fixer:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: php-cs-fixer
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run PHP CS Fixer
+        run: php-cs-fixer check
