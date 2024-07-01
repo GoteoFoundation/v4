@@ -9,7 +9,7 @@ class EuropeanCentralBankExchangeTest extends TestCase
 {
     public function testGetsData()
     {
-        $exchange = new EuropeanCentralBankExchange;
+        $exchange = new EuropeanCentralBankExchange();
         $exchangeData = $exchange->getData();
 
         $this->assertIsArray($exchangeData);
@@ -19,7 +19,7 @@ class EuropeanCentralBankExchangeTest extends TestCase
 
     public function testStoresDataInApcuCache()
     {
-        $exchange = new EuropeanCentralBankExchange;
+        $exchange = new EuropeanCentralBankExchange();
         // Data should be available on instantiation
 
         $data = \apcu_fetch($exchange::ECB_DATA);
@@ -27,7 +27,7 @@ class EuropeanCentralBankExchangeTest extends TestCase
         $this->assertNotFalse($data);
 
         $exchangeData = \json_decode($data, true);
-        
+
         $this->assertIsArray($exchangeData);
         $this->assertArrayHasKey('Cube', $exchangeData);
         $this->assertArrayHasKey('@attributes', $exchangeData);
