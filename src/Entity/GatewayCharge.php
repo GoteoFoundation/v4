@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class GatewayCharge
 {
     // TO-DO: This message should be translatable to the User's language
-    public const MESSAGE_STATEMENT = "PAGO EN GOTEO.ORG";
+    public const MESSAGE_STATEMENT = 'PAGO EN GOTEO.ORG';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
