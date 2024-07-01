@@ -14,18 +14,15 @@ interface GatewayInterface
 
     /**
      * Connects with the payment gateway and creates a checkout session to process payment.
-     * 
+     *
      * Gateways are trusted to have secured the funds in the GatewayCheckout.
-     * @param GatewayCheckout $checkout
-     * @return GatewayCheckout
      */
     public function create(GatewayCheckout $checkout): GatewayCheckout;
 
     /**
-     * Updates a GatewayCheckout after the payment gateway redirects the user
-     * 
+     * Updates a GatewayCheckout after the payment gateway redirects the user.
+     *
      * @param Request $request The HTTP Request object
-     * @return GatewayCheckout 
      */
     public function handleRedirect(Request $request): GatewayCheckout;
 }

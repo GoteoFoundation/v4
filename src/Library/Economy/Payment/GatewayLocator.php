@@ -28,6 +28,7 @@ class GatewayLocator
 
     /**
      * @throws \Exception If there are two different Gateway classes with the same name
+     *
      * @see GatewayInterface::getName()
      */
     public function validateGatewayNames()
@@ -37,12 +38,14 @@ class GatewayLocator
             $gatewayName = $gateway::getName();
 
             if (\array_key_exists($gatewayName, $gatewaysValidated)) {
-                throw new \Exception(sprintf(
+                $exceptionMessage = sprintf(
                     "Duplicate Gateway name '%s' from class %s, name is already in use by class %s",
                     $gatewayName,
                     $gateway::class,
                     $gatewaysValidated[$gatewayName]
-                ));
+                );
+
+                throw new \Exception($exceptionMessage);
             }
 
             $gatewaysValidated[$gatewayName] = $class;
@@ -105,6 +108,7 @@ class GatewayLocator
 
     /**
      * @return array<string> List of the available Gateway names
+     *
      * @see compileGatewayNames()
      */
     public static function getNamesStatic(): array
@@ -122,7 +126,7 @@ class GatewayLocator
 
     /**
      * @param string $name Name of the Gateway interface implementation
-     * @return GatewayInterface
+     *
      * @throws \Exception When the $name does not match to that of an implemented Gateway
      */
     public function getGateway(string $name): GatewayInterface
@@ -135,15 +139,13 @@ class GatewayLocator
     }
 
     /**
-     * @param GatewayCheckout $checkout
-     * @return GatewayInterface
      * @throws \Exception When the $checkout::gateway does not match to that of an implemented Gateway
      */
     public function getGatewayOf(GatewayCheckout $checkout): GatewayInterface
     {
         $gateway = $checkout->getGateway();
         if (!$gateway) {
-            throw new \Exception("The given GatewayCheckout does not specify a Gateway");
+            throw new \Exception('The given GatewayCheckout does not specify a Gateway');
         }
 
         return $this->getGateway($gateway);

@@ -14,7 +14,7 @@ class StreamTest extends TestCase
 
     public function setUp(): void
     {
-        $this->stream = new Stream(\str_repeat("0", self::STREAM_SIZE));
+        $this->stream = new Stream(\str_repeat('0', self::STREAM_SIZE));
     }
 
     public function testStreamHasSize()
@@ -28,7 +28,7 @@ class StreamTest extends TestCase
     {
         $chunk = $this->stream->read(self::CHUNK_SIZE + 1);
 
-        $this->assertEquals(\str_repeat("0", self::CHUNK_SIZE), $chunk);
+        $this->assertEquals(\str_repeat('0', self::CHUNK_SIZE), $chunk);
     }
 
     public function testStreamTells()

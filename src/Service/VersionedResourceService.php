@@ -42,6 +42,7 @@ class VersionedResourceService
 
     /**
      * Stores the given names in lock file.
+     *
      * @param string[] $names
      */
     public function compileNames(array $names)
@@ -56,6 +57,7 @@ class VersionedResourceService
 
     /**
      * @return array<string> List of the versioned resource names
+     *
      * @see compileNames()
      */
     public static function getNames(): array

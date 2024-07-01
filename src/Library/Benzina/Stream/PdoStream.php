@@ -18,16 +18,16 @@ class PdoStream implements StreamInterface
         $parsedUrl = parse_url($database);
         $dbdata = [
             'name' => ltrim($parsedUrl['path'], '/'),
-            ...$parsedUrl
+            ...$parsedUrl,
         ];
 
         $this->db = new \PDO(
-            dsn: sprintf("%s:host=%s;dbname=%s", $dbdata['scheme'], $dbdata['host'], $dbdata['name']),
+            dsn: sprintf('%s:host=%s;dbname=%s', $dbdata['scheme'], $dbdata['host'], $dbdata['name']),
             username: $dbdata['user'],
             password: $dbdata['pass'],
             options: [
-                \PDO::ATTR_EMULATE_PREPARES   => false,
-                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+                \PDO::ATTR_EMULATE_PREPARES => false,
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
             ]
         );
 
@@ -46,7 +46,7 @@ class PdoStream implements StreamInterface
         $length = $length ?? $this->sizeOfBatch;
         $this->query->execute([
             $length,
-            $this->currentBatch
+            $this->currentBatch,
         ]);
 
         $this->currentBatch += $length;

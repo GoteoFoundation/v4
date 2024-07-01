@@ -41,7 +41,7 @@ class SystemVarsSetCommand extends Command
 
         $var = $this->systemVarRepository->findOneBy(['name' => $name]);
         if (!$var) {
-            $var = new SystemVariable;
+            $var = new SystemVariable();
         }
 
         $var->setName($name);

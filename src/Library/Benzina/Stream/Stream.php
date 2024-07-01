@@ -15,7 +15,7 @@ class Stream implements StreamInterface
             \fwrite($this->stream, $data);
             \fseek($this->stream, 0);
         } catch (\Exception $e) {
-            throw new \RuntimeException("Unable to open stream");
+            throw new \RuntimeException('Unable to open stream');
         }
     }
 
@@ -40,7 +40,7 @@ class Stream implements StreamInterface
         }
 
         if ($size < 0) {
-            throw new \RuntimeException("Length parameter cannot be negative");
+            throw new \RuntimeException('Length parameter cannot be negative');
         }
 
         if ($size === 0) {
@@ -66,7 +66,7 @@ class Stream implements StreamInterface
             throw new \RuntimeException(self::MESSAGE_ERROR_DETACHED);
         }
 
-        return ftell($this->stream);
+        return \ftell($this->stream);
     }
 
     public function size(): int

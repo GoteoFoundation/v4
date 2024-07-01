@@ -77,7 +77,7 @@ EOF
         $streamSize = $stream->size();
 
         if ($streamSize < 1) {
-            $io->writeln("No data found at the given source. Skipping execution.");
+            $io->writeln('No data found at the given source. Skipping execution.');
 
             return Command::SUCCESS;
         }
@@ -86,17 +86,17 @@ EOF
         $pumpsCount = count($pumps);
 
         if ($pumpsCount < 1) {
-            $io->writeln("No pumps available for the data. Skipping execution.");
+            $io->writeln('No pumps available for the data. Skipping execution.');
 
             return Command::SUCCESS;
         }
 
-        $io->writeln(sprintf("Found %d pumps.", $pumpsCount));
+        $io->writeln(sprintf('Found %d pumps.', $pumpsCount));
         $io->listing(\array_map(function ($pump) {
             return $pump::class;
         }, $pumps));
 
-        $io->writeln(sprintf("Processing %d records.", $streamSize));
+        $io->writeln(sprintf('Processing %d records.', $streamSize));
         $progress = $io->createProgressBar();
         $progress->start($streamSize);
 
@@ -105,7 +105,7 @@ EOF
 
             foreach ($pumps as $pump) {
                 $pump->configure([
-                    'progress' => !$input->getOption('no-progress')
+                    'progress' => !$input->getOption('no-progress'),
                 ]);
 
                 $pump->process($data);
@@ -118,7 +118,7 @@ EOF
         $progress->finish();
 
         $io->writeln("\n");
-        $io->success("Data processed successfully!");
+        $io->success('Data processed successfully!');
 
         return Command::SUCCESS;
     }

@@ -43,11 +43,11 @@ class StripeGateway implements GatewayInterface
             'customer_email' => $checkout->getOrigin()->getUser()->getEmail(),
             'mode' => $this->getStripeMode($checkout),
             'line_items' => $this->getStripeLineItems($checkout),
-            # Because Symfony's Router encodes query parameters, the value {CHECKOUT_SESSION_ID}
-            # is not properly sent to Stripe and the redirection fails,
-            # that's why we add the session_id template variable like this.
-            # https://docs.stripe.com/payments/checkout/custom-success-page?lang=php#modify-the-success-url
-            'success_url' => sprintf("%s&session_id={CHECKOUT_SESSION_ID}", $redirect),
+            // Because Symfony's Router encodes query parameters, the value {CHECKOUT_SESSION_ID}
+            // is not properly sent to Stripe and the redirection fails,
+            // that's why we add the session_id template variable like this.
+            // https://docs.stripe.com/payments/checkout/custom-success-page?lang=php#modify-the-success-url
+            'success_url' => sprintf('%s&session_id={CHECKOUT_SESSION_ID}', $redirect),
         ]);
 
         $checkout->setCheckoutUrl($session->url);
@@ -88,8 +88,8 @@ class StripeGateway implements GatewayInterface
                 'unit_amount' => $charge->getMoney()->amount,
                 'product_data' => [
                     'name' => $charge::MESSAGE_STATEMENT,
-                    'statement_descriptor' => $charge::MESSAGE_STATEMENT
-                ]
+                    'statement_descriptor' => $charge::MESSAGE_STATEMENT,
+                ],
             ];
 
             if ($charge->getType() === GatewayChargeType::Recurring) {
@@ -98,7 +98,7 @@ class StripeGateway implements GatewayInterface
 
             $items[] = [
                 'quantity' => 1,
-                'price' => $this->stripe->prices->create($price)->id
+                'price' => $this->stripe->prices->create($price)->id,
             ];
         }
 

@@ -18,7 +18,7 @@ class GatewayNameValidator extends ChoiceValidator
     {
         /* @var App\Validator\GatewayName $constraint */
 
-        if (null === $value || '' === $value) {
+        if ($value === null || $value === '') {
             return;
         }
 

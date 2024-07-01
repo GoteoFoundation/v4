@@ -14,23 +14,18 @@ interface StreamInterface
 
     /**
      * Read data from the Stream.
-     * 
+     *
      * @param int|null $length Read up to $length positions from the current position of the Stream
-     * @return mixed
      */
     public function read(?int $length = null): mixed;
 
     /**
      * Get the current position.
-     * 
-     * @return int
      */
     public function tell(): int;
 
     /**
      * Get the total length of the Stream.
-     * 
-     * @return int
      */
     public function size(): int;
 
