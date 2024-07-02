@@ -31,7 +31,6 @@ class AccountingTest extends KernelTestCase
         $accA = new Accounting();
         $accA->setTipjar($tipjarA);
 
-
         $tipjarB = new Tipjar();
         $tipjarB->setName('TEST_TIPJAR_B');
 
@@ -76,7 +75,6 @@ class AccountingTest extends KernelTestCase
 
         $accA = new Accounting();
         $accA->setTipjar($tipjarA);
-
 
         $tipjarB = new Tipjar();
         $tipjarB->setName('TEST_TIPJAR_B');

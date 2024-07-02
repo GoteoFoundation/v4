@@ -54,7 +54,7 @@ class Accounting
 
     public function __construct()
     {
-        /**
+        /*
          * TO-DO: This property must be loaded from App's configuration,
          * ideally a configuration that can be updated via a frontend, not env var only
          */
@@ -169,7 +169,7 @@ class Accounting
     {
         $transactions = [
             ...$this->getTransactionsIssued()->toArray(),
-            ...$this->getTransactionsReceived()->toArray()
+            ...$this->getTransactionsReceived()->toArray(),
         ];
 
         \usort($transactions, function ($a, $b) {
