@@ -165,6 +165,20 @@ class Accounting
         return $this;
     }
 
+    public function getTransactions(): Collection
+    {
+        $transactions = [
+            ...$this->getTransactionsIssued()->toArray(),
+            ...$this->getTransactionsReceived()->toArray()
+        ];
+
+        \usort($transactions, function ($a, $b) {
+            return $a->getId() - $b->getId();
+        });
+
+        return new ArrayCollection($transactions);
+    }
+
     /**
      * @return Collection<int, AccountingTransaction>
      */
