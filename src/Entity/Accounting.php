@@ -173,22 +173,22 @@ class Accounting
         return $this->transactionsIssued;
     }
 
-    public function addTransactionsIssued(AccountingTransaction $transactionsIssued): static
+    public function addTransactionsIssued(AccountingTransaction $transaction): static
     {
-        if (!$this->transactionsIssued->contains($transactionsIssued)) {
-            $this->transactionsIssued->add($transactionsIssued);
-            $transactionsIssued->setOrigin($this);
+        if (!$this->transactionsIssued->contains($transaction)) {
+            $this->transactionsIssued->add($transaction);
+            $transaction->setOrigin($this);
         }
 
         return $this;
     }
 
-    public function removeTransactionsIssued(AccountingTransaction $transactionsIssued): static
+    public function removeTransactionsIssued(AccountingTransaction $transaction): static
     {
-        if ($this->transactionsIssued->removeElement($transactionsIssued)) {
+        if ($this->transactionsIssued->removeElement($transaction)) {
             // set the owning side to null (unless already changed)
-            if ($transactionsIssued->getOrigin() === $this) {
-                $transactionsIssued->setOrigin(null);
+            if ($transaction->getOrigin() === $this) {
+                $transaction->setOrigin(null);
             }
         }
 
@@ -203,22 +203,22 @@ class Accounting
         return $this->transactionsReceived;
     }
 
-    public function addTransactionsReceived(AccountingTransaction $transactionsReceived): static
+    public function addTransactionsReceived(AccountingTransaction $transaction): static
     {
-        if (!$this->transactionsReceived->contains($transactionsReceived)) {
-            $this->transactionsReceived->add($transactionsReceived);
-            $transactionsReceived->setTarget($this);
+        if (!$this->transactionsReceived->contains($transaction)) {
+            $this->transactionsReceived->add($transaction);
+            $transaction->setTarget($this);
         }
 
         return $this;
     }
 
-    public function removeTransactionsReceived(AccountingTransaction $transactionsReceived): static
+    public function removeTransactionsReceived(AccountingTransaction $transaction): static
     {
-        if ($this->transactionsReceived->removeElement($transactionsReceived)) {
+        if ($this->transactionsReceived->removeElement($transaction)) {
             // set the owning side to null (unless already changed)
-            if ($transactionsReceived->getTarget() === $this) {
-                $transactionsReceived->setTarget(null);
+            if ($transaction->getTarget() === $this) {
+                $transaction->setTarget(null);
             }
         }
 
