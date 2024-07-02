@@ -6,6 +6,7 @@ use App\Repository\SystemVariableRepository;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Symfony\Component\DependencyInjection\EnvVarLoaderInterface;
+use Symfony\Component\DependencyInjection\Exception\ParameterCircularReferenceException;
 
 /**
  * Loads SystemVar records as environment variables for the code to use.
@@ -26,6 +27,8 @@ final class SystemVariablesLoader implements EnvVarLoaderInterface
             return [];
         } catch (TableNotFoundException $e) {
             // Ignore loader in environments where the table does not exist
+            return [];
+        } catch (ParameterCircularReferenceException $e) {
             return [];
         }
 
