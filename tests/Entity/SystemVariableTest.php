@@ -3,13 +3,10 @@
 namespace App\Tests\Entity;
 
 use App\Entity\SystemVariable;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Zenstruck\Foundry\Test\ResetDatabase;
+use PHPUnit\Framework\TestCase;
 
-class SystemVariableTest extends KernelTestCase
+class SystemVariableTest extends TestCase
 {
-    use ResetDatabase;
-
     public function testSerializesNulls()
     {
         $null = 'null:null';
