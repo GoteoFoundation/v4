@@ -69,7 +69,7 @@ class UsersPump extends AbstractPump implements PumpInterface
         $pumped = $this->getPumped(User::class, $data, ['migratedReference' => 'id']);
 
         foreach ($data as $key => $record) {
-            if ($this->isPumped($record, $pumped)) {
+            if ($this->isPumped($record, $pumped, ['migratedReference' => 'id'])) {
                 continue;
             }
 

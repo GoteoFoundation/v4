@@ -58,9 +58,13 @@ trait ProgressivePumpTrait
      *
      * @param array $pumpingRecord The data record to be pumped
      * @param array $pumpedBatch   The pumped data batch
+     * @param array $matchCriteria An array with the matching criteria between the entity key and the data key
      */
-    public function isPumped(array $pumpingRecord, array $pumpedBatch): bool
-    {
+    public function isPumped(
+        array $pumpingRecord,
+        array $pumpedBatch,
+        array $matchCriteria
+    ): bool {
         if (
             \array_key_exists('progress', $this->config)
             && $this->config['progress'] === false
@@ -68,6 +72,31 @@ trait ProgressivePumpTrait
             return false;
         }
 
-        return \array_key_exists($pumpingRecord['id'], $pumpedBatch);
+        $entityKey = \array_keys($matchCriteria)[0];
+        $pumpingKey = $matchCriteria[$entityKey];
+
+        return \array_key_exists($pumpingRecord[$pumpingKey], $pumpedBatch);
+    }
+
+    /**
+     * Obtain the pumped record in a pumped data batch from a pumping data record.
+     *
+     * @param array $pumpingRecord The data record being pumped
+     * @param array $pumpedBatch   The pumped data batch
+     * @param array $matchCriteria An array with the matching criteria between the entity key and the data key
+     */
+    public function getPumpedRecord(
+        array $pumpingRecord,
+        array $pumpedBatch,
+        array $matchCriteria
+    ): mixed {
+        $entityKey = \array_keys($matchCriteria)[0];
+        $pumpingKey = $matchCriteria[$entityKey];
+
+        if ($this->isPumped($pumpingRecord, $pumpedBatch, $matchCriteria)) {
+            return $pumpedBatch[$pumpingRecord[$pumpingKey]];
+        }
+
+        return false;
     }
 }

@@ -115,7 +115,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
         $owners = $this->getOwners($data);
 
         foreach ($data as $key => $record) {
-            $isPumped = $this->isPumped($record, $pumped);
+            $isPumped = $this->isPumped($record, $pumped, ['migratedReference' => 'id']);
 
             if ($isPumped) {
                 continue;
