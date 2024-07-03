@@ -58,14 +58,17 @@ class AccountingTest extends KernelTestCase
         $this->assertNotNull($accA->getId());
         $this->assertNotNull($accB->getId());
 
-        $this->assertCount(1, $accA->getTransactions());
-        $this->assertCount(1, $accB->getTransactions());
+        $this->assertCount(1, $accA->getTransactionsIssued());
+        $this->assertCount(0, $accA->getTransactionsReceived());
+        
+        $this->assertCount(0, $accB->getTransactionsIssued());
+        $this->assertCount(1, $accB->getTransactionsReceived());
 
-        $this->assertEquals(120, $accA->getTransactions()[0]->getMoney()->amount);
-        $this->assertEquals('EUR', $accA->getTransactions()[0]->getMoney()->currency);
+        $this->assertEquals(120, $accA->getTransactionsIssued()[0]->getMoney()->amount);
+        $this->assertEquals('EUR', $accA->getTransactionsIssued()[0]->getMoney()->currency);
 
-        $this->assertEquals(120, $accB->getTransactions()[0]->getMoney()->amount);
-        $this->assertEquals('EUR', $accB->getTransactions()[0]->getMoney()->currency);
+        $this->assertEquals(120, $accB->getTransactionsReceived()[0]->getMoney()->amount);
+        $this->assertEquals('EUR', $accB->getTransactionsReceived()[0]->getMoney()->currency);
     }
 
     public function testAccountingSortsMixedTransactions()
