@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata as API;
 use App\Repository\GatewayChargeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -42,6 +43,13 @@ class GatewayCharge
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $target = null;
 
+    /**
+     * The AccountingTransaction generated for this charge after the checkout with the Gateway.
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?AccountingTransaction $transaction = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -79,6 +87,18 @@ class GatewayCharge
     public function setTarget(?Accounting $target): static
     {
         $this->target = $target;
+
+        return $this;
+    }
+
+    public function getTransaction(): ?AccountingTransaction
+    {
+        return $this->transaction;
+    }
+
+    public function setTransaction(?AccountingTransaction $transaction): static
+    {
+        $this->transaction = $transaction;
 
         return $this;
     }
