@@ -60,7 +60,7 @@ class AccountingTest extends KernelTestCase
 
         $this->assertCount(1, $accA->getTransactionsIssued());
         $this->assertCount(0, $accA->getTransactionsReceived());
-        
+
         $this->assertCount(0, $accB->getTransactionsIssued());
         $this->assertCount(1, $accB->getTransactionsReceived());
 
