@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata as API;
 use App\Repository\AccountingTransactionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -12,6 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * When a Transaction targets an Accounting it means that the Accounting receives it, this will add to that Accounting.
  * When a Transaction originates from an Accounting the Accounting issues the Transaction and it will deduct from it.
  */
+#[API\ApiResource()]
 #[ORM\Entity(repositoryClass: AccountingTransactionRepository::class)]
 class AccountingTransaction
 {
