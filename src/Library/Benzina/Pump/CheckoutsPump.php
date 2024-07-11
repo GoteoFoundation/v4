@@ -147,7 +147,6 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
 
             if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
                 foreach ($checkout->getCharges() as $charge) {
-
                     $transaction = new AccountingTransaction();
                     $transaction->setMoney($charge->getMoney());
                     $transaction->setOrigin($checkout->getOrigin());
