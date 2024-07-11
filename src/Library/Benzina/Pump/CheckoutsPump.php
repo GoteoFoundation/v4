@@ -3,6 +3,7 @@
 namespace App\Library\Benzina\Pump;
 
 use App\Entity\Accounting;
+use App\Entity\AccountingTransaction;
 use App\Entity\GatewayCharge;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
@@ -143,6 +144,21 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
 
             $this->entityManager->persist($charge);
             $checkout->addCharge($charge);
+
+            if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
+                foreach ($checkout->getCharges() as $charge) {
+
+                    $transaction = new AccountingTransaction();
+                    $transaction->setMoney($charge->getMoney());
+                    $transaction->setOrigin($checkout->getOrigin());
+                    $transaction->setTarget($charge->getTarget());
+
+                    $charge->setTransaction($transaction);
+
+                    $this->entityManager->persist($transaction);
+                    $this->entityManager->persist($charge);
+                }
+            }
 
             $this->entityManager->persist($checkout);
         }
