@@ -2,10 +2,12 @@
 
 namespace App\Library\Economy\Payment;
 
+use App\Entity\AccountingTransaction;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
 use App\Entity\GatewayCheckoutStatus;
 use App\Repository\GatewayCheckoutRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\StripeClient;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +20,8 @@ class StripeGateway implements GatewayInterface
     public function __construct(
         private string $stripeApiKey,
         private RouterInterface $router,
-        private GatewayCheckoutRepository $gatewayCheckoutRepository
+        private GatewayCheckoutRepository $gatewayCheckoutRepository,
+        private EntityManagerInterface $entityManager
     ) {
         $this->stripe = new StripeClient($stripeApiKey);
     }
@@ -58,11 +61,37 @@ class StripeGateway implements GatewayInterface
 
     public function handleRedirect(Request $request): GatewayCheckout
     {
+        $sessionId = $request->query->get('session_id');
+
+        $session = $this->stripe->checkout->sessions->retrieve($sessionId);
         $checkout = $this->gatewayCheckoutRepository->findOneBy(
-            ['gatewayReference' => $request->query->get('session_id')]
+            ['gatewayReference' => $sessionId]
         );
 
+        if ($checkout === null) {
+            throw new \Exception(sprintf("Could not find GatewayCheckout with gatewayReference '%s'", $sessionId));
+        }
+
+        if ($session->payment_status !== StripeSession::PAYMENT_STATUS_PAID) {
+            return $checkout;
+        }
+
         $checkout->setStatus(GatewayCheckoutStatus::Charged);
+
+        foreach ($checkout->getCharges() as $charge) {
+            $transaction = new AccountingTransaction();
+            $transaction->setMoney($charge->getMoney());
+            $transaction->setOrigin($checkout->getOrigin());
+            $transaction->setTarget($charge->getTarget());
+
+            $this->entityManager->persist($transaction);
+
+            $charge->setTransaction($transaction);
+
+            $this->entityManager->persist($charge);
+        }
+
+        $this->entityManager->flush();
 
         return $checkout;
     }
