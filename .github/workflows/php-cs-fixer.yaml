@@ -1,5 +1,5 @@
 name: PHP CS Fixer
-on: [pull_request, push]
+on: [pull_request]
 jobs:
   php-cs-fixer:
     runs-on: "ubuntu-latest"
