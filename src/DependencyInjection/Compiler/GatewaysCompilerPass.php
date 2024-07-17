@@ -56,7 +56,7 @@ class GatewaysCompilerPass implements CompilerPassInterface
 
     /**
      * Stores the gateway names in disk.
-     * 
+     *
      * @param array $names The names returned by the interfaces
      */
     public static function compileGatewayNames(array $names)
@@ -73,12 +73,12 @@ class GatewaysCompilerPass implements CompilerPassInterface
         $economyDir = join(DIRECTORY_SEPARATOR, [
             $projectDir,
             'src',
-            ...\array_slice($namespacePieces, 1)
+            ...\array_slice($namespacePieces, 1),
         ]);
 
         $economyDirPaths = \scandir($economyDir);
         foreach ($economyDirPaths as $path) {
-            if ($path === "." || $path === "..") {
+            if ($path === '.' || $path === '..') {
                 continue;
             }
 
@@ -87,7 +87,7 @@ class GatewaysCompilerPass implements CompilerPassInterface
                 continue;
             }
 
-            $reflection = new \ReflectionClass(sprintf("%s\%s", join("\\", $namespacePieces), $className));
+            $reflection = new \ReflectionClass(sprintf("%s\%s", join('\\', $namespacePieces), $className));
             if ($reflection->isAbstract()) {
                 continue;
             }
@@ -99,9 +99,10 @@ class GatewaysCompilerPass implements CompilerPassInterface
     }
 
     /**
+     * @param array $gatewayClasses Fully-qualified Gateway class names
+     *
      * @throws \Exception If there are two different Gateway classes with the same name
      *
-     * @param array $gatewayClasses Fully-qualified Gateway class names
      * @see GatewayInterface::getName()
      */
     public static function validateGatewayNames(array $gatewayClasses)
@@ -127,6 +128,7 @@ class GatewaysCompilerPass implements CompilerPassInterface
 
     /**
      * @param array $gatewayClasses Fully-qualified Gateway class names
+     *
      * @return array The names returned by each interface
      */
     private function getGatewayNames(array $gatewayClasses): array

@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\DependencyInjection\Compiler\GatewaysCompilerPass;
 use App\Library\Economy\Payment\GatewayLocator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -29,7 +30,11 @@ class GatewaysSetupCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         try {
-            $this->gatewayLocator->compileGatewayNames();
+            $classes = $this->gatewayLocator->getClasses();
+            GatewaysCompilerPass::validateGatewayNames($classes);
+
+            $names = $this->gatewayLocator->getNames();
+            GatewaysCompilerPass::compileGatewayNames($names);
 
             $io->success(self::SUCCESS_MESSAGE);
 
