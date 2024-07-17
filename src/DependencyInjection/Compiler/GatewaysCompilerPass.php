@@ -11,7 +11,7 @@ class GatewaysCompilerPass implements CompilerPassInterface
     public const GATEWAYS_DIR = 'gateways';
     public const GATEWAY_NAMES_LOCK = 'gateway_names_compiled.lock';
 
-    public static function getGatewayCompileDir(): string
+    public static function getCompileDir(): string
     {
         return sprintf(
             '%s%svar%s%s',
@@ -22,26 +22,36 @@ class GatewaysCompilerPass implements CompilerPassInterface
         );
     }
 
-    public static function getGatewayNamesLockFile(): string
-    {
-        return sprintf(
-            '%s%s%s',
-            self::getGatewayCompileDir(),
-            DIRECTORY_SEPARATOR,
-            self::GATEWAY_NAMES_LOCK
-        );
-    }
-
     /**
      * Generates a directory for the gateways in the project var dir.
      */
     public static function makeCompileDir()
     {
-        $compileDir = self::getGatewayCompileDir();
+        $compileDir = self::getCompileDir();
 
         if (!\is_dir($compileDir)) {
             \mkdir($compileDir, 0777, true);
         }
+    }
+
+    public static function getLockFile(): string
+    {
+        return sprintf(
+            '%s%s%s',
+            self::getCompileDir(),
+            DIRECTORY_SEPARATOR,
+            self::GATEWAY_NAMES_LOCK
+        );
+    }
+
+    public static function makeLockfile(array $names)
+    {
+        self::makeCompileDir();
+
+        \file_put_contents(
+            self::getLockFile(),
+            implode(PHP_EOL, $names)
+        );
     }
 
     /**
@@ -51,22 +61,17 @@ class GatewaysCompilerPass implements CompilerPassInterface
      */
     public static function compileGatewayNames(array $names)
     {
-        self::makeCompileDir();
-
-        \file_put_contents(
-            self::getGatewayNamesLockFile(),
-            implode(PHP_EOL, $names)
-        );
+        self::makeLockfile($names);
     }
 
-    private function getGatewayClasses(string $kernelDir): array
+    public static function getGatewayClasses(string $projectDir): array
     {
         $classes = [];
 
         $namespacePieces = \array_slice(explode('\\', GatewayLocator::class), 0, -1);
 
         $economyDir = join(DIRECTORY_SEPARATOR, [
-            $kernelDir,
+            $projectDir,
             'src',
             ...\array_slice($namespacePieces, 1)
         ]);
@@ -99,7 +104,7 @@ class GatewaysCompilerPass implements CompilerPassInterface
      * @param array $gatewayClasses Fully-qualified Gateway class names
      * @see GatewayInterface::getName()
      */
-    private function validateGatewayNames(array $gatewayClasses)
+    public static function validateGatewayNames(array $gatewayClasses)
     {
         $gatewaysValidated = [];
         foreach ($gatewayClasses as $gatewayClass) {
@@ -136,8 +141,10 @@ class GatewaysCompilerPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container): void
     {
-        $gatewayClasses = $this->getGatewayClasses($container->getParameter('kernel.project_dir'));
-        $this->validateGatewayNames($gatewayClasses);
+        $projectDir = $container->getParameter('kernel.project_dir');
+
+        $gatewayClasses = self::getGatewayClasses($projectDir);
+        self::validateGatewayNames($gatewayClasses);
 
         $gatewayNames = $this->getGatewayNames($gatewayClasses);
         self::compileGatewayNames($gatewayNames);
