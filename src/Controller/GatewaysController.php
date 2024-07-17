@@ -9,10 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * The `GatewayController` exposes the handler routes for responding to network requests sent by external gateways.
+ * The `GatewaysController` exposes the handler routes for responding to network requests sent by external gateways.
  */
 #[Route('/v4/controllers')]
-class GatewayController extends AbstractController
+class GatewaysController extends AbstractController
 {
     public const REDIRECT = 'gateway_controller.redirect';
     public const WEBHOOKS = 'gateway_controller.webhooks';
@@ -26,6 +26,7 @@ class GatewayController extends AbstractController
     public function handleRedirect(Request $request): Response
     {
         $gateway = $this->gatewayLocator->getGateway($request->query->get('gateway'));
+
         return $gateway->handleRedirect($request);
     }
 
@@ -33,6 +34,7 @@ class GatewayController extends AbstractController
     public function handleWebhook(Request $request): Response
     {
         $gateway = $this->gatewayLocator->getGateway($request->query->get('gateway'));
+
         return $gateway->handleWebhook($request);
     }
 }

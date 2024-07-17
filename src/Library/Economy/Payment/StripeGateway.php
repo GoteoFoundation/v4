@@ -3,7 +3,7 @@
 namespace App\Library\Economy\Payment;
 
 use ApiPlatform\Api\IriConverterInterface;
-use App\Controller\GatewayController;
+use App\Controller\GatewaysController;
 use App\Entity\AccountingTransaction;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
@@ -44,7 +44,7 @@ class StripeGateway implements GatewayInterface
     public function sendData(GatewayCheckout $checkout): GatewayCheckout
     {
         $successUrl = $this->router->generate(
-            GatewayController::REDIRECT,
+            GatewaysController::REDIRECT,
             [
                 'type' => self::RESPONSE_TYPE_SUCCESS,
                 'gateway' => $this->getName(),
@@ -129,7 +129,7 @@ class StripeGateway implements GatewayInterface
         switch ($webhook->type) {
             default:
                 return new JsonResponse([
-                    'error' => sprintf("The event '%s' is not supported", $webhook->type)
+                    'error' => sprintf("The event '%s' is not supported", $webhook->type),
                 ], Response::HTTP_BAD_REQUEST);
                 break;
         }
