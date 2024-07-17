@@ -2,6 +2,7 @@
 
 namespace App\Library\Economy\Payment;
 
+use ApiPlatform\Api\IriConverterInterface;
 use App\Controller\GatewayController;
 use App\Entity\AccountingTransaction;
 use App\Entity\GatewayChargeType;
@@ -11,7 +12,11 @@ use App\Repository\GatewayCheckoutRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\StripeClient;
+use Stripe\Webhook as StripeWebhook;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
 class StripeGateway implements GatewayInterface
@@ -22,9 +27,11 @@ class StripeGateway implements GatewayInterface
 
     public function __construct(
         private string $stripeApiKey,
+        private string $stripeWebhookSecret,
         private RouterInterface $router,
         private GatewayCheckoutRepository $gatewayCheckoutRepository,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private IriConverterInterface $iriConverter
     ) {
         $this->stripe = new StripeClient($stripeApiKey);
     }
@@ -34,7 +41,7 @@ class StripeGateway implements GatewayInterface
         return 'stripe';
     }
 
-    public function create(GatewayCheckout $checkout): GatewayCheckout
+    public function sendData(GatewayCheckout $checkout): GatewayCheckout
     {
         $successUrl = $this->router->generate(
             GatewayController::REDIRECT,
@@ -84,7 +91,7 @@ class StripeGateway implements GatewayInterface
         return $checkout;
     }
 
-    public function handleRedirect(Request $request): GatewayCheckout
+    public function handleRedirect(Request $request): RedirectResponse
     {
         $sessionId = $request->query->get('session_id');
 
@@ -107,7 +114,25 @@ class StripeGateway implements GatewayInterface
 
         $checkout = $this->handleSuccess($checkout);
 
-        return $checkout;
+        // TO-DO: This should redirect the user to a GUI
+        return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
+    }
+
+    public function handleWebhook(Request $request): Response
+    {
+        $webhook = StripeWebhook::constructEvent(
+            $request->getContent(),
+            $request->headers->get('STRIPE_SIGNATURE'),
+            $this->stripeWebhookSecret
+        );
+
+        switch ($webhook->type) {
+            default:
+                return new JsonResponse([
+                    'error' => sprintf("The event '%s' is not supported", $webhook->type)
+                ], Response::HTTP_BAD_REQUEST);
+                break;
+        }
     }
 
     private function getStripeMode(GatewayCheckout $checkout): string
