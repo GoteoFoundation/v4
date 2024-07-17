@@ -6,7 +6,7 @@ use App\Library\Economy\Payment\GatewayLocator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class GatewayPass implements CompilerPassInterface
+class GatewaysCompilerPass implements CompilerPassInterface
 {
     public const GATEWAYS_DIR = 'gateways';
     public const GATEWAY_NAMES_LOCK = 'gateway_names_compiled.lock';
