@@ -2,6 +2,7 @@
 
 namespace App\Library\Economy\Payment;
 
+use App\Controller\GatewayController;
 use App\Entity\AccountingTransaction;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
@@ -15,6 +16,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 class StripeGateway implements GatewayInterface
 {
+    private const RESPONSE_TYPE_SUCCESS = 'success';
+
     private StripeClient $stripe;
 
     public function __construct(
@@ -33,10 +36,10 @@ class StripeGateway implements GatewayInterface
 
     public function create(GatewayCheckout $checkout): GatewayCheckout
     {
-        $redirect = $this->router->generate(
-            'gateway_redirect',
+        $successUrl = $this->router->generate(
+            GatewayController::REDIRECT,
             [
-                'type' => 'success',
+                'type' => self::RESPONSE_TYPE_SUCCESS,
                 'gateway' => $this->getName(),
             ],
             RouterInterface::ABSOLUTE_URL
@@ -50,7 +53,7 @@ class StripeGateway implements GatewayInterface
             // is not properly sent to Stripe and the redirection fails,
             // that's why we add the session_id template variable like this.
             // https://docs.stripe.com/payments/checkout/custom-success-page?lang=php#modify-the-success-url
-            'success_url' => sprintf('%s&session_id={CHECKOUT_SESSION_ID}', $redirect),
+            'success_url' => sprintf('%s&session_id={CHECKOUT_SESSION_ID}', $successUrl),
         ]);
 
         $checkout->setCheckoutUrl($session->url);
@@ -59,23 +62,8 @@ class StripeGateway implements GatewayInterface
         return $checkout;
     }
 
-    public function handleRedirect(Request $request): GatewayCheckout
+    private function handleSuccess(GatewayCheckout $checkout): GatewayCheckout
     {
-        $sessionId = $request->query->get('session_id');
-
-        $session = $this->stripe->checkout->sessions->retrieve($sessionId);
-        $checkout = $this->gatewayCheckoutRepository->findOneBy(
-            ['gatewayReference' => $sessionId]
-        );
-
-        if ($checkout === null) {
-            throw new \Exception(sprintf("Could not find GatewayCheckout with gatewayReference '%s'", $sessionId));
-        }
-
-        if ($session->payment_status !== StripeSession::PAYMENT_STATUS_PAID) {
-            return $checkout;
-        }
-
         $checkout->setStatus(GatewayCheckoutStatus::Charged);
 
         foreach ($checkout->getCharges() as $charge) {
@@ -92,6 +80,32 @@ class StripeGateway implements GatewayInterface
         }
 
         $this->entityManager->flush();
+
+        return $checkout;
+    }
+
+    public function handleRedirect(Request $request): GatewayCheckout
+    {
+        $sessionId = $request->query->get('session_id');
+
+        $session = $this->stripe->checkout->sessions->retrieve($sessionId);
+        $checkout = $this->gatewayCheckoutRepository->findOneBy(
+            ['gatewayReference' => $sessionId]
+        );
+
+        if ($checkout === null) {
+            throw new \Exception(sprintf("Stripe checkout '%s' exists but no GatewayCheckout with that reference was found.", $sessionId));
+        }
+
+        if ($request->query->get('type') !== self::RESPONSE_TYPE_SUCCESS) {
+            return $checkout;
+        }
+
+        if ($session->payment_status !== StripeSession::PAYMENT_STATUS_PAID) {
+            return $checkout;
+        }
+
+        $checkout = $this->handleSuccess($checkout);
 
         return $checkout;
     }
