@@ -11,9 +11,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * The `GatewayController` exposes the handler routes for responding to network requests sent by external gateways.
+ */
 #[Route('/v4/controllers')]
 class GatewayController extends AbstractController
 {
+    public const REDIRECT = 'gateway_controller.redirect';
+    public const WEBHOOKS = 'gateway_controller.webhooks';
+
     public function __construct(
         private GatewayLocator $gatewayLocator,
         private EntityManagerInterface $entityManager,
@@ -21,7 +27,7 @@ class GatewayController extends AbstractController
     ) {
     }
 
-    #[Route('/gateway_redirect', name: 'gateway_redirect')]
+    #[Route('/gateway_redirects', name: self::REDIRECT)]
     public function handleRedirect(Request $request): Response
     {
         $gateway = $this->gatewayLocator->getGateway($request->query->get('gateway'));
@@ -32,5 +38,11 @@ class GatewayController extends AbstractController
 
         // TO-DO: This should redirect the user to a GUI
         return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
+    }
+
+    #[Route('/gateway_webhooks', name: self::WEBHOOKS)]
+    public function handleWebhook(Request $request): Response
+    {
+        return new Response(500);
     }
 }
