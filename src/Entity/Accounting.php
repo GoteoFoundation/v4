@@ -46,9 +46,11 @@ class Accounting
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
     private ?Tipjar $tipjar = null;
 
+    #[API\ApiProperty(readableLink: false)]
     #[ORM\OneToMany(mappedBy: 'origin', targetEntity: AccountingTransaction::class)]
     private Collection $transactionsIssued;
 
+    #[API\ApiProperty(readableLink: false)]
     #[ORM\OneToMany(mappedBy: 'target', targetEntity: AccountingTransaction::class)]
     private Collection $transactionsReceived;
 
@@ -165,6 +167,10 @@ class Accounting
         return $this;
     }
 
+    /**
+     * @return Collection<int, AccountingTransaction>
+     */
+    #[API\ApiProperty(readableLink: false)]
     public function getTransactions(): Collection
     {
         $transactions = [
