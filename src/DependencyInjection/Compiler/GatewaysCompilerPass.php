@@ -2,7 +2,7 @@
 
 namespace App\DependencyInjection\Compiler;
 
-use App\Library\Economy\Payment\GatewayLocator;
+use App\Library\Economy\Payment\GatewayInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -44,13 +44,13 @@ class GatewaysCompilerPass implements CompilerPassInterface
         );
     }
 
-    public static function makeLockfile(array $names)
+    public static function writeLockFile(array $lines)
     {
         self::makeCompileDir();
 
         \file_put_contents(
             self::getLockFile(),
-            implode(PHP_EOL, $names)
+            implode(PHP_EOL, $lines)
         );
     }
 
@@ -61,22 +61,20 @@ class GatewaysCompilerPass implements CompilerPassInterface
      */
     public static function compileGatewayNames(array $names)
     {
-        self::makeLockfile($names);
+        self::writeLockFile($names);
     }
 
-    public static function getGatewayClasses(string $projectDir): array
+    public static function getGatewayNamespace(string $interface = GatewayInterface::class): string
     {
+        return join('\\', \array_slice(explode('\\', $interface), 0, -1));
+    }
+
+    public static function getGatewayClasses(string $classesDir): array
+    {
+        $namespace = self::getGatewayNamespace();
+        $economyDirPaths = \scandir($classesDir);
+
         $classes = [];
-
-        $namespacePieces = \array_slice(explode('\\', GatewayLocator::class), 0, -1);
-
-        $economyDir = join(DIRECTORY_SEPARATOR, [
-            $projectDir,
-            'src',
-            ...\array_slice($namespacePieces, 1),
-        ]);
-
-        $economyDirPaths = \scandir($economyDir);
         foreach ($economyDirPaths as $path) {
             if ($path === '.' || $path === '..') {
                 continue;
@@ -87,7 +85,7 @@ class GatewaysCompilerPass implements CompilerPassInterface
                 continue;
             }
 
-            $reflection = new \ReflectionClass(sprintf("%s\%s", join('\\', $namespacePieces), $className));
+            $reflection = new \ReflectionClass(sprintf("%s\%s", $namespace, $className));
             if ($reflection->isAbstract()) {
                 continue;
             }
@@ -143,9 +141,14 @@ class GatewaysCompilerPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container): void
     {
-        $projectDir = $container->getParameter('kernel.project_dir');
+        $classesDir = join(DIRECTORY_SEPARATOR, [
+            $container->getParameter('kernel.project_dir'),
+            'src',
+            ...\array_slice(explode('\\', self::getGatewayNamespace()), 1),
+        ]);
 
-        $gatewayClasses = self::getGatewayClasses($projectDir);
+        $gatewayClasses = self::getGatewayClasses($classesDir);
+
         self::validateGatewayNames($gatewayClasses);
 
         $gatewayNames = $this->getGatewayNames($gatewayClasses);
