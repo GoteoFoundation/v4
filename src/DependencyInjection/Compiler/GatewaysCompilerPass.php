@@ -148,7 +148,6 @@ class GatewaysCompilerPass implements CompilerPassInterface
         ]);
 
         $gatewayClasses = self::getGatewayClasses($classesDir);
-
         self::validateGatewayNames($gatewayClasses);
 
         $gatewayNames = $this->getGatewayNames($gatewayClasses);
