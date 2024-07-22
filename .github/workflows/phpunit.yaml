@@ -12,4 +12,5 @@ jobs:
       - name: PHPUnit
         uses: php-actions/phpunit@v4
         with:
+          php_extensions: apcu, pdo_mysql
           configuration:  phpunit.xml.dist
