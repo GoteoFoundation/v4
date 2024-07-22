@@ -11,7 +11,7 @@ class GatewaysCompilerPass implements CompilerPassInterface
     public const GATEWAYS_DIR = 'gateways';
     public const GATEWAY_NAMES_LOCK = 'gateway_names_compiled.lock';
 
-    public static function getCompileDir(): string
+    private static function getCompileDir(): string
     {
         return sprintf(
             '%s%svar%s%s',
@@ -25,7 +25,7 @@ class GatewaysCompilerPass implements CompilerPassInterface
     /**
      * Generates a directory for the gateways in the project var dir.
      */
-    public static function makeCompileDir()
+    private static function makeCompileDir()
     {
         $compileDir = self::getCompileDir();
 
@@ -34,7 +34,7 @@ class GatewaysCompilerPass implements CompilerPassInterface
         }
     }
 
-    public static function getLockFile(): string
+    private static function getLockFile(): string
     {
         return sprintf(
             '%s%s%s',
@@ -44,7 +44,7 @@ class GatewaysCompilerPass implements CompilerPassInterface
         );
     }
 
-    public static function writeLockFile(array $lines)
+    private static function writeLockFile(array $lines)
     {
         self::makeCompileDir();
 
@@ -64,9 +64,9 @@ class GatewaysCompilerPass implements CompilerPassInterface
         self::writeLockFile($names);
     }
 
-    public static function getGatewayNamespace(string $interface = GatewayInterface::class): string
+    private static function getGatewayNamespace(): string
     {
-        return join('\\', \array_slice(explode('\\', $interface), 0, -1));
+        return join('\\', \array_slice(explode('\\', GatewayInterface::class), 0, -1));
     }
 
     public static function getGatewayClasses(string $classesDir): array
