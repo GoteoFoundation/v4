@@ -3,12 +3,34 @@ on: [push]
 jobs:
   phpunit:
     runs-on: "ubuntu-latest"
+    services:
+      mysql:
+        image: mysql:10.11.2
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: goteo
+          MYSQL_DATABASE: goteo
+        ports:
+          - 3306/tcp
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: phpunit-bridge
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name:
-        uses: php-actions/composer@v6
+      - name: Run Migration
+        run: |
+          composer require  --dev symfony/orm-pack
+          php bin/conolse doctrine:schema:update --force
 
-      - name: Run PHPUnit
-        uses: php-actions/phpunit@v3
+      - name: Install PHPUnit
+        run: simple-phpunit install
+
+      - name: Run PHPUnit tests
+        run: simple-phpunit
