@@ -10,4 +10,6 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: PHPUnit
-        uses: chindit/actions-phpunit-symfony@1.0.0
+        uses: php-actions/phpunit@v4
+        with:
+          configuration:  phpunit.xml.dist
