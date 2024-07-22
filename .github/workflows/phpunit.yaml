@@ -28,6 +28,8 @@ jobs:
         run: |
           composer require  --dev symfony/orm-pack
           php bin/console doctrine:schema:update --force
+        env:
+          DATABASE_URL: mysql://root:goteo@127.0.0.1:${{ job.services.mariadb.ports['3306'] }}/goteo
 
       - name: Install PHPUnit
         run: simple-phpunit install
