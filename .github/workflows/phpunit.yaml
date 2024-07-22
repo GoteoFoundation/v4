@@ -35,6 +35,6 @@ jobs:
         run: simple-phpunit install
 
       - name: Run PHPUnit tests
-        run: simple-phpunit
+        run: simple-phpunit --verbose
         env:
           DATABASE_URL: mysql://root:goteo@127.0.0.1:${{ job.services.mariadb.ports['3306'] }}/goteo
