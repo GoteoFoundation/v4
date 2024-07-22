@@ -11,7 +11,10 @@ class GatewaysCompilerPass implements CompilerPassInterface
     public const GATEWAYS_DIR = 'gateways';
     public const GATEWAY_NAMES_LOCK = 'gateway_names_compiled.lock';
 
-    private static function getCompileDir(): string
+    /**
+     * @return string The path to the gateways dir inside the project's var dir
+     */
+    public static function getCompileDir(): string
     {
         return sprintf(
             '%s%svar%s%s',
@@ -31,7 +34,10 @@ class GatewaysCompilerPass implements CompilerPassInterface
         }
     }
 
-    private static function getLockFile(): string
+    /**
+     * @return string The path to the gateway names lock file
+     */
+    public static function getLockFile(): string
     {
         return sprintf(
             '%s%s%s',
