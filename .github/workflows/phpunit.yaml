@@ -27,7 +27,7 @@ jobs:
       - name: Run Migration
         run: |
           composer require  --dev symfony/orm-pack
-          php bin/conolse doctrine:schema:update --force
+          php bin/console doctrine:schema:update --force
 
       - name: Install PHPUnit
         run: simple-phpunit install
