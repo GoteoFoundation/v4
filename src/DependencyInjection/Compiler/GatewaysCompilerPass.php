@@ -22,9 +22,6 @@ class GatewaysCompilerPass implements CompilerPassInterface
         );
     }
 
-    /**
-     * Generates a directory for the gateways in the project var dir.
-     */
     private static function makeCompileDir()
     {
         $compileDir = self::getCompileDir();
@@ -54,24 +51,24 @@ class GatewaysCompilerPass implements CompilerPassInterface
         );
     }
 
-    /**
-     * Stores the gateway names in disk.
-     *
-     * @param array $names The names returned by the interfaces
-     */
-    public static function compileGatewayNames(array $names)
-    {
-        self::writeLockFile($names);
-    }
-
-    private static function getGatewayNamespace(): string
+    private static function getGatewaysNamespace(): string
     {
         return join('\\', \array_slice(explode('\\', GatewayInterface::class), 0, -1));
     }
 
-    public static function getGatewayClasses(string $classesDir): array
+    private function getGatewayNames(array $gatewayClasses): array
     {
-        $namespace = self::getGatewayNamespace();
+        $names = [];
+        foreach ($gatewayClasses as $class) {
+            $names[] = $class::getName();
+        }
+
+        return $names;
+    }
+
+    private static function getGatewayClasses(string $classesDir): array
+    {
+        $namespace = self::getGatewaysNamespace();
         $economyDirPaths = \scandir($classesDir);
 
         $classes = [];
@@ -97,13 +94,15 @@ class GatewaysCompilerPass implements CompilerPassInterface
     }
 
     /**
+     * Ensures the gateway names are unique for each gateway.
+     *
      * @param array $gatewayClasses Fully-qualified Gateway class names
      *
      * @throws \Exception If there are two different Gateway classes with the same name
      *
-     * @see GatewayInterface::getName()
+     * @see \App\Library\Economy\Payment\GatewayInterface::getName() To see the names returned by the implementations
      */
-    public static function validateGatewayNames(array $gatewayClasses)
+    public static function validateGatewayNames(array $gatewayClasses): void
     {
         $gatewaysValidated = [];
         foreach ($gatewayClasses as $gatewayClass) {
@@ -125,18 +124,15 @@ class GatewaysCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * @param array $gatewayClasses Fully-qualified Gateway class names
+     * Stores the gateway names in disk.
      *
-     * @return array The names returned by each interface
+     * @param array $names The names returned by the gateways
+     *
+     * @see \App\Library\Economy\Payment\GatewayInterface::getName() To see the names returned by the implementations
      */
-    private function getGatewayNames(array $gatewayClasses): array
+    public static function compileGatewayNames(array $names): void
     {
-        $names = [];
-        foreach ($gatewayClasses as $class) {
-            $names[] = $class::getName();
-        }
-
-        return $names;
+        self::writeLockFile($names);
     }
 
     public function process(ContainerBuilder $container): void
@@ -144,7 +140,7 @@ class GatewaysCompilerPass implements CompilerPassInterface
         $classesDir = join(DIRECTORY_SEPARATOR, [
             $container->getParameter('kernel.project_dir'),
             'src',
-            ...\array_slice(explode('\\', self::getGatewayNamespace()), 1),
+            ...\array_slice(explode('\\', self::getGatewaysNamespace()), 1),
         ]);
 
         $gatewayClasses = self::getGatewayClasses($classesDir);
