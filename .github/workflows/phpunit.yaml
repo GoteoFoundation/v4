@@ -1,0 +1,17 @@
+name: PHPUnit
+on: [pull_request]
+jobs:
+  php-cs-fixer:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: phpunit
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run PHPUnit
+        run: phpunit
