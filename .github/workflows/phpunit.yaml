@@ -24,7 +24,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run Migration
+      - name: Run Migrations
         run: |
           composer require  --dev symfony/orm-pack
           php bin/console doctrine:schema:update --force
@@ -36,3 +36,5 @@ jobs:
 
       - name: Run PHPUnit tests
         run: simple-phpunit
+        env:
+          DATABASE_URL: mysql://root:goteo@127.0.0.1:${{ job.services.mariadb.ports['3306'] }}/goteo
