@@ -4,8 +4,8 @@ jobs:
   phpunit:
     runs-on: "ubuntu-latest"
     services:
-      mysql:
-        image: mysql:10.11.2
+      mariadb:
+        image: mariadb:10.11.2
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
           MYSQL_ROOT_PASSWORD: goteo
