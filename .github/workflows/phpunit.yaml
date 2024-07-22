@@ -1,0 +1,14 @@
+name: PHPUnit
+on: [push]
+jobs:
+  phpunit:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name:
+        uses: php-actions/composer@v6
+
+      - name: Run PHPUnit
+        uses: php-actions/phpunit@v3
