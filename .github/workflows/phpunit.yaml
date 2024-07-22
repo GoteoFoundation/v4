@@ -2,39 +2,12 @@ name: PHPUnit
 on: [push]
 jobs:
   phpunit:
-    runs-on: "ubuntu-latest"
-    services:
-      mariadb:
-        image: mariadb:10.11.2
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: false
-          MYSQL_ROOT_PASSWORD: goteo
-          MYSQL_DATABASE: goteo
-        ports:
-          - 3306/tcp
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    runs-on: ubuntu-latest
     steps:
-      - name: Setup PHP 8.2
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          tools: phpunit-bridge
-          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql
+      - uses: actions/checkout@v2
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
 
-      - name: Run Migrations
-        run: |
-          composer require  --dev symfony/orm-pack
-          php bin/console doctrine:schema:update --force
-        env:
-          DATABASE_URL: mysql://root:goteo@127.0.0.1:${{ job.services.mariadb.ports['3306'] }}/goteo
-
-      - name: Install PHPUnit
-        run: simple-phpunit install
-
-      - name: Run PHPUnit tests
-        run: simple-phpunit --verbose
-        env:
-          DATABASE_URL: mysql://root:goteo@127.0.0.1:${{ job.services.mariadb.ports['3306'] }}/goteo
+      - name: PHPUnit
+        uses: chindit/actions-phpunit-symfony@1.0.0
