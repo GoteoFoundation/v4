@@ -10,6 +10,7 @@ use Brick\Money\ExchangeRateProvider\BaseCurrencyProvider;
 use Brick\Money\ExchangeRateProvider\ConfigurableProvider;
 use Brick\Money\MoneyContainer;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
@@ -20,21 +21,30 @@ use Symfony\Contracts\Cache\ItemInterface;
 class EuropeanCentralBankExchange implements ExchangeInterface
 {
     public const ISO_4217 = 'EUR';
+
+    /**
+     * ECB states that their rates are updated at around 16:00 CET every working day
+     * This means the data has a time-to-live of a ~day
+     * @link https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html
+     */
+    public const ECB_DATA_TTL = 86400;
     public const ECB_DATA = 'https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml';
 
+    public const ECB_TIMEZONE = 'Europe/Berlin';
+
+    private CacheInterface $cache;
+
     private \DateTimeInterface $date;
+
     private ExchangeRateProvider $provider;
+
     private CurrencyConverter $converter;
 
     public function __construct()
     {
-        $data = $this->getData();
+        $this->cache = new FilesystemAdapter();
 
-        $this->date = \DateTime::createFromFormat(
-            \DateTimeInterface::RFC3339,
-            sprintf('%sT16:00:00+01:00', $data['@attributes']['time']),
-            new \DateTimeZone('CET')
-        );
+        $data = $this->getData();
 
         $provider = new ConfigurableProvider();
         foreach ($data['Cube'] as $item) {
@@ -42,6 +52,7 @@ class EuropeanCentralBankExchange implements ExchangeInterface
             $provider->setExchangeRate(self::ISO_4217, $rate['currency'], $rate['rate']);
         }
 
+        $this->date = $this->getDataUpdatedDate($data['@attributes']['time']);
         $this->provider = new BaseCurrencyProvider($provider, self::ISO_4217);
         $this->converter = new CurrencyConverter($this->provider);
     }
@@ -58,10 +69,8 @@ class EuropeanCentralBankExchange implements ExchangeInterface
 
     private function getDataCached(): array
     {
-        $cache = new FilesystemAdapter();
-
-        $data = $cache->get($this->getName(), function (ItemInterface $item): array {
-            $item->expiresAfter(3600);
+        $data = $this->cache->get($this->getName(), function (ItemInterface $item): array {
+            $item->expiresAfter(self::ECB_DATA_TTL);
 
             return $this->getDataLatest();
         });
@@ -73,10 +82,33 @@ class EuropeanCentralBankExchange implements ExchangeInterface
         return $data;
     }
 
+    private function getDataUpdatedDate(string $time): \DateTimeInterface
+    {
+        return \DateTime::createFromFormat(
+            \DateTimeInterface::RFC3339,
+            sprintf('%sT16:00:00+01:00', $time),
+            new \DateTimeZone(self::ECB_TIMEZONE)
+        );
+    }
+
     public function getData(): array
     {
         try {
-            return $this->getDataCached();
+            $cachedData = $this->getDataCached();
+
+            $currentDate = new \DateTime('now', new \DateTimeZone(self::ECB_TIMEZONE));
+            $currentDayAt16 = (new \DateTime('now', new \DateTimeZone(self::ECB_TIMEZONE)))->setTime(16, 0);
+            $cachedDate = $this->getDataUpdatedDate($cachedData['@attributes']['time']);
+
+            if (
+                $currentDate > $currentDayAt16 &&
+                $cachedDate < $currentDayAt16
+            ) {
+                $this->cache->delete($this->getName());
+                $cachedData = $this->getDataCached();
+            }
+
+            return $cachedData;
         } catch (\Exception $e) {
             return $this->getDataLatest();
         }
