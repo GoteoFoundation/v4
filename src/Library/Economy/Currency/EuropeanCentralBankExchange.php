@@ -9,6 +9,8 @@ use Brick\Money\ExchangeRateProvider;
 use Brick\Money\ExchangeRateProvider\BaseCurrencyProvider;
 use Brick\Money\ExchangeRateProvider\ConfigurableProvider;
 use Brick\Money\MoneyContainer;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Provides currency conversion using the daily updated exchanges rates by the European Central Bank.
@@ -56,12 +58,19 @@ class EuropeanCentralBankExchange implements ExchangeInterface
 
     private function getDataCached(): array
     {
-        $data = \apcu_fetch(self::ECB_DATA);
+        $cache = new FilesystemAdapter();
+
+        $data = $cache->get($this->getName(), function (ItemInterface $item): array {
+            $item->expiresAfter(3600);
+
+            return $this->getDataLatest();
+        });
+
         if (!$data) {
             throw new \Exception('Could not retrieve cached data');
         }
 
-        return \json_decode($data, true);
+        return $data;
     }
 
     public function getData(): array
@@ -69,11 +78,7 @@ class EuropeanCentralBankExchange implements ExchangeInterface
         try {
             return $this->getDataCached();
         } catch (\Exception $e) {
-            $data = $this->getDataLatest();
-
-            \apcu_store(self::ECB_DATA, json_encode($data));
-
-            return $data;
+            return $this->getDataLatest();
         }
     }
 
