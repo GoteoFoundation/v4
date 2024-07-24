@@ -3,6 +3,18 @@ on: [push]
 jobs:
   phpunit:
     runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:10.11.2
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: goteo
+          MYSQL_DATABASE: goteo
+        ports:
+          - 3306/tcp
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - uses: actions/checkout@v4
 
@@ -11,6 +23,8 @@ jobs:
 
       - name: PHPUnit
         uses: php-actions/phpunit@v4
+        env:
+          DATABASE_URL: mysql://root:goteo@127.0.0.1:${{ job.services.mariadb.ports['3306'] }}/goteo
         with:
           php_version: 8.2
           php_extensions: apcu pdo_mysql
