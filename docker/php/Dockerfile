@@ -10,12 +10,6 @@ RUN apt update && apt install -y \
 RUN docker-php-ext-install \
     opcache
 
-# APCU
-RUN pecl install \
-    apcu \
-&& docker-php-ext-enable \
-    apcu
-
 ## XDebug
 RUN pecl install \
     xdebug \
