@@ -24,8 +24,9 @@ class EuropeanCentralBankExchange implements ExchangeInterface
 
     /**
      * ECB states that their rates are updated at around 16:00 CET every working day
-     * This means the data has a time-to-live of a ~day
-     * @link https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html
+     * This means the data has a time-to-live of a ~day.
+     *
+     * @see https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html
      */
     public const ECB_DATA_TTL = 86400;
     public const ECB_DATA = 'https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml';
@@ -101,8 +102,8 @@ class EuropeanCentralBankExchange implements ExchangeInterface
             $cachedDate = $this->getDataUpdatedDate($cachedData['@attributes']['time']);
 
             if (
-                $currentDate > $currentDayAt16 &&
-                $cachedDate < $currentDayAt16
+                $currentDate > $currentDayAt16
+                && $cachedDate < $currentDayAt16
             ) {
                 $this->cache->delete($this->getName());
                 $cachedData = $this->getDataCached();
