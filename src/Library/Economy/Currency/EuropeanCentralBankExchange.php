@@ -73,7 +73,7 @@ class EuropeanCentralBankExchange implements ExchangeInterface
 
             \apcu_store(self::ECB_DATA, json_encode($data));
 
-            return $this->getData();
+            return $data;
         }
     }
 
