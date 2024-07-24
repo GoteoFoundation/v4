@@ -15,4 +15,3 @@ jobs:
           php_version: 8.2
           php_extensions: apcu pdo_mysql
           configuration:  phpunit.xml.dist
-          memory_limit: "256M"
