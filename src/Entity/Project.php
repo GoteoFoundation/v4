@@ -9,10 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
- * Projects describe a community-led event that is to be discovered, developed and funded by other Users.\
- * \
- * Since they can be recipients of funding, they are assigned an Accounting when created.
- * A Project's Accounting represents how much money the Project has raised from the community.
+ * Projects describe a community-led event that is to be discovered, developed and funded by other Users.
  */
 #[API\GetCollection()]
 #[API\Post(security: 'is_granted("ROLE_USER")')]
@@ -34,18 +31,32 @@ class Project
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * The main title for the project.
+     */
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
+    /**
+     * Since Projects can be recipients of funding, they are assigned an Accounting when created.
+     * A Project's Accounting represents how much money the Project has raised from the community.
+     */
     #[ORM\OneToOne(inversedBy: 'project', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
 
+    /**
+     * The User who created this Project.
+     */
     #[API\ApiProperty(writable: false)]
     #[ORM\ManyToOne(inversedBy: 'projects')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $owner = null;
 
+    /**
+     * The status of this Project as it goes through it's life-cycle.
+     * Projects have a start and an end, and in the meantime they go through different phases represented under this status.
+     */
     #[API\ApiProperty(writable: true)]
     #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
     private ProjectStatus $status;
