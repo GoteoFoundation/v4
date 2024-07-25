@@ -13,7 +13,11 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * Tips to the platform owners and other no-purpose money can target a Tipjar.
  */
 #[UniqueEntity(fields: ['name'], message: 'A Tipjar with that name already exists.')]
-#[API\ApiResource]
+#[API\GetCollection()]
+#[API\Post()]
+#[API\Get()]
+#[API\Delete()]
+#[API\Patch()]
 #[ORM\Entity(repositoryClass: TipjarRepository::class)]
 class Tipjar
 {
@@ -28,6 +32,7 @@ class Tipjar
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(inversedBy: 'tipjar', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;

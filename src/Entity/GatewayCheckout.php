@@ -4,33 +4,34 @@ namespace App\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
-use App\Dto\GatewayCheckoutUpdateDto;
+use App\Entity\Trait\TimestampableCreationEntity;
+use App\Entity\Trait\TimestampableUpdationEntity;
 use App\Repository\GatewayCheckoutRepository;
 use App\State\GatewayCheckoutProcessor;
-use App\State\GatewayCheckoutUpdateProcessor;
 use App\Validator\GatewayName;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * A GatewayCheckout bundles the data to perform a charge operation at a Gateway.
- * Use it in order to create Transactions and have the transferred money be backed by a Gateway's payment processing.
+ * A GatewayCheckout bundles the data to perform a payment operation with a Gateway.\
+ * \
+ * Once the Gateway validates the payment as successful the GatewayCheckout will be updated
+ * and respective AccountingTransactions will be generated for each GatewayCharge.
  */
 #[Gedmo\Loggable()]
 #[API\GetCollection()]
 #[API\Post(processor: GatewayCheckoutProcessor::class)]
 #[API\Get()]
-#[API\Patch(input: GatewayCheckoutUpdateDto::class, processor: GatewayCheckoutUpdateProcessor::class)]
 #[API\ApiFilter(filterClass: SearchFilter::class, properties: ['origin' => 'exact', 'charges.target' => 'exact'])]
 #[ORM\Entity(repositoryClass: GatewayCheckoutRepository::class)]
 class GatewayCheckout
 {
-    use TimestampableEntity;
+    use TimestampableCreationEntity;
+    use TimestampableUpdationEntity;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -41,7 +42,6 @@ class GatewayCheckout
      * The Accounting that will issue the Transactions of the GatewayCharges after a successful checkout.
      */
     #[Assert\NotBlank()]
-    #[API\ApiProperty(readableLink: true)]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $origin = null;
