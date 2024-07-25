@@ -4,10 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
-use App\Dto\GatewayCheckoutUpdateDto;
 use App\Repository\GatewayCheckoutRepository;
 use App\State\GatewayCheckoutProcessor;
-use App\State\GatewayCheckoutUpdateProcessor;
 use App\Validator\GatewayName;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -20,13 +18,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * A GatewayCheckout bundles the data to perform a payment operation with a Gateway.\
  * \
- * Once the Gateway validates the checkout as successful it will generated the appropiate AccountingTransactions for each GatewayCharge.
+ * Once the Gateway validates the payment as successful the GatewayCheckout will be updated
+ * and respective AccountingTransactions will be generated for each GatewayCharge.
  */
 #[Gedmo\Loggable()]
 #[API\GetCollection()]
 #[API\Post(processor: GatewayCheckoutProcessor::class)]
 #[API\Get()]
-#[API\Patch(input: GatewayCheckoutUpdateDto::class, processor: GatewayCheckoutUpdateProcessor::class)]
 #[API\ApiFilter(filterClass: SearchFilter::class, properties: ['origin' => 'exact', 'charges.target' => 'exact'])]
 #[ORM\Entity(repositoryClass: GatewayCheckoutRepository::class)]
 class GatewayCheckout
