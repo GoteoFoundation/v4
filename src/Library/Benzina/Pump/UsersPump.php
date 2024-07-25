@@ -78,9 +78,9 @@ class UsersPump extends AbstractPump implements PumpInterface
             $user->setUsername($this->getUsername($record));
             $user->setPassword($record['password'] ?? '');
             $user->setEmail($record['email']);
+            $user->setEmailConfirmed(false);
             $user->setName($record['name']);
             $user->setActive(false);
-            $user->setConfirmed(false);
             $user->setMigrated(true);
             $user->setMigratedReference($record['id']);
 
