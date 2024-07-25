@@ -105,9 +105,9 @@ class UsersPumpTest extends KernelTestCase
         $user = $usersPostPumping[0];
 
         $this->assertEquals($testUser['email'], $user->getEmail());
-        $this->assertNotEquals($testUser['confirmed'], $user->getEmailConfirmed());
+        $this->assertNotEquals($testUser['confirmed'], $user->isEmailConfirmed());
 
-        $this->assertTrue($user->getMigrated());
+        $this->assertTrue($user->isMigrated());
         $this->assertEquals($testUser['id'], $user->getMigratedReference());
     }
 }
