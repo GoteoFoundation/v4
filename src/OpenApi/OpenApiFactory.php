@@ -113,9 +113,14 @@ class OpenApiFactory implements OpenApiFactoryInterface
 
         $tags = [];
         foreach ($openApi->getComponents()->getSchemas() as $name => $schema) {
+            if (\preg_match('/.*\.patch/', $name)) {
+                continue;
+            }
+
             if (\preg_match('/.*\.jsonld/', $name)) {
                 continue;
             }
+
             if (empty($schema['description'])) {
                 continue;
             }
