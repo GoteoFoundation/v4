@@ -18,8 +18,9 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * A GatewayCheckout bundles the data to perform a charge operation at a Gateway.
- * Use it in order to create Transactions and have the transferred money be backed by a Gateway's payment processing.
+ * A GatewayCheckout bundles the data to perform a payment operation with a Gateway.\
+ * \
+ * Once the Gateway validates the checkout as successful it will generated the appropiate AccountingTransactions for each GatewayCharge.
  */
 #[Gedmo\Loggable()]
 #[API\GetCollection()]
@@ -41,7 +42,6 @@ class GatewayCheckout
      * The Accounting that will issue the Transactions of the GatewayCharges after a successful checkout.
      */
     #[Assert\NotBlank()]
-    #[API\ApiProperty(readableLink: true)]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $origin = null;
