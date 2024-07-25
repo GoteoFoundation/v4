@@ -8,12 +8,14 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Transactions represent a movement of money from one Accounting (origin) into another (target).\
+ * AccountingTransactions represent a movement of money from one Accounting (origin) into another (target).\
  * \
- * When a Transaction targets an Accounting it means that the Accounting receives it, this will add to that Accounting.
- * When a Transaction originates from an Accounting the Accounting issues the Transaction and it will deduct from it.
+ * When a transaction targets an Accounting it means that the Accounting receives it, this will add to that Accounting.
+ * When a transaction originates from an Accounting the Accounting issues the transaction and it will deduct from it.\
+ * \
+ * AccountingTransactions are generated for each GatewayCharge in a GatewayCheckout once it becomes successful.
  */
-#[API\ApiResource()]
+#[API\Get()]
 #[ORM\Entity(repositoryClass: AccountingTransactionRepository::class)]
 class AccountingTransaction
 {
@@ -27,6 +29,7 @@ class AccountingTransaction
      */
     #[Assert\Valid()]
     #[Assert\NotBlank()]
+    #[API\ApiProperty(writable: false)]
     #[ORM\Embedded(class: Money::class)]
     private ?Money $money = null;
 
@@ -34,6 +37,7 @@ class AccountingTransaction
      * The Accounting issuing the money of this Transaction.
      */
     #[Assert\NotBlank()]
+    #[API\ApiProperty(writable: false)]
     #[ORM\ManyToOne(inversedBy: 'transactionsIssued', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $origin = null;
@@ -42,6 +46,7 @@ class AccountingTransaction
      * The Accounting receiving the money of this Transaction.
      */
     #[Assert\NotBlank()]
+    #[API\ApiProperty(writable: false)]
     #[ORM\ManyToOne(inversedBy: 'transactionsReceived', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $target = null;
