@@ -16,7 +16,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: AccountingRepository::class)]
 #[API\ApiResource]
 #[API\Get()]
-#[API\Put(security: 'is_granted("ACCOUNTING_EDIT", object)')]
 #[API\Patch(security: 'is_granted("ACCOUNTING_EDIT", object)')]
 class Accounting
 {
@@ -37,20 +36,23 @@ class Accounting
     #[ORM\Column(length: 255)]
     private ?string $ownerClass = null;
 
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
     private ?User $user = null;
 
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
     private ?Project $project = null;
 
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
     private ?Tipjar $tipjar = null;
 
-    #[API\ApiProperty(readableLink: false)]
+    #[API\ApiProperty(writable: false, readableLink: false)]
     #[ORM\OneToMany(mappedBy: 'origin', targetEntity: AccountingTransaction::class)]
     private Collection $transactionsIssued;
 
-    #[API\ApiProperty(readableLink: false)]
+    #[API\ApiProperty(writable: false, readableLink: false)]
     #[ORM\OneToMany(mappedBy: 'target', targetEntity: AccountingTransaction::class)]
     private Collection $transactionsReceived;
 
