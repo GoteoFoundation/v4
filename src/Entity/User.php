@@ -81,26 +81,41 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
+    /**
+     * Has this User confirmed their email address?
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\Column]
+    private ?bool $emailConfirmed = null;
+
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
 
     /**
-     * The UserTokens owned by this user. Owner only property.
+     * The UserTokens owned by this User. Owner only property.
      */
     #[API\ApiProperty(writable: false, security: 'is_granted("USER_OWNED", object)')]
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: UserToken::class, orphanRemoval: true)]
     private Collection $tokens;
 
+    /**
+     * A flag determined by the platform for Users who are known to be active.
+     */
+    #[API\ApiProperty(writable: false)]
     #[ORM\Column]
     private ?bool $active = null;
 
-    #[ORM\Column]
-    private ?bool $confirmed = null;
-
+    /**
+     * Path to the Users's avatar image.
+     */
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatar = null;
 
+    /**
+     * Conventional name of the person owning this User.
+     */
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
 
@@ -118,6 +133,10 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $migratedReference = null;
 
+    /**
+     * The projects owned by this User.
+     */
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class)]
     private Collection $projects;
 
@@ -244,6 +263,18 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
         return $this;
     }
 
+    public function isEmailConfirmed(): ?bool
+    {
+        return $this->emailConfirmed;
+    }
+
+    public function setEmailConfirmed(bool $emailConfirmed): static
+    {
+        $this->emailConfirmed = $emailConfirmed;
+
+        return $this;
+    }
+
     public function getAccounting(): ?Accounting
     {
         return $this->accounting;
@@ -294,18 +325,6 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     public function setActive(bool $active): static
     {
         $this->active = $active;
-
-        return $this;
-    }
-
-    public function isConfirmed(): ?bool
-    {
-        return $this->confirmed;
-    }
-
-    public function setConfirmed(bool $confirmed): static
-    {
-        $this->confirmed = $confirmed;
 
         return $this;
     }
