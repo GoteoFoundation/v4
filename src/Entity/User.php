@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
 use App\Entity\Interface\UserOwnedInterface;
+use App\Entity\Trait\TimestampableCreationEntity;
+use App\Entity\Trait\TimestampableUpdationEntity;
 use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
 use App\Repository\UserRepository;
@@ -37,6 +39,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface
 {
+    use TimestampableCreationEntity;
+    use TimestampableUpdationEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

@@ -4,9 +4,10 @@ namespace App\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
+use App\Entity\Trait\TimestampableCreationEntity;
+use App\Entity\Trait\TimestampableUpdationEntity;
 use App\Repository\ProjectRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
  * Projects describe a community-led event that is to be discovered, developed and funded by other Users.
@@ -24,7 +25,8 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project
 {
-    use TimestampableEntity;
+    use TimestampableCreationEntity;
+    use TimestampableUpdationEntity;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

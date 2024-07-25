@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
+use App\Entity\Trait\TimestampableCreationEntity;
+use App\Entity\Trait\TimestampableUpdationEntity;
 use App\Repository\GatewayCheckoutRepository;
 use App\State\GatewayCheckoutProcessor;
 use App\Validator\GatewayName;
@@ -12,7 +14,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -29,7 +30,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: GatewayCheckoutRepository::class)]
 class GatewayCheckout
 {
-    use TimestampableEntity;
+    use TimestampableCreationEntity;
+    use TimestampableUpdationEntity;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
