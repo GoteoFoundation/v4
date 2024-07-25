@@ -14,12 +14,12 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 #[API\GetCollection()]
 #[API\Post(security: 'is_granted("ROLE_USER")')]
 #[API\Get()]
-#[API\Put(security: 'is_granted("AUTH_PROJECT_EDIT")')]
 #[API\Delete(security: 'is_granted("AUTH_PROJECT_EDIT")')]
 #[API\Patch(security: 'is_granted("AUTH_PROJECT_EDIT")')]
 #[API\ApiFilter(filterClass: SearchFilter::class, properties: [
     'title' => 'partial',
-    'status', 'owner',
+    'status' => 'exact',
+    'owner' => 'exact',
 ])]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project
@@ -41,6 +41,7 @@ class Project
      * Since Projects can be recipients of funding, they are assigned an Accounting when created.
      * A Project's Accounting represents how much money the Project has raised from the community.
      */
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(inversedBy: 'project', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
