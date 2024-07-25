@@ -3,7 +3,6 @@
 namespace App\Tests\Library\Benzina\Pump;
 
 use App\Entity\User;
-use App\Library\Benzina\Benzina;
 use App\Library\Benzina\Pump\UsersPump;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -26,14 +25,15 @@ class UsersPumpTest extends KernelTestCase
 
     public function testAcceptsOnlyUserCollection()
     {
-        $object = $this->pump->supports(new \ArrayObject([
-            ['id', 'username', 'password'], ['id', 'username', 'password']]
+        $object = $this->pump->supports(new \ArrayObject(
+            [
+                ['id', 'username', 'password'], ['id', 'username', 'password']]
         ));
 
         $this->assertFalse($object);
 
         $arrayWithMissingKeys = $this->pump->supports([
-            ['id', 'username', 'password'], ['id', 'username', 'password']
+            ['id', 'username', 'password'], ['id', 'username', 'password'],
         ]);
 
         $this->assertFalse($arrayWithMissingKeys);
@@ -42,7 +42,7 @@ class UsersPumpTest extends KernelTestCase
 
         $this->assertFalse($singleItemWithAllKeys);
 
-        $collectionWithAllKeys = $this->pump->supports([ UsersPump::USER_KEYS, UsersPump::USER_KEYS ]);
+        $collectionWithAllKeys = $this->pump->supports([UsersPump::USER_KEYS, UsersPump::USER_KEYS]);
 
         $this->assertFalse($collectionWithAllKeys);
     }
@@ -59,17 +59,17 @@ class UsersPumpTest extends KernelTestCase
             'birthyear' => '2024',
             'entity_type' => 0,
             'legal_entity' => 0,
-            'origin_register' => NULL,
+            'origin_register' => null,
             'about' => 'Test User description',
-            'keywords' => NULL,
+            'keywords' => null,
             'active' => true,
             'avatar' => 'test-user-avatar.jpg',
-            'contribution' => NULL,
-            'twitter' => NULL,
-            'facebook' => NULL,
-            'instagram' => NULL,
-            'identica' => NULL,
-            'linkedin' => NULL,
+            'contribution' => null,
+            'twitter' => null,
+            'facebook' => null,
+            'instagram' => null,
+            'identica' => null,
+            'linkedin' => null,
             'amount' => 25,
             'num_patron' => 0,
             'num_patron_active' => 0,
@@ -82,11 +82,11 @@ class UsersPumpTest extends KernelTestCase
             'confirmed' => 1,
             'lang' => 'es',
             'node' => 'goteo',
-            'num_invested' => NULL,
-            'num_owned' => NULL,
+            'num_invested' => null,
+            'num_owned' => null,
         ];
 
-        $supports = $this->pump->supports([ $testUser ]);
+        $supports = $this->pump->supports([$testUser]);
 
         $this->assertTrue($supports);
 
@@ -95,7 +95,7 @@ class UsersPumpTest extends KernelTestCase
 
         $this->assertCount(0, $usersPrePumping);
 
-        $this->pump->process([ $testUser ]);
+        $this->pump->process([$testUser]);
 
         $usersPostPumping = $this->entityManager->getRepository(User::class)
             ->findAll();
