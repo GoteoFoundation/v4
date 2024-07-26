@@ -135,8 +135,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
             $project->setStatus($this->getProjectStatus($record['status']));
             $project->setMigrated(true);
             $project->setMigratedReference($record['id']);
-            $project->setCreatedAt(new \DateTime($record['created']));
-            $project->setUpdatedAt(new \DateTime());
+            $project->setDateCreated(new \DateTime($record['created']));
 
             $accounting = $this->getAccounting($record);
             $accounting->setProject($project);

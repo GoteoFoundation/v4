@@ -17,27 +17,27 @@ trait TimestampableUpdationEntity
     #[API\ApiProperty(writable: false)]
     #[Gedmo\Timestampable(on: 'update')]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    protected $updatedAt;
+    protected $dateUpdated;
 
     /**
-     * Sets updatedAt.
+     * Sets dateUpdated.
      *
      * @return $this
      */
-    public function setUpdatedAt(\DateTime $updatedAt)
+    public function setDateUpdated(\DateTime $dateUpdated)
     {
-        $this->updatedAt = $updatedAt;
+        $this->dateUpdated = $dateUpdated;
 
         return $this;
     }
 
     /**
-     * Returns updatedAt.
+     * Returns dateUpdated.
      *
      * @return \DateTime|null
      */
-    public function getUpdatedAt()
+    public function getDateUpdated()
     {
-        return $this->updatedAt;
+        return $this->dateUpdated;
     }
 }

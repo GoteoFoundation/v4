@@ -124,8 +124,8 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
                 'transaction' => $record['transaction'],
                 'preapproval' => $record['preapproval'],
             ]);
-            $checkout->setCreatedAt(new \DateTime($record['invested']));
-            $checkout->setUpdatedAt(new \DateTime());
+
+            $checkout->setDateCreated(new \DateTime($record['invested']));
 
             $charge = new GatewayCharge();
             $charge->setType($this->getChargeType($record));

@@ -17,27 +17,27 @@ trait TimestampableCreationEntity
     #[API\ApiProperty(writable: false)]
     #[Gedmo\Timestampable(on: 'create')]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    protected $createdAt;
+    protected $dateCreated;
 
     /**
-     * Sets createdAt.
+     * Sets dateCreated.
      *
      * @return $this
      */
-    public function setCreatedAt(\DateTime $createdAt)
+    public function setDateCreated(\DateTime $dateCreated)
     {
-        $this->createdAt = $createdAt;
+        $this->dateCreated = $dateCreated;
 
         return $this;
     }
 
     /**
-     * Returns createdAt.
+     * Returns dateCreated.
      *
      * @return \DateTime|null
      */
-    public function getCreatedAt()
+    public function getDateCreated()
     {
-        return $this->createdAt;
+        return $this->dateCreated;
     }
 }

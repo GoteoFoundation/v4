@@ -66,8 +66,9 @@ trait ProgressivePumpTrait
         array $matchCriteria
     ): bool {
         if (
-            \array_key_exists('progress', $this->config)
+            isset($this->config)
             && $this->config['progress'] === false
+            && \array_key_exists('progress', $this->config)
         ) {
             return false;
         }
