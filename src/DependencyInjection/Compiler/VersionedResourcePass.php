@@ -28,7 +28,7 @@ class VersionedResourcePass implements CompilerPassInterface
 
             $versionedResourceNames = [
                 ...$versionedResourceNames,
-                ApiResourceNormalizer::toResource($entityClass)
+                ApiResourceNormalizer::toResource($entityClass),
             ];
         }
 

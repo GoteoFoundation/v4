@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.2.19-fpm
 
 # System dependencies
 RUN apt update && apt install -y \
@@ -9,12 +9,6 @@ RUN apt update && apt install -y \
 ## OPcache
 RUN docker-php-ext-install \
     opcache
-
-# APCU
-RUN pecl install \
-    apcu \
-&& docker-php-ext-enable \
-    apcu
 
 ## XDebug
 RUN pecl install \

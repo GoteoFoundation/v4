@@ -3,25 +3,25 @@
 namespace App\Service;
 
 /**
- * Normalizes between Entity classnames and API resource names
+ * Normalizes between Entity classnames and API resource names.
  */
 class ApiResourceNormalizer
 {
     /**
-     * Converts an Entity class name into an API resource name
+     * Converts an Entity class name into an API resource name.
      */
     public static function toResource(string $className): string
     {
-        $classPieces = explode("\\", $className);
+        $classPieces = explode('\\', $className);
 
         return lcfirst(end($classPieces));
     }
 
     /**
-     * Converts to an Entity class name from an API resource name
+     * Converts to an Entity class name from an API resource name.
      */
     public static function toEntity(string $resourceName): string
     {
-        return sprintf("App\\Entity\\%s", ucfirst($resourceName));
+        return sprintf('App\\Entity\\%s', ucfirst($resourceName));
     }
 }

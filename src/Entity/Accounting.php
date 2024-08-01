@@ -16,7 +16,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: AccountingRepository::class)]
 #[API\ApiResource]
 #[API\Get()]
-#[API\Put(security: 'is_granted("ACCOUNTING_EDIT", object)')]
 #[API\Patch(security: 'is_granted("ACCOUNTING_EDIT", object)')]
 class Accounting
 {
@@ -33,31 +32,39 @@ class Accounting
     #[ORM\Column(length: 3)]
     private ?string $currency = null;
 
-    #[API\ApiProperty(writable: false)]
-    #[ORM\OneToMany(mappedBy: 'accounting', targetEntity: AccountingStatement::class)]
-    private Collection $statements;
-
     #[API\ApiProperty(writable: false, readable: false)]
     #[ORM\Column(length: 255)]
     private ?string $ownerClass = null;
 
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
     private ?User $user = null;
 
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
     private ?Project $project = null;
 
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
     private ?Tipjar $tipjar = null;
 
+    #[API\ApiProperty(writable: false, readableLink: false)]
+    #[ORM\OneToMany(mappedBy: 'origin', targetEntity: AccountingTransaction::class)]
+    private Collection $transactionsIssued;
+
+    #[API\ApiProperty(writable: false, readableLink: false)]
+    #[ORM\OneToMany(mappedBy: 'target', targetEntity: AccountingTransaction::class)]
+    private Collection $transactionsReceived;
+
     public function __construct()
     {
-        /**
-         * TODO: This property must be loaded from App's configuration,
+        /*
+         * TO-DO: This property must be loaded from App's configuration,
          * ideally a configuration that can be updated via a frontend, not env var only
          */
         $this->currency = 'EUR';
-        $this->statements = new ArrayCollection();
+        $this->transactionsIssued = new ArrayCollection();
+        $this->transactionsReceived = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -77,36 +84,6 @@ class Accounting
         return $this;
     }
 
-    /**
-     * @return Collection<int, AccountingStatement>
-     */
-    public function getStatements(): Collection
-    {
-        return $this->statements;
-    }
-
-    public function addStatement(AccountingStatement $statement): static
-    {
-        if (!$this->statements->contains($statement)) {
-            $this->statements->add($statement);
-            $statement->setAccounting($this);
-        }
-
-        return $this;
-    }
-
-    public function removeStatement(AccountingStatement $statement): static
-    {
-        if ($this->statements->removeElement($statement)) {
-            // set the owning side to null (unless already changed)
-            if ($statement->getAccounting() === $this) {
-                $statement->setAccounting(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getOwnerClass(): ?string
     {
         return $this->ownerClass;
@@ -116,10 +93,10 @@ class Accounting
     {
         // ensure ownership does not change
         if (
-            $this->ownerClass !== null &&
-            $this->ownerClass !== $ownerClass
+            $this->ownerClass !== null
+            && $this->ownerClass !== $ownerClass
         ) {
-            throw new \Exception("Are you trying to commit fraud? Cannot change ownership of an Accounting.");
+            throw new \Exception('Are you trying to commit fraud? Cannot change ownership of an Accounting.');
         }
 
         $this->ownerClass = $ownerClass;
@@ -188,6 +165,84 @@ class Accounting
         $this->setOwnerClass($tipjar::class);
 
         $this->tipjar = $tipjar;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AccountingTransaction>
+     */
+    #[API\ApiProperty(readableLink: false)]
+    public function getTransactions(): Collection
+    {
+        $transactions = [
+            ...$this->getTransactionsIssued()->toArray(),
+            ...$this->getTransactionsReceived()->toArray(),
+        ];
+
+        \usort($transactions, function ($a, $b) {
+            return $a->getId() - $b->getId();
+        });
+
+        return new ArrayCollection($transactions);
+    }
+
+    /**
+     * @return Collection<int, AccountingTransaction>
+     */
+    public function getTransactionsIssued(): Collection
+    {
+        return $this->transactionsIssued;
+    }
+
+    public function addTransactionsIssued(AccountingTransaction $transaction): static
+    {
+        if (!$this->transactionsIssued->contains($transaction)) {
+            $this->transactionsIssued->add($transaction);
+            $transaction->setOrigin($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransactionsIssued(AccountingTransaction $transaction): static
+    {
+        if ($this->transactionsIssued->removeElement($transaction)) {
+            // set the owning side to null (unless already changed)
+            if ($transaction->getOrigin() === $this) {
+                $transaction->setOrigin(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AccountingTransaction>
+     */
+    public function getTransactionsReceived(): Collection
+    {
+        return $this->transactionsReceived;
+    }
+
+    public function addTransactionsReceived(AccountingTransaction $transaction): static
+    {
+        if (!$this->transactionsReceived->contains($transaction)) {
+            $this->transactionsReceived->add($transaction);
+            $transaction->setTarget($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransactionsReceived(AccountingTransaction $transaction): static
+    {
+        if ($this->transactionsReceived->removeElement($transaction)) {
+            // set the owning side to null (unless already changed)
+            if ($transaction->getTarget() === $this) {
+                $transaction->setTarget(null);
+            }
+        }
 
         return $this;
     }

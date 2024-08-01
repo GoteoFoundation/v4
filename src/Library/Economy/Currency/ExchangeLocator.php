@@ -19,7 +19,7 @@ class ExchangeLocator
         /** @var ExchangeInterface[] */
         $exchanges = \iterator_to_array($exchanges);
 
-        /** 
+        /*
          * @param ExchangeInterface $a
          * @param ExchangeInterface $b
          */
@@ -42,7 +42,7 @@ class ExchangeLocator
 
     /**
      * @param string $name Name of the Exchange interface implementation
-     * @return ExchangeInterface
+     *
      * @throws \Exception When the $name does not match to that of an implemented Exchange
      */
     public function getExchange(string $name): ExchangeInterface
@@ -57,7 +57,7 @@ class ExchangeLocator
     /**
      * @param string $source Currency to convert from
      * @param string $target Currency to convert to
-     * @return ExchangeInterface
+     *
      * @throws CurrencyConversionException If the exchange rate is not available
      */
     public function getExchangeFor(string $source, string $target): ExchangeInterface
@@ -72,6 +72,6 @@ class ExchangeLocator
             }
         }
 
-        throw CurrencyConversionException::exchangeRateNotAvailable($source, $target);   
+        throw CurrencyConversionException::exchangeRateNotAvailable($source, $target);
     }
 }

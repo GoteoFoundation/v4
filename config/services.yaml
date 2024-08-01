@@ -28,6 +28,9 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\DependencyInjection\SystemVariablesLoader:
+        tags: ['container.env_var_loader']
+
     App\OpenApi\OpenApiFactory:
         autoconfigure: false
         decorates: 'api_platform.openapi.factory'
@@ -49,6 +52,11 @@ services:
     App\Library\Economy\Payment\GatewayLocator:
         arguments:
             - !tagged 'app.lib.economy.payment.gateway'
+
+    App\Library\Economy\Payment\StripeGateway:
+        arguments:
+            - '%env(STRIPE_API_KEY)%'
+            - '%env(STRIPE_WEBHOOK_SECRET)%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

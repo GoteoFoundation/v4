@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
 use App\Entity\Interface\UserOwnedInterface;
+use App\Entity\Trait\TimestampableCreationEntity;
+use App\Entity\Trait\TimestampableUpdationEntity;
 use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
 use App\Repository\UserRepository;
@@ -21,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Users represent people who interact with the platform.\
  * \
  * Users are the usual issuers of funding, however an User's Accounting can still be a Transaction recipient.
- * This allows to keep an User's "wallet", witholding their non-raised fundings into their Accounting. 
+ * This allows to keep an User's "wallet", witholding their non-raised fundings into their Accounting.
  */
 #[Gedmo\Loggable()]
 #[API\GetCollection()]
@@ -37,6 +39,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface
 {
+    use TimestampableCreationEntity;
+    use TimestampableUpdationEntity;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -81,31 +86,46 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
+    /**
+     * Has this User confirmed their email address?
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\Column]
+    private ?bool $emailConfirmed = null;
+
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $accounting = null;
 
     /**
-     * The UserTokens owned by this user. Owner only property.
+     * The UserTokens owned by this User. Owner only property.
      */
     #[API\ApiProperty(writable: false, security: 'is_granted("USER_OWNED", object)')]
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: UserToken::class, orphanRemoval: true)]
     private Collection $tokens;
 
+    /**
+     * A flag determined by the platform for Users who are known to be active.
+     */
+    #[API\ApiProperty(writable: false)]
     #[ORM\Column]
     private ?bool $active = null;
 
-    #[ORM\Column]
-    private ?bool $confirmed = null;
-
+    /**
+     * Path to the Users's avatar image.
+     */
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatar = null;
 
+    /**
+     * Conventional name of the person owning this User.
+     */
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
 
     /**
-     * User was migrated from Goteo v3 platform. 
+     * User was migrated from Goteo v3 platform.
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\Column]
@@ -118,6 +138,10 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $migratedReference = null;
 
+    /**
+     * The projects owned by this User.
+     */
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class)]
     private Collection $projects;
 
@@ -196,7 +220,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
 
     public function hasRoles(array $roles): bool
     {
-        return 0 < count(array_intersect($this->getRoles(), $roles));
+        return count(array_intersect($this->getRoles(), $roles)) > 0;
     }
 
     /**
@@ -243,6 +267,18 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     public function setEmail(string $email): static
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function isEmailConfirmed(): ?bool
+    {
+        return $this->emailConfirmed;
+    }
+
+    public function setEmailConfirmed(bool $emailConfirmed): static
+    {
+        $this->emailConfirmed = $emailConfirmed;
 
         return $this;
     }
@@ -297,18 +333,6 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     public function setActive(bool $active): static
     {
         $this->active = $active;
-
-        return $this;
-    }
-
-    public function isConfirmed(): ?bool
-    {
-        return $this->confirmed;
-    }
-
-    public function setConfirmed(bool $confirmed): static
-    {
-        $this->confirmed = $confirmed;
 
         return $this;
     }
