@@ -4,7 +4,6 @@ services:
     container_name: goteo-v4-php
     volumes:
       - .:/app
-      - ./docker/php/conf.d/apc.ini:/usr/local/etc/php/conf.d/apc.ini:ro
       - ./docker/php/conf.d/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
 
   nginx:
