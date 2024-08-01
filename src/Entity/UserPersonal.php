@@ -7,7 +7,6 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserPersonalRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-
 /**
  * UserPersonal is the detailed data of a User.
  *
