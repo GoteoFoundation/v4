@@ -2,10 +2,17 @@
 
 namespace App\Entity;
 
+use Ambta\DoctrineEncryptBundle\Configuration\Encrypted;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserPersonalRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+
+/**
+ * UserPersonal is the detailed data of a User.
+ *
+ * The personal data of a user will be kept encrypted
+ */
 #[ORM\Entity(repositoryClass: UserPersonalRepository::class)]
 #[ApiResource]
 class UserPersonal
@@ -15,23 +22,26 @@ class UserPersonal
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $name = null;
-
+    /**
+     * The Identity Document number of the User.
+     */
     #[ORM\Column(length: 255, nullable: true)]
     #[Encrypted]
-    private ?string $identity_document = null;
+    private ?string $identityDocument = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $indetity_document_type = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Encrypted]
-    private ?string $address = null;
-
+    /**
+     * The type of indentity document that the User has, ie: Passport, DNI, NIE, etc.
+     */
     #[ORM\Column(length: 255, nullable: true)]
     #[Encrypted]
-    private ?string $postal_code = null;
+    private ?string $identityDocumentType = null;
+
+    /**
+     * The Postal Code of where the User lives.
+     */
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Encrypted]
+    private ?string $postalCode = null;
 
     public function getUser(): ?User
     {
@@ -45,64 +55,39 @@ class UserPersonal
         return $this;
     }
 
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): static
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
     public function getIdentityDocument(): ?string
     {
-        return $this->identity_document;
+        return $this->identityDocument;
     }
 
-    public function setIdentityDocument(?string $identity_document): static
+    public function setIdentityDocument(?string $identityDocument): static
     {
-        $this->identity_document = $identity_document;
+        $this->identityDocument = $identityDocument;
 
         return $this;
     }
 
     public function getIndetityDocumentType(): ?string
     {
-        return $this->indetity_document_type;
+        return $this->identityDocumentType;
     }
 
-    public function setIndetityDocumentType(?string $indetity_document_type): static
+    public function setIndetityDocumentType(?string $identityDocumentType): static
     {
-        $this->indetity_document_type = $indetity_document_type;
-
-        return $this;
-    }
-
-    public function getAddress(): ?string
-    {
-        return $this->address;
-    }
-
-    public function setAddress(?string $address): static
-    {
-        $this->address = $address;
+        $this->identityDocumentType = $identityDocumentType;
 
         return $this;
     }
 
     public function getPostalCode(): ?string
     {
-        return $this->postal_code;
+        return $this->postalCode;
     }
 
-    public function setCP(?string $postal_code): static
+    public function setPostalCode(?string $postalCode): static
     {
-        $this->postal_code = $postal_code;
+        $this->postalCode = $postalCode;
 
         return $this;
     }
-
 }
