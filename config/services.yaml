@@ -56,6 +56,7 @@ services:
     App\Library\Economy\Payment\StripeGateway:
         arguments:
             - '%env(STRIPE_API_KEY)%'
+            - '%env(STRIPE_WEBHOOK_SECRET)%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

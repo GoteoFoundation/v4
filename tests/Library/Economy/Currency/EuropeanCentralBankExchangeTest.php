@@ -4,12 +4,13 @@ namespace App\Tests\Library\Economy\Currency;
 
 use App\Library\Economy\Currency\EuropeanCentralBankExchange;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 class EuropeanCentralBankExchangeTest extends TestCase
 {
     public function testGetsData()
     {
-        $exchange = new EuropeanCentralBankExchange;
+        $exchange = new EuropeanCentralBankExchange();
         $exchangeData = $exchange->getData();
 
         $this->assertIsArray($exchangeData);
@@ -17,17 +18,16 @@ class EuropeanCentralBankExchangeTest extends TestCase
         $this->assertArrayHasKey('@attributes', $exchangeData);
     }
 
-    public function testStoresDataInApcuCache()
+    public function testStoresDataInCache()
     {
-        $exchange = new EuropeanCentralBankExchange;
-        // Data should be available on instantiation
+        $exchange = new EuropeanCentralBankExchange();
+        $cache = new FilesystemAdapter();
 
-        $data = \apcu_fetch($exchange::ECB_DATA);
+        $exchangeData = $cache->get($exchange->getName(), function (): false {
+            return false;
+        });
 
-        $this->assertNotFalse($data);
-
-        $exchangeData = \json_decode($data, true);
-        
+        $this->assertNotFalse($exchangeData);
         $this->assertIsArray($exchangeData);
         $this->assertArrayHasKey('Cube', $exchangeData);
         $this->assertArrayHasKey('@attributes', $exchangeData);

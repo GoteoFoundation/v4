@@ -2,13 +2,11 @@
 
 namespace App\Library\Economy\Payment;
 
+use App\DependencyInjection\Compiler\GatewaysCompilerPass;
 use App\Entity\GatewayCheckout;
 
 class GatewayLocator
 {
-    public const GATEWAYS_DIR = 'gateways';
-    public const GATEWAY_NAMES_LOCK = 'gateway_names_compiled.lock';
-
     /** @var GatewayInterface[] */
     private array $gatewaysByName = [];
 
@@ -21,82 +19,23 @@ class GatewayLocator
             $this->gatewaysByClass[$gateway::class] = $gateway;
         }
 
+        GatewaysCompilerPass::validateGatewayNames($this->gatewaysByClass);
+
         foreach ($this->gatewaysByClass as $class => $gateway) {
             $this->gatewaysByName[$gateway::getName()] = $gateway;
         }
     }
 
     /**
-     * @throws \Exception If there are two different Gateway classes with the same name
-     * @see GatewayInterface::getName()
+     * @return array<string> List of the fully-qualified class names of the available interfaces
      */
-    public function validateGatewayNames()
+    public function getClasses(): array
     {
-        $gatewaysValidated = [];
-        foreach ($this->gatewaysByClass as $class => $gateway) {
-            $gatewayName = $gateway::getName();
-
-            if (\array_key_exists($gatewayName, $gatewaysValidated)) {
-                throw new \Exception(sprintf(
-                    "Duplicate Gateway name '%s' from class %s, name is already in use by class %s",
-                    $gatewayName,
-                    $gateway::class,
-                    $gatewaysValidated[$gatewayName]
-                ));
-            }
-
-            $gatewaysValidated[$gatewayName] = $class;
-        }
-    }
-
-    private static function getGatewayCompileDir(): string
-    {
-        return sprintf(
-            '%s%svar%s%s',
-            \dirname(__DIR__, 4),
-            DIRECTORY_SEPARATOR,
-            DIRECTORY_SEPARATOR,
-            self::GATEWAYS_DIR,
-        );
-    }
-
-    private static function getGatewayNamesLockFile(): string
-    {
-        return sprintf(
-            '%s%s%s',
-            self::getGatewayCompileDir(),
-            DIRECTORY_SEPARATOR,
-            self::GATEWAY_NAMES_LOCK
-        );
+        return \array_keys($this->gatewaysByClass);
     }
 
     /**
-     * Generates a directory for the gateways in the 'bundles' dir.
-     */
-    public function makeCompileDir()
-    {
-        $CompileDir = self::getGatewayCompileDir();
-
-        if (!\is_dir($CompileDir)) {
-            \mkdir($CompileDir, 0777, true);
-        }
-    }
-
-    /**
-     * Stores the available gateway names in disk.
-     */
-    public function compileGatewayNames()
-    {
-        $this->makeCompileDir();
-
-        \file_put_contents(
-            self::getGatewayNamesLockFile(),
-            implode(PHP_EOL, $this->getNames())
-        );
-    }
-
-    /**
-     * @return array<string> List of the available Gateway names
+     * @return array<string> List of names of the available interfaces
      */
     public function getNames(): array
     {
@@ -105,11 +44,12 @@ class GatewayLocator
 
     /**
      * @return array<string> List of the available Gateway names
-     * @see compileGatewayNames()
+     *
+     * @see GatewaysCompilerPass::compileGatewayNames()
      */
     public static function getNamesStatic(): array
     {
-        return explode(PHP_EOL, \file_get_contents(self::getGatewayNamesLockFile()));
+        return explode(PHP_EOL, \file_get_contents(GatewaysCompilerPass::getLockFile()));
     }
 
     /**
@@ -122,7 +62,7 @@ class GatewayLocator
 
     /**
      * @param string $name Name of the Gateway interface implementation
-     * @return GatewayInterface
+     *
      * @throws \Exception When the $name does not match to that of an implemented Gateway
      */
     public function getGateway(string $name): GatewayInterface
@@ -135,15 +75,13 @@ class GatewayLocator
     }
 
     /**
-     * @param GatewayCheckout $checkout
-     * @return GatewayInterface
      * @throws \Exception When the $checkout::gateway does not match to that of an implemented Gateway
      */
     public function getGatewayOf(GatewayCheckout $checkout): GatewayInterface
     {
         $gateway = $checkout->getGateway();
         if (!$gateway) {
-            throw new \Exception("The given GatewayCheckout does not specify a Gateway");
+            throw new \Exception('The given GatewayCheckout does not specify a Gateway');
         }
 
         return $this->getGateway($gateway);

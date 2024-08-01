@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata as API;
 use App\Repository\GatewayChargeRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -12,6 +13,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: GatewayChargeRepository::class)]
 class GatewayCharge
 {
+    // TO-DO: This message should be translatable to the User's language
+    public const MESSAGE_STATEMENT = 'PAGO EN GOTEO.ORG';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -38,6 +42,13 @@ class GatewayCharge
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $target = null;
+
+    /**
+     * The AccountingTransaction generated for this charge after the checkout with the Gateway.
+     */
+    #[API\ApiProperty(writable: false, readableLink: false)]
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?AccountingTransaction $transaction = null;
 
     public function getId(): ?int
     {
@@ -76,6 +87,18 @@ class GatewayCharge
     public function setTarget(?Accounting $target): static
     {
         $this->target = $target;
+
+        return $this;
+    }
+
+    public function getTransaction(): ?AccountingTransaction
+    {
+        return $this->transaction;
+    }
+
+    public function setTransaction(?AccountingTransaction $transaction): static
+    {
+        $this->transaction = $transaction;
 
         return $this;
     }

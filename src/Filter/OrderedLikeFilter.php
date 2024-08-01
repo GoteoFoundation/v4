@@ -28,7 +28,7 @@ final class OrderedLikeFilter extends AbstractFilter
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        Operation $operation = null,
+        ?Operation $operation = null,
         array $context = []
     ): void {
         if (
@@ -39,15 +39,15 @@ final class OrderedLikeFilter extends AbstractFilter
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $likeParameter = $queryNameGenerator->generateParameterName($property);
-        $instrParameter = $queryNameGenerator->generateParameterName(sprintf("%s%s", $property, "instr"));
+        $instrParameter = $queryNameGenerator->generateParameterName(sprintf('%s%s', $property, 'instr'));
 
         $queryBuilder
-            ->andWhere(sprintf("%s.%s LIKE :%s", $rootAlias, $property, $likeParameter))
-            ->addOrderBy(sprintf("INSTR(%s.%s, :%s)", $rootAlias, $property, $instrParameter), "ASC")
-            ->addOrderBy(sprintf("%s.%s", $rootAlias, $property), "ASC")
+            ->andWhere(sprintf('%s.%s LIKE :%s', $rootAlias, $property, $likeParameter))
+            ->addOrderBy(sprintf('INSTR(%s.%s, :%s)', $rootAlias, $property, $instrParameter), 'ASC')
+            ->addOrderBy(sprintf('%s.%s', $rootAlias, $property), 'ASC')
             ->setParameter($likeParameter, sprintf('%%%s%%', $value))
             ->setParameter($instrParameter, $value)
-            ;
+        ;
     }
 
     public function getDescription(string $resourceClass): array

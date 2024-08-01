@@ -33,7 +33,7 @@ class GatewayStateProvider implements ProviderInterface
 
             return new Gateway($gateway);
         } catch (\Exception $e) {
-            throw new NotFoundHttpException("Not Found");
+            throw new NotFoundHttpException('Not Found');
         }
     }
 

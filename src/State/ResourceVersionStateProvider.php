@@ -44,7 +44,7 @@ class ResourceVersionStateProvider implements ProviderInterface
         $log = $this->versionRepository->find($id);
 
         if (!$log) {
-            throw new NotFoundHttpException("Not Found");
+            throw new NotFoundHttpException('Not Found');
         }
 
         $entity = $this->entityManager->find($log->getObjectClass(), $log->getObjectId());

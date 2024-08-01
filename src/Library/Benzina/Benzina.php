@@ -18,8 +18,9 @@ class Benzina
 
     /**
      * Get the Pumps that can process a sample in the stream data.
-     * 
-     * @var mixed $sample
+     *
+     * @var mixed
+     *
      * @return PumpInterface[]
      */
     public function getPumps(StreamInterface $stream, int $sampleSize = 1): array

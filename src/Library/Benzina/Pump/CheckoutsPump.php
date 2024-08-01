@@ -3,6 +3,7 @@
 namespace App\Library\Benzina\Pump;
 
 use App\Entity\Accounting;
+use App\Entity\AccountingTransaction;
 use App\Entity\GatewayCharge;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
@@ -61,7 +62,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         'matcher',
         'issue',
         'pool',
-        'extra_info'
+        'extra_info',
     ];
 
     public function __construct(
@@ -91,7 +92,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         $pumped = $this->getPumped(GatewayCheckout::class, $data, ['migratedReference' => 'id']);
 
         foreach ($data as $key => $record) {
-            if ($this->isPumped($record, $pumped)) {
+            if ($this->isPumped($record, $pumped, ['migratedReference' => 'id'])) {
                 continue;
             }
 
@@ -110,7 +111,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             $user = $users[$record['user']];
             $project = $projects[$record['project']];
 
-            $checkout = new GatewayCheckout;
+            $checkout = new GatewayCheckout();
             $checkout->setOrigin($user->getAccounting());
             $checkout->setStatus($this->getCheckoutStatus($record));
             $checkout->setGateway($this->getCheckoutGateway($record));
@@ -121,18 +122,18 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             $checkout->setMetadata([
                 'payment' => $record['payment'],
                 'transaction' => $record['transaction'],
-                'preapproval' => $record['preapproval']
+                'preapproval' => $record['preapproval'],
             ]);
-            $checkout->setCreatedAt(new \DateTime($record['invested']));
-            $checkout->setUpdatedAt(new \DateTime());
 
-            $charge = new GatewayCharge;
+            $checkout->setDateCreated(new \DateTime($record['invested']));
+
+            $charge = new GatewayCharge();
             $charge->setType($this->getChargeType($record));
             $charge->setMoney($this->getChargeMoney($record['amount'], $record['currency']));
             $charge->setTarget($project->getAccounting());
 
             if ($record['donate_amount'] > 0) {
-                $tip = new GatewayCharge;
+                $tip = new GatewayCharge();
                 $tip->setType(GatewayChargeType::Single);
                 $tip->setMoney($this->getChargeMoney($record['donate_amount'], $record['currency']));
                 $tip->setTarget($tipjar->getAccounting());
@@ -143,6 +144,20 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
 
             $this->entityManager->persist($charge);
             $checkout->addCharge($charge);
+
+            if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
+                foreach ($checkout->getCharges() as $charge) {
+                    $transaction = new AccountingTransaction();
+                    $transaction->setMoney($charge->getMoney());
+                    $transaction->setOrigin($checkout->getOrigin());
+                    $transaction->setTarget($charge->getTarget());
+
+                    $charge->setTransaction($transaction);
+
+                    $this->entityManager->persist($transaction);
+                    $this->entityManager->persist($charge);
+                }
+            }
 
             $this->entityManager->persist($checkout);
         }
@@ -187,10 +202,10 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             return $tipjar;
         }
 
-        $tipjar = new Tipjar;
-        $tipjar->setName(SELF::PLATFORM_TIPJAR_NAME);
+        $tipjar = new Tipjar();
+        $tipjar->setName(self::PLATFORM_TIPJAR_NAME);
 
-        $accounting = new Accounting;
+        $accounting = new Accounting();
         $accounting->setTipjar($tipjar);
 
         $this->entityManager->persist($tipjar);

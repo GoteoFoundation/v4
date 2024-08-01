@@ -13,7 +13,7 @@ class UsersPump extends AbstractPump implements PumpInterface
     use ArrayPumpTrait;
     use ProgressivePumpTrait;
 
-    private const USER_KEYS = [
+    public const USER_KEYS = [
         'id',
         'name',
         'location',
@@ -57,7 +57,7 @@ class UsersPump extends AbstractPump implements PumpInterface
 
     public function supports(mixed $data): bool
     {
-        if (!\is_array($data) || !\array_key_exists(0, $data)) {
+        if (!\is_array($data) || !\is_array($data[0])) {
             return false;
         }
 
@@ -69,18 +69,18 @@ class UsersPump extends AbstractPump implements PumpInterface
         $pumped = $this->getPumped(User::class, $data, ['migratedReference' => 'id']);
 
         foreach ($data as $key => $record) {
-            if ($this->isPumped($record, $pumped)) {
+            if ($this->isPumped($record, $pumped, ['migratedReference' => 'id'])) {
                 continue;
             }
 
-            $user = new User;
-            $user->setAccounting(new Accounting);
+            $user = new User();
+            $user->setAccounting(new Accounting());
             $user->setUsername($this->getUsername($record));
-            $user->setPassword($record['password'] ?? "");
+            $user->setPassword($record['password'] ?? '');
             $user->setEmail($record['email']);
+            $user->setEmailConfirmed(false);
             $user->setName($record['name']);
             $user->setActive(false);
-            $user->setConfirmed(false);
             $user->setMigrated(true);
             $user->setMigratedReference($record['id']);
 

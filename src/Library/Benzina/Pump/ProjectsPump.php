@@ -91,7 +91,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
         'execution_plan_url',
         'sustainability_model_url',
         'sign_url',
-        'sign_url_action'
+        'sign_url_action',
     ];
 
     public function __construct(
@@ -115,7 +115,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
         $owners = $this->getOwners($data);
 
         foreach ($data as $key => $record) {
-            $isPumped = $this->isPumped($record, $pumped);
+            $isPumped = $this->isPumped($record, $pumped, ['migratedReference' => 'id']);
 
             if ($isPumped) {
                 continue;
@@ -129,14 +129,13 @@ class ProjectsPump extends AbstractPump implements PumpInterface
                 continue;
             }
 
-            $project = new Project;
+            $project = new Project();
             $project->setTitle($record['name']);
             $project->setOwner($owners[$record['owner']]);
             $project->setStatus($this->getProjectStatus($record['status']));
             $project->setMigrated(true);
             $project->setMigratedReference($record['id']);
-            $project->setCreatedAt(new \DateTime($record['created']));
-            $project->setUpdatedAt(new \DateTime());
+            $project->setDateCreated(new \DateTime($record['created']));
 
             $accounting = $this->getAccounting($record);
             $accounting->setProject($project);
@@ -188,7 +187,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
 
     private function getAccounting(array $record): Accounting
     {
-        $accounting = new Accounting;
+        $accounting = new Accounting();
         $accounting->setCurrency($record['currency']);
 
         return $accounting;

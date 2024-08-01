@@ -5,7 +5,8 @@ namespace App\Security\Hasher;
 use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
 /**
- * Ported from Goteo v3 src/Goteo/Library/Password.php
+ * Ported from Goteo v3 src/Goteo/Library/Password.php.
+ *
  * @see Goteo v3
  */
 class LegacyPasswordHasher implements PasswordHasherInterface

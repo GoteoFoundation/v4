@@ -2,7 +2,7 @@
 
 namespace App;
 
-use App\DependencyInjection\Compiler\GatewayPass;
+use App\DependencyInjection\Compiler\GatewaysCompilerPass;
 use App\DependencyInjection\Compiler\VersionedResourcePass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -16,12 +16,12 @@ class Kernel extends BaseKernel
     protected function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(
-            new GatewayPass,
+            new GatewaysCompilerPass(),
             PassConfig::TYPE_AFTER_REMOVING
         );
 
         $container->addCompilerPass(
-            new VersionedResourcePass,
+            new VersionedResourcePass(),
             PassConfig::TYPE_AFTER_REMOVING
         );
     }
