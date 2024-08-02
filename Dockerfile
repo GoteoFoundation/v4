@@ -4,7 +4,6 @@ FROM php:8.3-fpm
 RUN apt-get update && apt install -y curl git
 
 # PHP extensions
-
 ## OPcache
 RUN docker-php-ext-install opcache
 
@@ -26,4 +25,10 @@ RUN apt-get install -y libicu-dev \
 # Composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
+
 WORKDIR /app
+COPY . /app
+
+RUN chown -R www-data:www-data /app
+USER www-data
+RUN composer install --prefer-dist --no-scripts --no-dev
