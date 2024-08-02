@@ -1,6 +1,6 @@
 services:
   php:
-    build: docker/php
+    build: .
     container_name: goteo-v4-php
     volumes:
       - .:/app
