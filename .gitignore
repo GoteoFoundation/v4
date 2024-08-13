@@ -26,3 +26,7 @@
 ###> XDebug ###
 /cachegrind*
 ###< XDebug ###
+
+###> doctrineencryptbundle/doctrine-encrypt-bundle
+.Halite.key
+###< doctrineencryptbundle/doctrine-encrypt-bundle
