@@ -23,5 +23,10 @@
 /.php-cs-fixer.cache
 ###< friendsofphp/php-cs-fixer ###
 
-# doctrine-encrypt-bundle
+###> XDebug ###
+/cachegrind*
+###< XDebug ###
+
+###> doctrineencryptbundle/doctrine-encrypt-bundle
 .Halite.key
+###< doctrineencryptbundle/doctrine-encrypt-bundle
