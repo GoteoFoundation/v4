@@ -58,5 +58,11 @@ services:
             - '%env(STRIPE_API_KEY)%'
             - '%env(STRIPE_WEBHOOK_SECRET)%'
 
+    App\Library\Economy\Payment\PaypalGateway:
+        arguments:
+            - '%env(APP_ENV)%'
+            - '%env(PAYPAL_CLIENT_ID)%'
+            - '%env(PAYPAL_CLIENT_SECRET)%'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
