@@ -29,6 +29,7 @@
         "symfony/expression-language": "6.4.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "6.4.*",
+        "symfony/http-client": "6.4.*",
         "symfony/intl": "6.4.*",
         "symfony/monolog-bundle": "^3.10",
         "symfony/property-access": "6.4.*",
@@ -93,7 +94,6 @@
         "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "6.4.*",
         "symfony/css-selector": "6.4.*",
-        "symfony/http-client": "6.4.*",
         "symfony/maker-bundle": "^1.51",
         "symfony/phpunit-bridge": "^7.0",
         "zenstruck/foundry": "^1.36"
