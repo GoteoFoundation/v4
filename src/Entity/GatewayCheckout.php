@@ -11,7 +11,6 @@ use App\State\GatewayCheckoutProcessor;
 use App\Validator\GatewayName;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -74,8 +73,7 @@ class GatewayCheckout
     private ?string $gateway = null;
 
     /**
-     * An external identifier provided by the Gateway for the payment.\
-     * Required when a GatewayCheckout is completed.
+     * An external identifier provided by the Gateway for the payment.
      */
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(SearchFilter::class)]
@@ -83,11 +81,13 @@ class GatewayCheckout
     private ?string $gatewayReference = null;
 
     /**
-     * The URL where the checkout with the Gateway is available.
+     * The URLs provided by the Gateway for this checkout.
+     *
+     * @var Collection<int, GatewayCheckoutLink>
      */
     #[API\ApiProperty(writable: false)]
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $checkoutUrl = null;
+    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayCheckoutLink::class)]
+    private Collection $links;
 
     /**
      * GatewayCheckout was migrated from an invest record in Goteo v3 platform.
@@ -113,6 +113,7 @@ class GatewayCheckout
     {
         $this->charges = new ArrayCollection();
         $this->status = GatewayCheckoutStatus::Pending;
+        $this->links = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -192,14 +193,32 @@ class GatewayCheckout
         return $this;
     }
 
-    public function getCheckoutUrl(): ?string
+    /**
+     * @return Collection<int, GatewayCheckoutLink>
+     */
+    public function getLinks(): Collection
     {
-        return $this->checkoutUrl;
+        return $this->links;
     }
 
-    public function setCheckoutUrl(string $checkoutUrl): static
+    public function addLink(GatewayCheckoutLink $link): static
     {
-        $this->checkoutUrl = $checkoutUrl;
+        if (!$this->links->contains($link)) {
+            $this->links->add($link);
+            $link->setCheckout($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLink(GatewayCheckoutLink $link): static
+    {
+        if ($this->links->removeElement($link)) {
+            // set the owning side to null (unless already changed)
+            if ($link->getCheckout() === $this) {
+                $link->setCheckout(null);
+            }
+        }
 
         return $this;
     }
