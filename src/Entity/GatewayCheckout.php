@@ -85,7 +85,7 @@ class GatewayCheckout
      * @var Collection<int, GatewayCheckoutLink>
      */
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayCheckoutLink::class)]
+    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayCheckoutLink::class, cascade: ['persist'])]
     private Collection $links;
 
     /**
