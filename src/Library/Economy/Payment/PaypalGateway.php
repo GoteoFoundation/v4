@@ -102,7 +102,7 @@ class PaypalGateway implements GatewayInterface
             'json' => [
                 'intent' => self::PAYPAL_ORDER_INTENT,
                 'purchase_units' => $this->getPaypalPurchaseUnits($checkout),
-                'payment_source' => $this->getPaypalPaymentSource()
+                'payment_source' => $this->getPaypalPaymentSource(),
             ],
         ]);
 
