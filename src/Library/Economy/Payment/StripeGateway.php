@@ -7,6 +7,8 @@ use App\Controller\GatewaysController;
 use App\Entity\AccountingTransaction;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
+use App\Entity\GatewayCheckoutLink;
+use App\Entity\GatewayCheckoutLinkType;
 use App\Entity\GatewayCheckoutStatus;
 use App\Repository\GatewayCheckoutRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -63,7 +65,14 @@ class StripeGateway implements GatewayInterface
             'success_url' => sprintf('%s&session_id={CHECKOUT_SESSION_ID}', $successUrl),
         ]);
 
-        $checkout->setCheckoutUrl($session->url);
+        $link = new GatewayCheckoutLink();
+
+        $link->setHref($session->url);
+        $link->setRel('approve');
+        $link->setMethod(Request::METHOD_GET);
+        $link->setType(GatewayCheckoutLinkType::Consumer);
+
+        $checkout->addLink($link);
         $checkout->setGatewayReference($session->id);
 
         return $checkout;
