@@ -23,6 +23,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 interface GatewayInterface
 {
+    public const RESPONSE_TYPE_SUCCESS = 'success';
+    public const RESPONSE_TYPE_FAILURE = 'failure';
+
     /**
      * @return string A short, unique, descriptive string for this Gateway
      */

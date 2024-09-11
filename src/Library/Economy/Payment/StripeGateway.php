@@ -23,8 +23,6 @@ use Symfony\Component\Routing\RouterInterface;
 
 class StripeGateway implements GatewayInterface
 {
-    private const RESPONSE_TYPE_SUCCESS = 'success';
-
     private StripeClient $stripe;
 
     public function __construct(
