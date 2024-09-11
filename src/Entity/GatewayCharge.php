@@ -38,6 +38,7 @@ class GatewayCharge
     /**
      * The Accounting receiving the consequent Transaction for this GatewayCharge.
      */
+    #[API\ApiProperty(readableLink: true)]
     #[Assert\NotBlank()]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -46,7 +47,7 @@ class GatewayCharge
     /**
      * The AccountingTransaction generated for this charge after the checkout with the Gateway.
      */
-    #[API\ApiProperty(writable: false, readableLink: false)]
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?AccountingTransaction $transaction = null;
 

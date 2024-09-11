@@ -14,7 +14,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Accountings are the receivers and the issuers of Transactions.
  */
 #[ORM\Entity(repositoryClass: AccountingRepository::class)]
-#[API\ApiResource]
 #[API\Get()]
 #[API\Patch(security: 'is_granted("ACCOUNTING_EDIT", object)')]
 class Accounting
@@ -48,11 +47,11 @@ class Accounting
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist', 'remove'])]
     private ?Tipjar $tipjar = null;
 
-    #[API\ApiProperty(writable: false, readableLink: false)]
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToMany(mappedBy: 'origin', targetEntity: AccountingTransaction::class)]
     private Collection $transactionsIssued;
 
-    #[API\ApiProperty(writable: false, readableLink: false)]
+    #[API\ApiProperty(writable: false)]
     #[ORM\OneToMany(mappedBy: 'target', targetEntity: AccountingTransaction::class)]
     private Collection $transactionsReceived;
 
@@ -172,7 +171,6 @@ class Accounting
     /**
      * @return Collection<int, AccountingTransaction>
      */
-    #[API\ApiProperty(readableLink: false)]
     public function getTransactions(): Collection
     {
         $transactions = [

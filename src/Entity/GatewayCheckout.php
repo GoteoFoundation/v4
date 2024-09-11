@@ -50,7 +50,6 @@ class GatewayCheckout
      */
     #[Assert\NotBlank()]
     #[Assert\Count(min: 1)]
-    #[API\ApiProperty(readableLink: true, writableLink: true)]
     #[ORM\ManyToMany(targetEntity: GatewayCharge::class, cascade: ['persist'])]
     private Collection $charges;
 
