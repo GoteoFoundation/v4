@@ -2,20 +2,34 @@
 
 namespace App\Library\Economy\Payment;
 
+use App\Controller\GatewaysController;
+use App\Entity\GatewayCharge;
 use App\Entity\GatewayCheckout;
+use App\Entity\GatewayCheckoutLink;
+use App\Entity\GatewayCheckoutLinkType;
+use Brick\Money\Money as BrickMoney;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpClient\HttpOptions;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+/**
+ * @see https://developer.paypal.com/studio/checkout/standard/integrate
+ */
 class PaypalGateway implements GatewayInterface
 {
     public const PAYPAL_API_ADDRESS_LIVE = 'https://api-m.paypal.com';
     public const PAYPAL_API_ADDRESS_SANDBOX = 'https://api-m.sandbox.paypal.com';
+
+    /**
+     * @see https://developer.paypal.com/docs/api/orders/v2/
+     */
+    private const PAYPAL_ORDER_INTENT = 'CAPTURE';
 
     private CacheInterface $cache;
 
@@ -23,6 +37,7 @@ class PaypalGateway implements GatewayInterface
         private string $appEnv,
         private string $paypalClientId,
         private string $paypalClientSecret,
+        private RouterInterface $router,
         private HttpClientInterface $httpClient,
     ) {
         $this->cache = new FilesystemAdapter();
@@ -50,21 +65,23 @@ class PaypalGateway implements GatewayInterface
     }
 
     /**
-     * Calls the PayPal API to generate an OAuth2 token
+     * Calls the PayPal API to generate an OAuth2 token.
+     *
      * @return array The API response body
      */
     public function generateAuthToken(): array
     {
         $response = $this->httpClient->request(Request::METHOD_POST, '/v1/oauth2/token', [
             'auth_basic' => [$this->paypalClientId, $this->paypalClientSecret],
-            'body' => 'grant_type=client_credentials'
+            'body' => 'grant_type=client_credentials',
         ]);
 
         return $response->toArray();
     }
 
     /**
-     * Retrieves the PayPal OAuth2 token data from cache (if available) or generates a new one
+     * Retrieves the PayPal OAuth2 token data from cache (if available) or generates a new one.
+     *
      * @return array The OAuth2 token data
      */
     public function getAuthToken(): array
@@ -80,6 +97,37 @@ class PaypalGateway implements GatewayInterface
 
     public function sendData(GatewayCheckout $checkout): GatewayCheckout
     {
+        $response = $this->httpClient->request(Request::METHOD_POST, '/v2/checkout/orders', [
+            'auth_bearer' => $this->getAuthToken()['access_token'],
+            'json' => [
+                'intent' => self::PAYPAL_ORDER_INTENT,
+                'purchase_units' => $this->getPaypalPurchaseUnits($checkout),
+                'payment_source' => $this->getPaypalPaymentSource()
+            ],
+        ]);
+
+        $content = json_decode($response->getContent(), true);
+
+        if (!\in_array($response->getStatusCode(), [Response::HTTP_OK, Response::HTTP_CREATED])) {
+            throw new \Exception($content['message']);
+        }
+
+        $checkout->setGatewayReference($content['id']);
+
+        foreach ($content['links'] as $linkData) {
+            $linkType = \in_array($linkData['rel'], ['approve', 'payer-action'])
+                ? GatewayCheckoutLinkType::Consumer
+                : GatewayCheckoutLinkType::Platform;
+
+            $link = new GatewayCheckoutLink();
+            $link->setHref($linkData['href']);
+            $link->setRel($linkData['rel']);
+            $link->setMethod($linkData['method']);
+            $link->setType($linkType);
+
+            $checkout->addLink($link);
+        }
+
         return $checkout;
     }
 
@@ -91,5 +139,77 @@ class PaypalGateway implements GatewayInterface
     public function handleWebhook(Request $request): Response
     {
         return new Response();
+    }
+
+    private function getPaypalMoney(GatewayCharge $charge): array
+    {
+        $brick = BrickMoney::ofMinor(
+            $charge->getMoney()->amount,
+            $charge->getMoney()->currency
+        );
+
+        return [
+            'value' => $brick->getAmount()->__toString(),
+            'currency_code' => $brick->getCurrency()->getCurrencyCode(),
+        ];
+    }
+
+    private function getPaypalReference(GatewayCheckout $checkout, GatewayCharge $charge): string
+    {
+        return sprintf('CO%d-CH%d', $checkout->getId(), $charge->getId());
+    }
+
+    private function getPaypalPurchaseUnits(GatewayCheckout $checkout): array
+    {
+        $units = [];
+
+        foreach ($checkout->getCharges() as $charge) {
+            $money = $this->getPaypalMoney($charge);
+            $reference = $this->getPaypalReference($checkout, $charge);
+
+            $units[] = [
+                'reference_id' => $reference,
+                'items' => [
+                    [
+                        'name' => $charge::MESSAGE_STATEMENT,
+                        'description' => $charge::MESSAGE_STATEMENT,
+                        'quantity' => '1',
+                        'unit_amount' => [
+                            ...$money,
+                        ],
+                    ],
+                ],
+                'amount' => [
+                    ...$money,
+                    'breakdown' => [
+                        'item_total' => [
+                            ...$money,
+                        ],
+                    ],
+                ],
+            ];
+        }
+
+        return $units;
+    }
+
+    private function getPaypalPaymentSource(): array
+    {
+        $successUrl = $this->router->generate(
+            GatewaysController::REDIRECT,
+            [
+                'type' => self::RESPONSE_TYPE_SUCCESS,
+                'gateway' => $this->getName(),
+            ],
+            RouterInterface::ABSOLUTE_URL
+        );
+
+        return [
+            'paypal' => [
+                'experience_context' => [
+                    'return_url' => $successUrl,
+                ],
+            ],
+        ];
     }
 }
