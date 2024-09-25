@@ -32,8 +32,8 @@ class PaypalGateway implements GatewayInterface
     public const PAYPAL_API_ADDRESS_SANDBOX = 'https://api-m.sandbox.paypal.com';
 
     /** @see https://developer.paypal.com/docs/api/orders/v2/#orders_get!c=200&path=status&t=response */
-    public const PAYPAL_STATUS_APPROVED = "APPROVED";
-    public const PAYPAL_STATUS_COMPLETED = "COMPLETED";
+    public const PAYPAL_STATUS_APPROVED = 'APPROVED';
+    public const PAYPAL_STATUS_COMPLETED = 'COMPLETED';
 
     /**
      * @see https://developer.paypal.com/docs/api/orders/v2/
@@ -173,7 +173,7 @@ class PaypalGateway implements GatewayInterface
             throw new \Exception(sprintf("PayPal checkout '%s' was not completed successfully.", $token));
         }
 
-        $requestUri = sprintf("/v2/checkout/orders/%s", $token);
+        $requestUri = sprintf('/v2/checkout/orders/%s', $token);
         $request = $this->httpClient->request(Request::METHOD_GET, $requestUri, [
             'auth_bearer' => $this->getAuthToken()['access_token'],
         ]);
