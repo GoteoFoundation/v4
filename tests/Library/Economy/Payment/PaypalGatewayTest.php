@@ -29,10 +29,8 @@ class PaypalGatewayTest extends KernelTestCase
         $httpClient = new MockHttpClient($mockResponse, 'https://testapi.paypal.com');
         $this->paypal = $this->paypal->setHttpClient($httpClient);
 
-        // Act
         $responseData = $this->paypal->generateAuthToken();
 
-        // Assert
         $this->assertSame('POST', $mockResponse->getRequestMethod());
         $this->assertSame('https://testapi.paypal.com/v1/oauth2/token', $mockResponse->getRequestUrl());
 

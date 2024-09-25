@@ -2,12 +2,17 @@
 
 namespace App\Library\Economy\Payment;
 
+use ApiPlatform\Api\IriConverterInterface;
 use App\Controller\GatewaysController;
+use App\Entity\AccountingTransaction;
 use App\Entity\GatewayCharge;
 use App\Entity\GatewayCheckout;
 use App\Entity\GatewayCheckoutLink;
 use App\Entity\GatewayCheckoutLinkType;
+use App\Entity\GatewayCheckoutStatus;
+use App\Repository\GatewayCheckoutRepository;
 use Brick\Money\Money as BrickMoney;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpClient\HttpOptions;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -26,6 +31,10 @@ class PaypalGateway implements GatewayInterface
     public const PAYPAL_API_ADDRESS_LIVE = 'https://api-m.paypal.com';
     public const PAYPAL_API_ADDRESS_SANDBOX = 'https://api-m.sandbox.paypal.com';
 
+    /** @see https://developer.paypal.com/docs/api/orders/v2/#orders_get!c=200&path=status&t=response */
+    public const PAYPAL_STATUS_APPROVED = "APPROVED";
+    public const PAYPAL_STATUS_COMPLETED = "COMPLETED";
+
     /**
      * @see https://developer.paypal.com/docs/api/orders/v2/
      */
@@ -39,6 +48,9 @@ class PaypalGateway implements GatewayInterface
         private string $paypalClientSecret,
         private RouterInterface $router,
         private HttpClientInterface $httpClient,
+        private EntityManagerInterface $entityManager,
+        private IriConverterInterface $iriConverter,
+        private GatewayCheckoutRepository $checkoutRepository
     ) {
         $this->cache = new FilesystemAdapter();
 
@@ -102,7 +114,7 @@ class PaypalGateway implements GatewayInterface
             'json' => [
                 'intent' => self::PAYPAL_ORDER_INTENT,
                 'purchase_units' => $this->getPaypalPurchaseUnits($checkout),
-                'payment_source' => $this->getPaypalPaymentSource(),
+                'payment_source' => $this->getPaypalPaymentSource($checkout),
             ],
         ]);
 
@@ -131,9 +143,66 @@ class PaypalGateway implements GatewayInterface
         return $checkout;
     }
 
+    private function handleSuccess(GatewayCheckout $checkout): GatewayCheckout
+    {
+        $checkout->setStatus(GatewayCheckoutStatus::Charged);
+
+        foreach ($checkout->getCharges() as $charge) {
+            $transaction = new AccountingTransaction();
+            $transaction->setMoney($charge->getMoney());
+            $transaction->setOrigin($checkout->getOrigin());
+            $transaction->setTarget($charge->getTarget());
+
+            $this->entityManager->persist($transaction);
+
+            $charge->setTransaction($transaction);
+
+            $this->entityManager->persist($charge);
+        }
+
+        $this->entityManager->flush();
+
+        return $checkout;
+    }
+
     public function handleRedirect(Request $request): RedirectResponse
     {
-        return new RedirectResponse('');
+        $token = $request->query->get('token');
+
+        if ($request->query->get('type') !== self::RESPONSE_TYPE_SUCCESS) {
+            throw new \Exception(sprintf("PayPal checkout '%s' was not completed successfully.", $token));
+        }
+
+        $requestUri = sprintf("/v2/checkout/orders/%s", $token);
+        $request = $this->httpClient->request(Request::METHOD_GET, $requestUri, [
+            'auth_bearer' => $this->getAuthToken()['access_token'],
+        ]);
+
+        if ($request->getStatusCode() !== Response::HTTP_OK) {
+            throw new \Exception(sprintf("PayPal checkout '%s' could not be requested.", $token));
+        }
+
+        $session = \json_decode($request->getContent(), true);
+        $checkout = $this->checkoutRepository->findOneBy(
+            ['gatewayReference' => $token]
+        );
+
+        if ($checkout === null) {
+            throw new \Exception(sprintf("PayPal checkout '%s' exists but no GatewayCheckout with that reference was found.", $token));
+        }
+
+        if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
+            return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
+        }
+
+        if (!\in_array($session['status'], [self::PAYPAL_STATUS_APPROVED, self::PAYPAL_STATUS_COMPLETED])) {
+            throw new \Exception(sprintf("PayPal checkout '%s' has not yet been processed successfully by the gateway.", $token));
+        }
+
+        $checkout = $this->handleSuccess($checkout);
+
+        // TO-DO: This should redirect the user to a GUI
+        return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
     }
 
     public function handleWebhook(Request $request): Response
