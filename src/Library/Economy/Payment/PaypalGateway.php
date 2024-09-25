@@ -50,7 +50,7 @@ class PaypalGateway implements GatewayInterface
         private HttpClientInterface $httpClient,
         private EntityManagerInterface $entityManager,
         private IriConverterInterface $iriConverter,
-        private GatewayCheckoutRepository $checkoutRepository
+        private GatewayCheckoutRepository $checkoutRepository,
     ) {
         $this->cache = new FilesystemAdapter();
 

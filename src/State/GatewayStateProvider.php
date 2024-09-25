@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class GatewayStateProvider implements ProviderInterface
 {
     public function __construct(
-        private GatewayLocator $gateways
+        private GatewayLocator $gateways,
     ) {
     }
 

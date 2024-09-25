@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints\ChoiceValidator;
 class GatewayNameValidator extends ChoiceValidator
 {
     public function __construct(
-        private GatewayLocator $gateways
+        private GatewayLocator $gateways,
     ) {
     }
 

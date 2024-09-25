@@ -13,7 +13,7 @@ class PdoStream implements StreamInterface
     public function __construct(
         string $database,
         private string $tablename,
-        private int $sizeOfBatch = 99
+        private int $sizeOfBatch = 99,
     ) {
         $parsedUrl = parse_url($database);
         $dbdata = [

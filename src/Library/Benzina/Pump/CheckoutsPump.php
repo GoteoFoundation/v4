@@ -69,7 +69,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         private UserRepository $userRepository,
         private ProjectRepository $projectRepository,
         private TipjarRepository $tipjarRepository,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
     ) {
     }
 

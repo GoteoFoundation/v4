@@ -12,7 +12,7 @@ class AuthService
     private array $config;
 
     public function __construct(
-        private string $appSecret
+        private string $appSecret,
     ) {
     }
 

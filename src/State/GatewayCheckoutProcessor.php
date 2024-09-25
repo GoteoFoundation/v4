@@ -16,7 +16,7 @@ class GatewayCheckoutProcessor implements ProcessorInterface
         #[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]
         private ProcessorInterface $innerProcessor,
         private GatewayLocator $gatewayLocator,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
     ) {
     }
 

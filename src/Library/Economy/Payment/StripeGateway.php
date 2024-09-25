@@ -31,7 +31,7 @@ class StripeGateway implements GatewayInterface
         private RouterInterface $router,
         private GatewayCheckoutRepository $gatewayCheckoutRepository,
         private EntityManagerInterface $entityManager,
-        private IriConverterInterface $iriConverter
+        private IriConverterInterface $iriConverter,
     ) {
         $this->stripe = new StripeClient($stripeApiKey);
     }

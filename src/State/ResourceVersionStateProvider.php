@@ -18,7 +18,7 @@ class ResourceVersionStateProvider implements ProviderInterface
     private LogEntryRepository $versionRepository;
 
     public function __construct(
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
     ) {
         $this->versionRepository = $this->entityManager->getRepository(LogEntry::class);
     }

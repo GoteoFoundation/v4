@@ -19,7 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
 trait ProgressivePumpTrait
 {
     public function __construct(
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -33,7 +33,7 @@ trait ProgressivePumpTrait
     public function getPumped(
         string $entityClass,
         array $pumpingBatch,
-        array $matchCriteria
+        array $matchCriteria,
     ): array {
         $repository = $this->entityManager->getRepository($entityClass);
 
@@ -63,7 +63,7 @@ trait ProgressivePumpTrait
     public function isPumped(
         array $pumpingRecord,
         array $pumpedBatch,
-        array $matchCriteria
+        array $matchCriteria,
     ): bool {
         if (
             isset($this->config)
@@ -89,7 +89,7 @@ trait ProgressivePumpTrait
     public function getPumpedRecord(
         array $pumpingRecord,
         array $pumpedBatch,
-        array $matchCriteria
+        array $matchCriteria,
     ): mixed {
         $entityKey = \array_keys($matchCriteria)[0];
         $pumpingKey = $matchCriteria[$entityKey];
