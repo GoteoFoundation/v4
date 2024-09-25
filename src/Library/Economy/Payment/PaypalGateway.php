@@ -128,8 +128,8 @@ class PaypalGateway implements GatewayInterface
 
         foreach ($content['links'] as $linkData) {
             $linkType = \in_array($linkData['rel'], ['approve', 'payer-action'])
-                ? GatewayCheckoutLinkType::Consumer
-                : GatewayCheckoutLinkType::Platform;
+                ? GatewayCheckoutLinkType::Payment
+                : GatewayCheckoutLinkType::Debug;
 
             $link = new GatewayCheckoutLink();
             $link->setHref($linkData['href']);

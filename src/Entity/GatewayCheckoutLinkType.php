@@ -5,13 +5,12 @@ namespace App\Entity;
 enum GatewayCheckoutLinkType: string
 {
     /**
-     * A 'platform' type link indicates a link that is to be consumed by the platform.
+     * A 'debug' type link indicates a link that is helpful to developers and platform maintainers to get info about the checkout.
      */
-    case Platform = 'platform';
+    case Debug = 'debug';
 
     /**
-     * A 'consumer' type link indicates a link that is to be consumed by the platform's end users,
-     * i.e: people wanting to checkout.
+     * A 'payment' type link indicates a link where the checkout is available to an end user for payment.
      */
-    case Consumer = 'consumer';
+    case Payment = 'payment';
 }

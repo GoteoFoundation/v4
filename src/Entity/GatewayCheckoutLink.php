@@ -37,8 +37,8 @@ class GatewayCheckoutLink
 
     /**
      * The type of the link indicates who is the intended user of a link.\
-     * `platform` links are for applications to communicate with the Gateway about this checkout.\
-     * `consumer` links are for end-users who must visit this link to complete the checkout.
+     * `debug` links are for developers and platform maintainers to get useful information about the checkout.\
+     * `payment` links are for end-users who must visit this link to complete the checkout.
      */
     #[ORM\Column(enumType: GatewayCheckoutLinkType::class)]
     private ?GatewayCheckoutLinkType $type = null;
