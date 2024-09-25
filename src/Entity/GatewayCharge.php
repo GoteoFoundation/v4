@@ -38,7 +38,6 @@ class GatewayCharge
     /**
      * The Accounting receiving the consequent Transaction for this GatewayCharge.
      */
-    #[API\ApiProperty(readableLink: true)]
     #[Assert\NotBlank()]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
