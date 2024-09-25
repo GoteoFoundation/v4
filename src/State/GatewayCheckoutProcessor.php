@@ -3,6 +3,7 @@
 namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\GatewayCheckout;
 use App\Library\Economy\Payment\GatewayLocator;
@@ -13,22 +14,25 @@ class GatewayCheckoutProcessor implements ProcessorInterface
 {
     public function __construct(
         #[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]
-        private ProcessorInterface $persistProcessor,
+        private ProcessorInterface $innerProcessor,
         private GatewayLocator $gatewayLocator,
         private EntityManagerInterface $entityManager
-    ) {
-    }
+    ) {}
 
     /**
-     * @param GatewayCheckout $data
+     * @param GatewayCheckout|void $data
      */
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): GatewayCheckout
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        $checkout = $this->persistProcessor->process($data, $operation, $uriVariables, $context);
+        if (!$operation instanceof Post) {
+            return;
+        }
+
+        $checkout = $this->innerProcessor->process($data, $operation, $uriVariables, $context);
 
         $gateway = $this->gatewayLocator->getGatewayOf($checkout);
         $checkout = $gateway->sendData($checkout);
 
-        return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
+        return $this->innerProcessor->process($data, $operation, $uriVariables, $context);
     }
 }
