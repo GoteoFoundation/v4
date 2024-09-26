@@ -3,7 +3,6 @@
 namespace App\Library\Economy\Payment;
 
 use ApiPlatform\Api\IriConverterInterface;
-use App\Controller\GatewaysController;
 use App\Entity\AccountingTransaction;
 use App\Entity\GatewayCharge;
 use App\Entity\GatewayCheckout;
@@ -11,6 +10,7 @@ use App\Entity\GatewayCheckoutLink;
 use App\Entity\GatewayCheckoutLinkType;
 use App\Entity\GatewayCheckoutStatus;
 use App\Repository\GatewayCheckoutRepository;
+use App\Service\GatewayCheckoutService;
 use Brick\Money\Money as BrickMoney;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -50,6 +50,7 @@ class PaypalGateway implements GatewayInterface
         private HttpClientInterface $httpClient,
         private EntityManagerInterface $entityManager,
         private IriConverterInterface $iriConverter,
+        private GatewayCheckoutService $checkoutService,
         private GatewayCheckoutRepository $checkoutRepository,
     ) {
         $this->cache = new FilesystemAdapter();
@@ -169,7 +170,7 @@ class PaypalGateway implements GatewayInterface
     {
         $token = $request->query->get('token');
 
-        if ($request->query->get('type') !== self::RESPONSE_TYPE_SUCCESS) {
+        if ($request->query->get('type') !== GatewayCheckoutService::RESPONSE_TYPE_SUCCESS) {
             throw new \Exception(sprintf("PayPal checkout '%s' was not completed successfully.", $token));
         }
 
@@ -264,14 +265,7 @@ class PaypalGateway implements GatewayInterface
 
     private function getPaypalPaymentSource(): array
     {
-        $successUrl = $this->router->generate(
-            GatewaysController::REDIRECT,
-            [
-                'type' => self::RESPONSE_TYPE_SUCCESS,
-                'gateway' => $this->getName(),
-            ],
-            RouterInterface::ABSOLUTE_URL
-        );
+        $successUrl = $this->checkoutService->generateRedirectUrl($this->getName());
 
         return [
             'paypal' => [

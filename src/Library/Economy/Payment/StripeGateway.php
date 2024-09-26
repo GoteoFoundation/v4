@@ -3,7 +3,6 @@
 namespace App\Library\Economy\Payment;
 
 use ApiPlatform\Api\IriConverterInterface;
-use App\Controller\GatewaysController;
 use App\Entity\AccountingTransaction;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
@@ -11,6 +10,7 @@ use App\Entity\GatewayCheckoutLink;
 use App\Entity\GatewayCheckoutLinkType;
 use App\Entity\GatewayCheckoutStatus;
 use App\Repository\GatewayCheckoutRepository;
+use App\Service\GatewayCheckoutService;
 use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\StripeClient;
@@ -29,7 +29,8 @@ class StripeGateway implements GatewayInterface
         private string $stripeApiKey,
         private string $stripeWebhookSecret,
         private RouterInterface $router,
-        private GatewayCheckoutRepository $gatewayCheckoutRepository,
+        private GatewayCheckoutService $checkoutService,
+        private GatewayCheckoutRepository $checkoutRepository,
         private EntityManagerInterface $entityManager,
         private IriConverterInterface $iriConverter,
     ) {
@@ -43,14 +44,7 @@ class StripeGateway implements GatewayInterface
 
     public function sendData(GatewayCheckout $checkout): GatewayCheckout
     {
-        $successUrl = $this->router->generate(
-            GatewaysController::REDIRECT,
-            [
-                'type' => self::RESPONSE_TYPE_SUCCESS,
-                'gateway' => $this->getName(),
-            ],
-            RouterInterface::ABSOLUTE_URL
-        );
+        $successUrl = $this->checkoutService->generateRedirectUrl($this->getName());
 
         $session = $this->stripe->checkout->sessions->create([
             'customer_email' => $checkout->getOrigin()->getUser()->getEmail(),
@@ -103,7 +97,7 @@ class StripeGateway implements GatewayInterface
         $sessionId = $request->query->get('session_id');
 
         $session = $this->stripe->checkout->sessions->retrieve($sessionId);
-        $checkout = $this->gatewayCheckoutRepository->findOneBy(
+        $checkout = $this->checkoutRepository->findOneBy(
             ['gatewayReference' => $sessionId]
         );
 
@@ -111,7 +105,7 @@ class StripeGateway implements GatewayInterface
             throw new \Exception(sprintf("Stripe checkout '%s' exists but no GatewayCheckout with that reference was found.", $sessionId));
         }
 
-        if ($request->query->get('type') !== self::RESPONSE_TYPE_SUCCESS) {
+        if ($request->query->get('type') !== GatewayCheckoutService::RESPONSE_TYPE_SUCCESS) {
             return $checkout;
         }
 
