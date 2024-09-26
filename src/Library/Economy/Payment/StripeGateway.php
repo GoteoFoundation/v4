@@ -105,6 +105,10 @@ class StripeGateway implements GatewayInterface
             throw new \Exception(sprintf("Stripe checkout '%s' exists but no GatewayCheckout with that reference was found.", $sessionId));
         }
 
+        if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
+            return $checkout;
+        }
+
         if ($request->query->get('type') !== GatewayCheckoutService::RESPONSE_TYPE_SUCCESS) {
             return $checkout;
         }
