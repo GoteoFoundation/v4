@@ -72,12 +72,13 @@ class GatewayCheckout
     private ?string $gateway = null;
 
     /**
-     * An external identifier provided by the Gateway for the payment.
+     * The IDs provided by the Gateway for this checkout.
+     *
+     * @var Collection<int, GatewayCheckoutId>
      */
     #[API\ApiProperty(writable: false)]
-    #[API\ApiFilter(SearchFilter::class)]
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $gatewayReference = null;
+    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayCheckoutId::class, cascade: ['persist'])]
+    private Collection $gatewayIds;
 
     /**
      * The URLs provided by the Gateway for this checkout.
@@ -86,7 +87,7 @@ class GatewayCheckout
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayCheckoutLink::class, cascade: ['persist'])]
-    private Collection $links;
+    private Collection $gatewayLinks;
 
     /**
      * GatewayCheckout was migrated from an invest record in Goteo v3 platform.
@@ -112,7 +113,8 @@ class GatewayCheckout
     {
         $this->charges = new ArrayCollection();
         $this->status = GatewayCheckoutStatus::Pending;
-        $this->links = new ArrayCollection();
+        $this->gatewayLinks = new ArrayCollection();
+        $this->gatewayIds = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -180,14 +182,32 @@ class GatewayCheckout
         return $this;
     }
 
-    public function getGatewayReference(): ?string
+    /**
+     * @return Collection<int, GatewayCheckoutId>
+     */
+    public function getGatewayIds(): Collection
     {
-        return $this->gatewayReference;
+        return $this->gatewayIds;
     }
 
-    public function setGatewayReference(string $gatewayReference): static
+    public function addGatewayId(GatewayCheckoutId $gatewayId): static
     {
-        $this->gatewayReference = $gatewayReference;
+        if (!$this->gatewayIds->contains($gatewayId)) {
+            $this->gatewayIds->add($gatewayId);
+            $gatewayId->setCheckout($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGatewayId(GatewayCheckoutId $gatewayId): static
+    {
+        if ($this->gatewayIds->removeElement($gatewayId)) {
+            // set the owning side to null (unless already changed)
+            if ($gatewayId->getCheckout() === $this) {
+                $gatewayId->setCheckout(null);
+            }
+        }
 
         return $this;
     }
@@ -195,24 +215,24 @@ class GatewayCheckout
     /**
      * @return Collection<int, GatewayCheckoutLink>
      */
-    public function getLinks(): Collection
+    public function getGatewayLinks(): Collection
     {
-        return $this->links;
+        return $this->gatewayLinks;
     }
 
-    public function addLink(GatewayCheckoutLink $link): static
+    public function addGatewayLink(GatewayCheckoutLink $link): static
     {
-        if (!$this->links->contains($link)) {
-            $this->links->add($link);
+        if (!$this->gatewayLinks->contains($link)) {
+            $this->gatewayLinks->add($link);
             $link->setCheckout($this);
         }
 
         return $this;
     }
 
-    public function removeLink(GatewayCheckoutLink $link): static
+    public function removeGatewayLink(GatewayCheckoutLink $link): static
     {
-        if ($this->links->removeElement($link)) {
+        if ($this->gatewayLinks->removeElement($link)) {
             // set the owning side to null (unless already changed)
             if ($link->getCheckout() === $this) {
                 $link->setCheckout(null);
