@@ -3,9 +3,9 @@
 namespace App\Library\Economy\Payment;
 
 use ApiPlatform\Api\IriConverterInterface;
-use App\Entity\AccountingTransaction;
 use App\Entity\GatewayCharge;
 use App\Entity\GatewayCheckout;
+use App\Entity\GatewayCheckoutId;
 use App\Entity\GatewayCheckoutLink;
 use App\Entity\GatewayCheckoutLinkType;
 use App\Entity\GatewayCheckoutStatus;
@@ -125,7 +125,11 @@ class PaypalGateway implements GatewayInterface
             throw new \Exception($content['message']);
         }
 
-        $checkout->setGatewayReference($content['id']);
+        $orderId = new GatewayCheckoutId();
+        $orderId->setValue($content['id']);
+        $orderId->setTitle('PayPal Order ID');
+
+        $checkout->addGatewayId($orderId);
 
         foreach ($content['links'] as $linkData) {
             $linkType = \in_array($linkData['rel'], ['approve', 'payer-action'])
@@ -138,7 +142,7 @@ class PaypalGateway implements GatewayInterface
             $link->setMethod($linkData['method']);
             $link->setType($linkType);
 
-            $checkout->addLink($link);
+            $checkout->addGatewayLink($link);
         }
 
         return $checkout;
@@ -161,6 +165,33 @@ class PaypalGateway implements GatewayInterface
         return \json_decode($request->getContent(), true);
     }
 
+    private function capturePaypalOrder(array $order)
+    {
+        $link = \array_filter($order['links'], function ($order) {
+            return $order['rel'] === 'capture';
+        });
+
+        if (empty($link)) {
+            throw new \Exception(sprintf("PayPal checkout '%s' was not ready for capture.", $order['id']));
+        }
+
+        $link = \array_pop($link);
+        $request = $this->httpClient->request(
+            $link['method'],
+            $link['href'],
+            [
+                'auth_bearer' => $this->getAuthToken()['access_token'],
+                'headers' => ['Content-Type' => 'application/json'],
+            ]
+        );
+
+        if ($request->getStatusCode() !== Response::HTTP_CREATED) {
+            throw new \Exception(sprintf("Payment capture for PayPal checkout '%s' was unsuccessful.", $order['id']));
+        }
+
+        return \json_decode($request->getContent(), true);
+    }
+
     public function handleRedirect(Request $request): RedirectResponse
     {
         $orderId = $request->query->get('token');
@@ -169,9 +200,7 @@ class PaypalGateway implements GatewayInterface
             throw new \Exception(sprintf("PayPal checkout '%s' was not completed successfully.", $orderId));
         }
 
-        $checkout = $this->checkoutRepository->findOneBy(
-            ['gatewayReference' => $orderId]
-        );
+        $checkout = $this->checkoutRepository->find($request->query->get('checkoutId'));
 
         if ($checkout === null) {
             throw new \Exception(sprintf("PayPal checkout '%s' exists but no GatewayCheckout with that reference was found.", $orderId));
@@ -186,6 +215,20 @@ class PaypalGateway implements GatewayInterface
         if ($order['status'] !== self::PAYPAL_STATUS_APPROVED) {
             throw new \Exception(sprintf("PayPal checkout '%s' has not yet been processed successfully by the gateway.", $orderId));
         }
+
+        $capture = $this->capturePaypalOrder($order);
+
+        if ($capture['status'] !== self::PAYPAL_STATUS_COMPLETED) {
+            throw new \Exception(sprintf("Payment capture for PayPal checkout '%s' was not completed.", $orderId));
+        }
+
+        $captureId = new GatewayCheckoutId();
+        $captureId->setValue($capture['purchase_units'][0]['payments']['captures'][0]['id']);
+        $captureId->setTitle('PayPal Transaction ID');
+
+        $checkout->addGatewayId($captureId);
+
+        $checkout = $this->checkoutService->chargeCheckout($checkout);
 
         // TO-DO: This should redirect the user to a GUI
         return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
@@ -219,6 +262,7 @@ class PaypalGateway implements GatewayInterface
 
             $units[] = [
                 'reference_id' => $reference,
+                'custom_id' => $reference,
                 'items' => [
                     [
                         'name' => $charge::MESSAGE_STATEMENT,
@@ -243,14 +287,12 @@ class PaypalGateway implements GatewayInterface
         return $units;
     }
 
-    private function getPaypalPaymentSource(): array
+    private function getPaypalPaymentSource(GatewayCheckout $checkout): array
     {
-        $successUrl = $this->checkoutService->generateRedirectUrl($this->getName());
-
         return [
             'paypal' => [
                 'experience_context' => [
-                    'return_url' => $successUrl,
+                    'return_url' => $this->checkoutService->generateRedirectUrl($checkout),
                 ],
             ],
         ];
