@@ -144,63 +144,48 @@ class PaypalGateway implements GatewayInterface
         return $checkout;
     }
 
-    private function handleSuccess(GatewayCheckout $checkout): GatewayCheckout
+    public function fetchPaypalOrder(string $orderId): array
     {
-        $checkout->setStatus(GatewayCheckoutStatus::Charged);
+        $request = $this->httpClient->request(
+            Request::METHOD_GET,
+            sprintf('/v2/checkout/orders/%s', $orderId),
+            [
+                'auth_bearer' => $this->getAuthToken()['access_token'],
+            ]
+        );
 
-        foreach ($checkout->getCharges() as $charge) {
-            $transaction = new AccountingTransaction();
-            $transaction->setMoney($charge->getMoney());
-            $transaction->setOrigin($checkout->getOrigin());
-            $transaction->setTarget($charge->getTarget());
-
-            $this->entityManager->persist($transaction);
-
-            $charge->setTransaction($transaction);
-
-            $this->entityManager->persist($charge);
+        if ($request->getStatusCode() !== Response::HTTP_OK) {
+            throw new \Exception(sprintf("PayPal checkout '%s' could not be requested.", $orderId));
         }
 
-        $this->entityManager->flush();
-
-        return $checkout;
+        return \json_decode($request->getContent(), true);
     }
 
     public function handleRedirect(Request $request): RedirectResponse
     {
-        $token = $request->query->get('token');
+        $orderId = $request->query->get('token');
 
-        if ($request->query->get('type') !== GatewayCheckoutService::RESPONSE_TYPE_SUCCESS) {
-            throw new \Exception(sprintf("PayPal checkout '%s' was not completed successfully.", $token));
+        if (!$orderId || $request->query->get('type') !== GatewayCheckoutService::RESPONSE_TYPE_SUCCESS) {
+            throw new \Exception(sprintf("PayPal checkout '%s' was not completed successfully.", $orderId));
         }
 
-        $requestUri = sprintf('/v2/checkout/orders/%s', $token);
-        $request = $this->httpClient->request(Request::METHOD_GET, $requestUri, [
-            'auth_bearer' => $this->getAuthToken()['access_token'],
-        ]);
-
-        if ($request->getStatusCode() !== Response::HTTP_OK) {
-            throw new \Exception(sprintf("PayPal checkout '%s' could not be requested.", $token));
-        }
-
-        $session = \json_decode($request->getContent(), true);
         $checkout = $this->checkoutRepository->findOneBy(
-            ['gatewayReference' => $token]
+            ['gatewayReference' => $orderId]
         );
 
         if ($checkout === null) {
-            throw new \Exception(sprintf("PayPal checkout '%s' exists but no GatewayCheckout with that reference was found.", $token));
+            throw new \Exception(sprintf("PayPal checkout '%s' exists but no GatewayCheckout with that reference was found.", $orderId));
         }
 
         if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
             return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
         }
 
-        if (!\in_array($session['status'], [self::PAYPAL_STATUS_APPROVED, self::PAYPAL_STATUS_COMPLETED])) {
-            throw new \Exception(sprintf("PayPal checkout '%s' has not yet been processed successfully by the gateway.", $token));
-        }
+        $order = $this->fetchPaypalOrder($orderId);
 
-        $checkout = $this->handleSuccess($checkout);
+        if ($order['status'] !== self::PAYPAL_STATUS_APPROVED) {
+            throw new \Exception(sprintf("PayPal checkout '%s' has not yet been processed successfully by the gateway.", $orderId));
+        }
 
         // TO-DO: This should redirect the user to a GUI
         return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
