@@ -224,18 +224,13 @@ class PaypalGateway implements GatewayInterface
         ];
     }
 
-    private function getPaypalReference(GatewayCheckout $checkout, GatewayCharge $charge): string
-    {
-        return sprintf('CO%d-CH%d', $checkout->getId(), $charge->getId());
-    }
-
     private function getPaypalPurchaseUnits(GatewayCheckout $checkout): array
     {
         $units = [];
 
         foreach ($checkout->getCharges() as $charge) {
             $money = $this->getPaypalMoney($charge);
-            $reference = $this->getPaypalReference($checkout, $charge);
+            $reference = $this->checkoutService->getGatewayReference($checkout, $charge);
 
             $units[] = [
                 'reference_id' => $reference,
