@@ -42,7 +42,7 @@ class StripeGateway implements GatewayInterface
         return 'stripe';
     }
 
-    public function sendData(GatewayCheckout $checkout): GatewayCheckout
+    public function process(GatewayCheckout $checkout): GatewayCheckout
     {
         $session = $this->stripe->checkout->sessions->create([
             'customer_email' => $checkout->getOrigin()->getUser()->getEmail(),
