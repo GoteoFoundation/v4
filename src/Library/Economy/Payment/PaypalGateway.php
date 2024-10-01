@@ -112,20 +112,26 @@ class PaypalGateway implements GatewayInterface
 
     public function handleRedirect(Request $request): RedirectResponse
     {
-        $orderId = $request->query->get('token');
-
-        if (!$orderId || $request->query->get('type') !== GatewayCheckoutService::RESPONSE_TYPE_SUCCESS) {
-            throw new \Exception(sprintf("PayPal checkout '%s' was not completed successfully.", $orderId));
+        if ($request->query->get('type') !== GatewayCheckoutService::RESPONSE_TYPE_SUCCESS) {
+            throw new \Exception(sprintf("Checkout was not completed successfully."));
         }
 
-        $checkout = $this->checkoutRepository->find($request->query->get('checkoutId'));
+        $checkoutId = $request->query->get('checkoutId');
+
+        $checkout = $this->checkoutRepository->find($checkoutId);
 
         if ($checkout === null) {
-            throw new \Exception(sprintf("PayPal checkout '%s' exists but no GatewayCheckout with that reference was found.", $orderId));
+            throw new \Exception(sprintf("GatewayCheckout '%s' could not be found.", $checkoutId));
         }
 
         if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
             return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
+        }
+
+        $orderId = $request->query->get('token');
+
+        if (!$orderId) {
+            throw new \Exception(sprintf("PayPal checkout order ID not provided by the gateway."));
         }
 
         $order = $this->fetchPaypalOrder($orderId);
