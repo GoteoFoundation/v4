@@ -70,45 +70,7 @@ class PaypalGateway implements GatewayInterface
         return 'paypal';
     }
 
-    public function setHttpClient(HttpClientInterface $httpClient): static
-    {
-        $this->httpClient = $httpClient;
-
-        return $this;
-    }
-
-    /**
-     * Calls the PayPal API to generate an OAuth2 token.
-     *
-     * @return array The API response body
-     */
-    public function generateAuthToken(): array
-    {
-        $response = $this->httpClient->request(Request::METHOD_POST, '/v1/oauth2/token', [
-            'auth_basic' => [$this->paypalClientId, $this->paypalClientSecret],
-            'body' => 'grant_type=client_credentials',
-        ]);
-
-        return $response->toArray();
-    }
-
-    /**
-     * Retrieves the PayPal OAuth2 token data from cache (if available) or generates a new one.
-     *
-     * @return array The OAuth2 token data
-     */
-    public function getAuthToken(): array
-    {
-        return $this->cache->get($this->getName(), function (ItemInterface $item): array {
-            $tokenData = $this->generateAuthToken();
-
-            $item->expiresAfter($tokenData['expires_in']);
-
-            return $tokenData;
-        });
-    }
-
-    public function sendData(GatewayCheckout $checkout): GatewayCheckout
+    public function process(GatewayCheckout $checkout): GatewayCheckout
     {
         $response = $this->httpClient->request(Request::METHOD_POST, '/v2/checkout/orders', [
             'auth_bearer' => $this->getAuthToken()['access_token'],
@@ -146,50 +108,6 @@ class PaypalGateway implements GatewayInterface
         }
 
         return $checkout;
-    }
-
-    public function fetchPaypalOrder(string $orderId): array
-    {
-        $request = $this->httpClient->request(
-            Request::METHOD_GET,
-            sprintf('/v2/checkout/orders/%s', $orderId),
-            [
-                'auth_bearer' => $this->getAuthToken()['access_token'],
-            ]
-        );
-
-        if ($request->getStatusCode() !== Response::HTTP_OK) {
-            throw new \Exception(sprintf("PayPal checkout '%s' could not be requested.", $orderId));
-        }
-
-        return \json_decode($request->getContent(), true);
-    }
-
-    private function capturePaypalOrder(array $order)
-    {
-        $link = \array_filter($order['links'], function ($order) {
-            return $order['rel'] === 'capture';
-        });
-
-        if (empty($link)) {
-            throw new \Exception(sprintf("PayPal checkout '%s' was not ready for capture.", $order['id']));
-        }
-
-        $link = \array_pop($link);
-        $request = $this->httpClient->request(
-            $link['method'],
-            $link['href'],
-            [
-                'auth_bearer' => $this->getAuthToken()['access_token'],
-                'headers' => ['Content-Type' => 'application/json'],
-            ]
-        );
-
-        if ($request->getStatusCode() !== Response::HTTP_CREATED) {
-            throw new \Exception(sprintf("Payment capture for PayPal checkout '%s' was unsuccessful.", $order['id']));
-        }
-
-        return \json_decode($request->getContent(), true);
     }
 
     public function handleRedirect(Request $request): RedirectResponse
@@ -237,6 +155,88 @@ class PaypalGateway implements GatewayInterface
     public function handleWebhook(Request $request): Response
     {
         return new Response();
+    }
+
+    public function setHttpClient(HttpClientInterface $httpClient): static
+    {
+        $this->httpClient = $httpClient;
+
+        return $this;
+    }
+
+    /**
+     * Calls the PayPal API to generate an OAuth2 token.
+     *
+     * @return array The API response body
+     */
+    public function generateAuthToken(): array
+    {
+        $response = $this->httpClient->request(Request::METHOD_POST, '/v1/oauth2/token', [
+            'auth_basic' => [$this->paypalClientId, $this->paypalClientSecret],
+            'body' => 'grant_type=client_credentials',
+        ]);
+
+        return $response->toArray();
+    }
+
+    /**
+     * Retrieves the PayPal OAuth2 token data from cache (if available) or generates a new one.
+     *
+     * @return array The OAuth2 token data
+     */
+    public function getAuthToken(): array
+    {
+        return $this->cache->get($this->getName(), function (ItemInterface $item): array {
+            $tokenData = $this->generateAuthToken();
+
+            $item->expiresAfter($tokenData['expires_in']);
+
+            return $tokenData;
+        });
+    }
+
+    public function fetchPaypalOrder(string $orderId): array
+    {
+        $request = $this->httpClient->request(
+            Request::METHOD_GET,
+            sprintf('/v2/checkout/orders/%s', $orderId),
+            [
+                'auth_bearer' => $this->getAuthToken()['access_token'],
+            ]
+        );
+
+        if ($request->getStatusCode() !== Response::HTTP_OK) {
+            throw new \Exception(sprintf("PayPal checkout '%s' could not be requested.", $orderId));
+        }
+
+        return \json_decode($request->getContent(), true);
+    }
+
+    private function capturePaypalOrder(array $order)
+    {
+        $link = \array_filter($order['links'], function ($order) {
+            return $order['rel'] === 'capture';
+        });
+
+        if (empty($link)) {
+            throw new \Exception(sprintf("PayPal checkout '%s' was not ready for capture.", $order['id']));
+        }
+
+        $link = \array_pop($link);
+        $request = $this->httpClient->request(
+            $link['method'],
+            $link['href'],
+            [
+                'auth_bearer' => $this->getAuthToken()['access_token'],
+                'headers' => ['Content-Type' => 'application/json'],
+            ]
+        );
+
+        if ($request->getStatusCode() !== Response::HTTP_CREATED) {
+            throw new \Exception(sprintf("Payment capture for PayPal checkout '%s' was unsuccessful.", $order['id']));
+        }
+
+        return \json_decode($request->getContent(), true);
     }
 
     private function getPaypalMoney(GatewayCharge $charge): array
