@@ -3,12 +3,12 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
-use App\Repository\GatewayCheckoutLinkRepository;
+use App\Repository\GatewayLinkRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: GatewayCheckoutLinkRepository::class)]
-class GatewayCheckoutLink
+#[ORM\Entity(repositoryClass: GatewayLinkRepository::class)]
+class GatewayLink
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -40,8 +40,8 @@ class GatewayCheckoutLink
      * `debug` links are for developers and platform maintainers to get useful information about the checkout.\
      * `payment` links are for end-users who must visit this link to complete the checkout.
      */
-    #[ORM\Column(enumType: GatewayCheckoutLinkType::class)]
-    private ?GatewayCheckoutLinkType $type = null;
+    #[ORM\Column(enumType: GatewayLinkType::class)]
+    private ?GatewayLinkType $type = null;
 
     #[API\ApiProperty(readable: false)]
     #[ORM\ManyToOne(inversedBy: 'links')]
@@ -89,12 +89,12 @@ class GatewayCheckoutLink
         return $this;
     }
 
-    public function getType(): ?GatewayCheckoutLinkType
+    public function getType(): ?GatewayLinkType
     {
         return $this->type;
     }
 
-    public function setType(GatewayCheckoutLinkType $type): static
+    public function setType(GatewayLinkType $type): static
     {
         $this->type = $type;
 

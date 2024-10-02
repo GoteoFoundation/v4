@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\GatewayCheckoutLink;
+use App\Entity\GatewayLink;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<GatewayCheckoutLink>
+ * @extends ServiceEntityRepository<GatewayLink>
  */
-class GatewayCheckoutLinkRepository extends ServiceEntityRepository
+class GatewayLinkRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, GatewayCheckoutLink::class);
+        parent::__construct($registry, GatewayLink::class);
     }
 
     //    /**
-    //     * @return GatewayCheckoutLink[] Returns an array of GatewayCheckoutLink objects
+    //     * @return GatewayLink[] Returns an array of GatewayLink objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class GatewayCheckoutLinkRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?GatewayCheckoutLink
+    //    public function findOneBySomeField($value): ?GatewayLink
     //    {
     //        return $this->createQueryBuilder('g')
     //            ->andWhere('g.exampleField = :val')

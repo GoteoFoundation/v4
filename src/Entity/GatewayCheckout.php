@@ -72,23 +72,24 @@ class GatewayCheckout
     private ?string $gateway = null;
 
     /**
+     * A list of URLs provided by the Gateway for this checkout.\
+     * e.g: Fulfill payment, API resource address.
+     *
+     * @var Collection<int, GatewayLink>
+     */
+    #[API\ApiProperty(writable: false)]
+    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayLink::class, cascade: ['persist'])]
+    private Collection $gatewayLinks;
+
+    /**
      * A list of tracking codes provided by the Gateway for this checkout.\
-     * e.g: Order ID, Payment Capture ID, Checkout Session Token
+     * e.g: Order ID, Payment Capture ID, Checkout Session Token.
      *
      * @var Collection<int, GatewayTracking>
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayTracking::class, cascade: ['persist'])]
     private Collection $gatewayTrackings;
-
-    /**
-     * The URLs provided by the Gateway for this checkout.
-     *
-     * @var Collection<int, GatewayCheckoutLink>
-     */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayCheckoutLink::class, cascade: ['persist'])]
-    private Collection $gatewayLinks;
 
     /**
      * GatewayCheckout was migrated from an invest record in Goteo v3 platform.
@@ -184,6 +185,36 @@ class GatewayCheckout
     }
 
     /**
+     * @return Collection<int, GatewayLink>
+     */
+    public function getGatewayLinks(): Collection
+    {
+        return $this->gatewayLinks;
+    }
+
+    public function addGatewayLink(GatewayLink $link): static
+    {
+        if (!$this->gatewayLinks->contains($link)) {
+            $this->gatewayLinks->add($link);
+            $link->setCheckout($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGatewayLink(GatewayLink $link): static
+    {
+        if ($this->gatewayLinks->removeElement($link)) {
+            // set the owning side to null (unless already changed)
+            if ($link->getCheckout() === $this) {
+                $link->setCheckout(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * @return Collection<int, GatewayTracking>
      */
     public function getGatewayTrackings(): Collection
@@ -207,36 +238,6 @@ class GatewayCheckout
             // set the owning side to null (unless already changed)
             if ($gatewayTracking->getCheckout() === $this) {
                 $gatewayTracking->setCheckout(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, GatewayCheckoutLink>
-     */
-    public function getGatewayLinks(): Collection
-    {
-        return $this->gatewayLinks;
-    }
-
-    public function addGatewayLink(GatewayCheckoutLink $link): static
-    {
-        if (!$this->gatewayLinks->contains($link)) {
-            $this->gatewayLinks->add($link);
-            $link->setCheckout($this);
-        }
-
-        return $this;
-    }
-
-    public function removeGatewayLink(GatewayCheckoutLink $link): static
-    {
-        if ($this->gatewayLinks->removeElement($link)) {
-            // set the owning side to null (unless already changed)
-            if ($link->getCheckout() === $this) {
-                $link->setCheckout(null);
             }
         }
 
