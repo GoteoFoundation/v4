@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\GatewayCheckout;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,6 +20,20 @@ class GatewayCheckoutRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, GatewayCheckout::class);
+    }
+
+    /**
+     * @return GatewayCheckout|null
+     */
+    public function findOneByTracking($value): array
+    {
+        return $this->createQueryBuilder('g')
+            ->join('g.gatewayTrackings', 'gt', Join::WITH, 'gt.checkout = g.id')
+            ->andWhere('gt.value = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
     }
 
     //    /**
