@@ -5,9 +5,9 @@ namespace App\Library\Economy\Payment;
 use ApiPlatform\Api\IriConverterInterface;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
-use App\Entity\GatewayCheckoutId;
-use App\Entity\GatewayCheckoutLink;
-use App\Entity\GatewayCheckoutLinkType;
+use App\Entity\GatewayTracking;
+use App\Entity\GatewayLink;
+use App\Entity\GatewayLinkType;
 use App\Entity\GatewayCheckoutStatus;
 use App\Repository\GatewayCheckoutRepository;
 use App\Service\GatewayCheckoutService;
@@ -55,20 +55,20 @@ class StripeGateway implements GatewayInterface
             'success_url' => sprintf('%s&session_id={CHECKOUT_SESSION_ID}', $this->checkoutService->generateRedirectUrl($checkout)),
         ]);
 
-        $link = new GatewayCheckoutLink();
+        $link = new GatewayLink();
 
         $link->setHref($session->url);
         $link->setRel('approve');
         $link->setMethod(Request::METHOD_GET);
-        $link->setType(GatewayCheckoutLinkType::Payment);
+        $link->setType(GatewayLinkType::Payment);
 
         $checkout->addGatewayLink($link);
 
-        $sessionId = new GatewayCheckoutId();
-        $sessionId->setValue($session->id);
-        $sessionId->setTitle('Stripe Checkout Session ID');
+        $tracking = new GatewayTracking();
+        $tracking->setValue($session->id);
+        $tracking->setTitle('Stripe Checkout Session ID');
 
-        $checkout->addGatewayId($sessionId);
+        $checkout->addGatewayTracking($tracking);
 
         return $checkout;
     }
