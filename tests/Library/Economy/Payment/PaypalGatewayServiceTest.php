@@ -2,20 +2,20 @@
 
 namespace App\Tests\Library\Economy\Payment;
 
-use App\Library\Economy\Payment\PaypalGateway;
+use App\Library\Economy\Payment\PaypalGatewayService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
-class PaypalGatewayTest extends KernelTestCase
+class PaypalGatewayServiceTest extends KernelTestCase
 {
-    private PaypalGateway $paypal;
+    private PaypalGatewayService $paypalService;
 
     public function setUp(): void
     {
         self::bootKernel();
 
-        $this->paypal = static::getContainer()->get(PaypalGateway::class);
+        $this->paypalService = static::getContainer()->get(PaypalGatewayService::class);
     }
 
     public function testAuthenticates(): void
@@ -27,9 +27,9 @@ class PaypalGatewayTest extends KernelTestCase
         ]);
 
         $httpClient = new MockHttpClient($mockResponse, 'https://testapi.paypal.com');
-        $this->paypal = $this->paypal->setHttpClient($httpClient);
+        $this->paypalService = $this->paypalService->setHttpClient($httpClient);
 
-        $responseData = $this->paypal->generateAuthToken();
+        $responseData = $this->paypalService->generateAuthToken();
 
         $this->assertSame('POST', $mockResponse->getRequestMethod());
         $this->assertSame('https://testapi.paypal.com/v1/oauth2/token', $mockResponse->getRequestUrl());
