@@ -151,11 +151,13 @@ class PaypalGateway implements GatewayInterface
             throw new \Exception(sprintf("Payment capture for PayPal checkout '%s' was not completed.", $orderId));
         }
 
-        $tracking = new GatewayTracking();
-        $tracking->setValue($capture['purchase_units'][0]['payments']['captures'][0]['id']);
-        $tracking->setTitle('PayPal Transaction ID');
+        foreach ($capture['purchase_units'] as $purchaseUnit) {
+            $tracking = new GatewayTracking();
+            $tracking->setValue($purchaseUnit['payments']['captures'][0]['id']);
+            $tracking->setTitle('PayPal Transaction ID');
 
-        $checkout->addGatewayTracking($tracking);
+            $checkout->addGatewayTracking($tracking);
+        }
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
 
