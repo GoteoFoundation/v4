@@ -5,9 +5,9 @@ namespace App\Library\Economy\Payment;
 use ApiPlatform\Api\IriConverterInterface;
 use App\Entity\GatewayCharge;
 use App\Entity\GatewayCheckout;
-use App\Entity\GatewayCheckoutId;
-use App\Entity\GatewayCheckoutLink;
-use App\Entity\GatewayCheckoutLinkType;
+use App\Entity\GatewayTracking;
+use App\Entity\GatewayLink;
+use App\Entity\GatewayLinkType;
 use App\Entity\GatewayCheckoutStatus;
 use App\Repository\GatewayCheckoutRepository;
 use App\Service\GatewayCheckoutService;
@@ -15,6 +15,7 @@ use Brick\Money\Money as BrickMoney;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpClient\HttpOptions;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,6 +36,9 @@ class PaypalGateway implements GatewayInterface
     public const PAYPAL_STATUS_APPROVED = 'APPROVED';
     public const PAYPAL_STATUS_COMPLETED = 'COMPLETED';
 
+    /** @see https://developer.paypal.com/api/rest/webhooks/event-names/#orders */
+    public const PAYPAL_CHECKOUT_ORDER_COMPLETED = 'CHECKOUT.ORDER.COMPLETED';
+
     /**
      * @see https://developer.paypal.com/docs/api/orders/v2/
      */
@@ -46,6 +50,7 @@ class PaypalGateway implements GatewayInterface
         private string $appEnv,
         private string $paypalClientId,
         private string $paypalClientSecret,
+        private string $paypalWebhookId,
         private RouterInterface $router,
         private HttpClientInterface $httpClient,
         private EntityManagerInterface $entityManager,
@@ -87,18 +92,18 @@ class PaypalGateway implements GatewayInterface
             throw new \Exception($content['message']);
         }
 
-        $orderId = new GatewayCheckoutId();
-        $orderId->setValue($content['id']);
-        $orderId->setTitle('PayPal Order ID');
+        $tracking = new GatewayTracking();
+        $tracking->setValue($content['id']);
+        $tracking->setTitle('PayPal Order ID');
 
-        $checkout->addGatewayId($orderId);
+        $checkout->addGatewayTracking($tracking);
 
         foreach ($content['links'] as $linkData) {
             $linkType = \in_array($linkData['rel'], ['approve', 'payer-action'])
-                ? GatewayCheckoutLinkType::Payment
-                : GatewayCheckoutLinkType::Debug;
+                ? GatewayLinkType::Payment
+                : GatewayLinkType::Debug;
 
-            $link = new GatewayCheckoutLink();
+            $link = new GatewayLink();
             $link->setHref($linkData['href']);
             $link->setRel($linkData['rel']);
             $link->setMethod($linkData['method']);
@@ -113,7 +118,7 @@ class PaypalGateway implements GatewayInterface
     public function handleRedirect(Request $request): RedirectResponse
     {
         if ($request->query->get('type') !== GatewayCheckoutService::RESPONSE_TYPE_SUCCESS) {
-            throw new \Exception(sprintf("Checkout was not completed successfully."));
+            throw new \Exception(sprintf('Checkout was not completed successfully.'));
         }
 
         $checkoutId = $request->query->get('checkoutId');
@@ -131,7 +136,7 @@ class PaypalGateway implements GatewayInterface
         $orderId = $request->query->get('token');
 
         if (!$orderId) {
-            throw new \Exception(sprintf("PayPal checkout order ID not provided by the gateway."));
+            throw new \Exception(sprintf('PayPal checkout order ID not provided by the gateway.'));
         }
 
         $order = $this->fetchPaypalOrder($orderId);
@@ -146,11 +151,11 @@ class PaypalGateway implements GatewayInterface
             throw new \Exception(sprintf("Payment capture for PayPal checkout '%s' was not completed.", $orderId));
         }
 
-        $captureId = new GatewayCheckoutId();
-        $captureId->setValue($capture['purchase_units'][0]['payments']['captures'][0]['id']);
-        $captureId->setTitle('PayPal Transaction ID');
+        $tracking = new GatewayTracking();
+        $tracking->setValue($capture['purchase_units'][0]['payments']['captures'][0]['id']);
+        $tracking->setTitle('PayPal Transaction ID');
 
-        $checkout->addGatewayId($captureId);
+        $checkout->addGatewayTracking($tracking);
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
 
@@ -160,7 +165,39 @@ class PaypalGateway implements GatewayInterface
 
     public function handleWebhook(Request $request): Response
     {
+        $isSignatureValid = $this->verifyWebhookSignature($request);
+        if (!$isSignatureValid) {
+            return new JsonResponse([
+                'status' => 'ERROR',
+                'message' => 'Could not verify webhook signature',
+                'requestBody' => $request->getContent(),
+                'requestHeaders' => $request->headers->all(),
+            ], Response::HTTP_ACCEPTED);
+        }
+
+        $event = \json_decode($request->getContent(), true);
+        switch ($event['event_type']) {
+            default:
+                return new Response('Event not supported', Response::HTTP_ACCEPTED);
+        }
+
         return new Response();
+    }
+
+    private function verifyWebhookSignature(Request $request): bool
+    {
+        $headers = $request->headers;
+
+        return \openssl_verify(
+            implode('|', [
+                $headers->get('paypal-transmission-id'),
+                $headers->get('paypal-transmission-type'),
+                $this->paypalWebhookId,
+                \crc32($request->getContent()),
+            ]),
+            \base64_decode($headers->get('paypal-transmission-sig')),
+            \openssl_pkey_get_public(\file_get_contents($headers->get('paypal-cert-url')))
+        ) === 1;
     }
 
     public function setHttpClient(HttpClientInterface $httpClient): static

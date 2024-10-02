@@ -63,6 +63,7 @@ services:
             - '%env(APP_ENV)%'
             - '%env(PAYPAL_CLIENT_ID)%'
             - '%env(PAYPAL_CLIENT_SECRET)%'
+            - '%env(PAYPAL_WEBHOOK_ID)%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
