@@ -5,10 +5,10 @@ namespace App\Library\Economy\Payment;
 use ApiPlatform\Api\IriConverterInterface;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
-use App\Entity\GatewayTracking;
+use App\Entity\GatewayCheckoutStatus;
 use App\Entity\GatewayLink;
 use App\Entity\GatewayLinkType;
-use App\Entity\GatewayCheckoutStatus;
+use App\Entity\GatewayTracking;
 use App\Repository\GatewayCheckoutRepository;
 use App\Service\GatewayCheckoutService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,6 +23,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 class StripeGateway implements GatewayInterface
 {
+    public const TRACKING_TITLE_CHECKOUT = 'Stripe Checkout Session ID';
+
     private StripeClient $stripe;
 
     public function __construct(
@@ -66,7 +68,7 @@ class StripeGateway implements GatewayInterface
 
         $tracking = new GatewayTracking();
         $tracking->setValue($session->id);
-        $tracking->setTitle('Stripe Checkout Session ID');
+        $tracking->setTitle(self::TRACKING_TITLE_CHECKOUT);
 
         $checkout->addGatewayTracking($tracking);
 
