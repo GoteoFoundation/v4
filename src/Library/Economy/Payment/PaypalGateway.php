@@ -13,16 +13,11 @@ use App\Repository\GatewayCheckoutRepository;
 use App\Service\GatewayCheckoutService;
 use Brick\Money\Money as BrickMoney;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\HttpClient\HttpOptions;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @see https://developer.paypal.com/studio/checkout/standard/integrate
@@ -47,30 +42,14 @@ class PaypalGateway implements GatewayInterface
     public const TRACKING_TITLE_ORDER = 'PayPal Order ID';
     public const TRACKING_TITLE_TRANSACTION = 'PayPal Transaction ID';
 
-    private CacheInterface $cache;
-
     public function __construct(
-        private string $appEnv,
-        private string $paypalClientId,
-        private string $paypalClientSecret,
-        private string $paypalWebhookId,
+        private PaypalGatewayService $paypal,
         private RouterInterface $router,
-        private HttpClientInterface $httpClient,
         private EntityManagerInterface $entityManager,
         private IriConverterInterface $iriConverter,
         private GatewayCheckoutService $checkoutService,
         private GatewayCheckoutRepository $checkoutRepository,
     ) {
-        $this->cache = new FilesystemAdapter();
-
-        $httpOptions = new HttpOptions();
-        $httpOptions->setBaseUri(
-            $appEnv === 'prod'
-                ? self::PAYPAL_API_ADDRESS_LIVE
-                : self::PAYPAL_API_ADDRESS_SANDBOX
-        );
-
-        $this->setHttpClient($httpClient->withOptions($httpOptions->toArray()));
     }
 
     public static function getName(): string
@@ -80,28 +59,19 @@ class PaypalGateway implements GatewayInterface
 
     public function process(GatewayCheckout $checkout): GatewayCheckout
     {
-        $response = $this->httpClient->request(Request::METHOD_POST, '/v2/checkout/orders', [
-            'auth_bearer' => $this->getAuthToken()['access_token'],
-            'json' => [
-                'intent' => self::PAYPAL_ORDER_INTENT,
-                'purchase_units' => $this->getPaypalPurchaseUnits($checkout),
-                'payment_source' => $this->getPaypalPaymentSource($checkout),
-            ],
+        $order = $this->paypal->postOrder([
+            'intent' => self::PAYPAL_ORDER_INTENT,
+            'purchase_units' => $this->getPaypalPurchaseUnits($checkout),
+            'payment_source' => $this->getPaypalPaymentSource($checkout),
         ]);
 
-        $content = json_decode($response->getContent(), true);
-
-        if (!\in_array($response->getStatusCode(), [Response::HTTP_OK, Response::HTTP_CREATED])) {
-            throw new \Exception($content['message']);
-        }
-
         $tracking = new GatewayTracking();
-        $tracking->setValue($content['id']);
+        $tracking->setValue($order['id']);
         $tracking->setTitle(self::TRACKING_TITLE_ORDER);
 
         $checkout->addGatewayTracking($tracking);
 
-        foreach ($content['links'] as $linkData) {
+        foreach ($order['links'] as $linkData) {
             $linkType = \in_array($linkData['rel'], ['approve', 'payer-action'])
                 ? GatewayLinkType::Payment
                 : GatewayLinkType::Debug;
@@ -142,13 +112,13 @@ class PaypalGateway implements GatewayInterface
             throw new \Exception(sprintf('PayPal checkout order ID not provided by the gateway.'));
         }
 
-        $order = $this->fetchPaypalOrder($orderId);
+        $order = $this->paypal->getOrder($orderId);
 
         if ($order['status'] !== self::PAYPAL_STATUS_APPROVED) {
             throw new \Exception(sprintf("PayPal checkout '%s' has not yet been processed successfully by the gateway.", $orderId));
         }
 
-        $capture = $this->capturePaypalOrder($order);
+        $capture = $this->paypal->captureOrder($order);
 
         if ($capture['status'] !== self::PAYPAL_STATUS_COMPLETED) {
             throw new \Exception(sprintf("Payment capture for PayPal checkout '%s' was not completed.", $orderId));
@@ -170,7 +140,7 @@ class PaypalGateway implements GatewayInterface
 
     public function handleWebhook(Request $request): Response
     {
-        $isSignatureValid = $this->verifyWebhookSignature($request);
+        $isSignatureValid = $this->paypal->verifyWebhook($request);
         if (!$isSignatureValid) {
             return new JsonResponse([
                 'status' => 'ERROR',
@@ -210,104 +180,6 @@ class PaypalGateway implements GatewayInterface
         }
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
-    }
-
-    private function verifyWebhookSignature(Request $request): bool
-    {
-        $headers = $request->headers;
-
-        return \openssl_verify(
-            implode('|', [
-                $headers->get('paypal-transmission-id'),
-                $headers->get('paypal-transmission-type'),
-                $this->paypalWebhookId,
-                \crc32($request->getContent()),
-            ]),
-            \base64_decode($headers->get('paypal-transmission-sig')),
-            \openssl_pkey_get_public(\file_get_contents($headers->get('paypal-cert-url')))
-        ) === 1;
-    }
-
-    public function setHttpClient(HttpClientInterface $httpClient): static
-    {
-        $this->httpClient = $httpClient;
-
-        return $this;
-    }
-
-    /**
-     * Calls the PayPal API to generate an OAuth2 token.
-     *
-     * @return array The API response body
-     */
-    public function generateAuthToken(): array
-    {
-        $response = $this->httpClient->request(Request::METHOD_POST, '/v1/oauth2/token', [
-            'auth_basic' => [$this->paypalClientId, $this->paypalClientSecret],
-            'body' => 'grant_type=client_credentials',
-        ]);
-
-        return $response->toArray();
-    }
-
-    /**
-     * Retrieves the PayPal OAuth2 token data from cache (if available) or generates a new one.
-     *
-     * @return array The OAuth2 token data
-     */
-    public function getAuthToken(): array
-    {
-        return $this->cache->get($this->getName(), function (ItemInterface $item): array {
-            $tokenData = $this->generateAuthToken();
-
-            $item->expiresAfter($tokenData['expires_in']);
-
-            return $tokenData;
-        });
-    }
-
-    public function fetchPaypalOrder(string $orderId): array
-    {
-        $request = $this->httpClient->request(
-            Request::METHOD_GET,
-            sprintf('/v2/checkout/orders/%s', $orderId),
-            [
-                'auth_bearer' => $this->getAuthToken()['access_token'],
-            ]
-        );
-
-        if ($request->getStatusCode() !== Response::HTTP_OK) {
-            throw new \Exception(sprintf("PayPal checkout '%s' could not be requested.", $orderId));
-        }
-
-        return \json_decode($request->getContent(), true);
-    }
-
-    private function capturePaypalOrder(array $order)
-    {
-        $link = \array_filter($order['links'], function ($order) {
-            return $order['rel'] === 'capture';
-        });
-
-        if (empty($link)) {
-            throw new \Exception(sprintf("PayPal checkout '%s' was not ready for capture.", $order['id']));
-        }
-
-        $link = \array_pop($link);
-        $request = $this->httpClient->request(
-            $link['method'],
-            $link['href'],
-            [
-                'auth_bearer' => $this->getAuthToken()['access_token'],
-                'headers' => ['Content-Type' => 'application/json'],
-            ]
-        );
-
-        if ($request->getStatusCode() !== Response::HTTP_CREATED) {
-            throw new \Exception(sprintf("Payment capture for PayPal checkout '%s' was unsuccessful.", $order['id']));
-        }
-
-        return \json_decode($request->getContent(), true);
     }
 
     private function getPaypalMoney(GatewayCharge $charge): array
