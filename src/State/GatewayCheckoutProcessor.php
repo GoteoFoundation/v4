@@ -32,7 +32,7 @@ class GatewayCheckoutProcessor implements ProcessorInterface
         $checkout = $this->innerProcessor->process($data, $operation, $uriVariables, $context);
 
         $gateway = $this->gatewayLocator->getGatewayOf($checkout);
-        $checkout = $gateway->sendData($checkout);
+        $checkout = $gateway->process($checkout);
 
         return $this->innerProcessor->process($data, $operation, $uriVariables, $context);
     }
