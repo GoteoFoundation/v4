@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\GatewayCheckoutId;
+use App\Entity\GatewayTracking;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<GatewayCheckoutId>
+ * @extends ServiceEntityRepository<GatewayTracking>
  */
-class GatewayCheckoutIdRepository extends ServiceEntityRepository
+class GatewayTrackingRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, GatewayCheckoutId::class);
+        parent::__construct($registry, GatewayTracking::class);
     }
 
     //    /**
-    //     * @return GatewayCheckoutId[] Returns an array of GatewayCheckoutId objects
+    //     * @return GatewayTracking[] Returns an array of GatewayTracking objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class GatewayCheckoutIdRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?GatewayCheckoutId
+    //    public function findOneBySomeField($value): ?GatewayTracking
     //    {
     //        return $this->createQueryBuilder('g')
     //            ->andWhere('g.exampleField = :val')

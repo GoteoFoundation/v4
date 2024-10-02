@@ -72,13 +72,14 @@ class GatewayCheckout
     private ?string $gateway = null;
 
     /**
-     * The IDs provided by the Gateway for this checkout.
+     * A list of tracking codes provided by the Gateway for this checkout.\
+     * e.g: Order ID, Payment Capture ID, Checkout Session Token
      *
-     * @var Collection<int, GatewayCheckoutId>
+     * @var Collection<int, GatewayTracking>
      */
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayCheckoutId::class, cascade: ['persist'])]
-    private Collection $gatewayIds;
+    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayTracking::class, cascade: ['persist'])]
+    private Collection $gatewayTrackings;
 
     /**
      * The URLs provided by the Gateway for this checkout.
@@ -114,7 +115,7 @@ class GatewayCheckout
         $this->charges = new ArrayCollection();
         $this->status = GatewayCheckoutStatus::Pending;
         $this->gatewayLinks = new ArrayCollection();
-        $this->gatewayIds = new ArrayCollection();
+        $this->gatewayTrackings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -183,29 +184,29 @@ class GatewayCheckout
     }
 
     /**
-     * @return Collection<int, GatewayCheckoutId>
+     * @return Collection<int, GatewayTracking>
      */
-    public function getGatewayIds(): Collection
+    public function getGatewayTrackings(): Collection
     {
-        return $this->gatewayIds;
+        return $this->gatewayTrackings;
     }
 
-    public function addGatewayId(GatewayCheckoutId $gatewayId): static
+    public function addGatewayTracking(GatewayTracking $gatewayTracking): static
     {
-        if (!$this->gatewayIds->contains($gatewayId)) {
-            $this->gatewayIds->add($gatewayId);
-            $gatewayId->setCheckout($this);
+        if (!$this->gatewayTrackings->contains($gatewayTracking)) {
+            $this->gatewayTrackings->add($gatewayTracking);
+            $gatewayTracking->setCheckout($this);
         }
 
         return $this;
     }
 
-    public function removeGatewayId(GatewayCheckoutId $gatewayId): static
+    public function removeGatewayTracking(GatewayTracking $gatewayTracking): static
     {
-        if ($this->gatewayIds->removeElement($gatewayId)) {
+        if ($this->gatewayTrackings->removeElement($gatewayTracking)) {
             // set the owning side to null (unless already changed)
-            if ($gatewayId->getCheckout() === $this) {
-                $gatewayId->setCheckout(null);
+            if ($gatewayTracking->getCheckout() === $this) {
+                $gatewayTracking->setCheckout(null);
             }
         }
 

@@ -2,11 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\GatewayCheckoutIdRepository;
+use App\Repository\GatewayTrackingRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: GatewayCheckoutIdRepository::class)]
-class GatewayCheckoutId
+#[ORM\Entity(repositoryClass: GatewayTrackingRepository::class)]
+class GatewayTracking
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -14,13 +14,13 @@ class GatewayCheckoutId
     private ?int $id = null;
 
     /**
-     * The ID given by the Gateway.
+     * The tracking number given by the Gateway.
      */
     #[ORM\Column(length: 255)]
     private ?string $value = null;
 
     /**
-     * A descriptive title for the ID type.
+     * A descriptive title for the tracking number.
      */
     #[ORM\Column(length: 255)]
     private ?string $title = null;
