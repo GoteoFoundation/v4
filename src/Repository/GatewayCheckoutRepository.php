@@ -25,12 +25,14 @@ class GatewayCheckoutRepository extends ServiceEntityRepository
     /**
      * @return GatewayCheckout|null
      */
-    public function findOneByTracking($value): array
+    public function findOneByTracking(string $title, string $value): array
     {
         return $this->createQueryBuilder('g')
             ->join('g.gatewayTrackings', 'gt', Join::WITH, 'gt.checkout = g.id')
             ->andWhere('gt.value = :val')
+            ->andWhere('gt.title = :title')
             ->setParameter('val', $value)
+            ->setParameter('title', $title)
             ->getQuery()
             ->getOneOrNullResult()
         ;

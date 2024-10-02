@@ -37,12 +37,15 @@ class PaypalGateway implements GatewayInterface
     public const PAYPAL_STATUS_COMPLETED = 'COMPLETED';
 
     /** @see https://developer.paypal.com/api/rest/webhooks/event-names/#orders */
-    public const PAYPAL_CHECKOUT_ORDER_COMPLETED = 'CHECKOUT.ORDER.COMPLETED';
+    public const PAYPAL_EVENT_ORDER_COMPLETED = 'CHECKOUT.ORDER.COMPLETED';
 
     /**
      * @see https://developer.paypal.com/docs/api/orders/v2/
      */
     private const PAYPAL_ORDER_INTENT = 'CAPTURE';
+
+    public const TRACKING_TITLE_ORDER = 'PayPal Order ID';
+    public const TRACKING_TITLE_TRANSACTION = 'PayPal Transaction ID';
 
     private CacheInterface $cache;
 
@@ -94,7 +97,7 @@ class PaypalGateway implements GatewayInterface
 
         $tracking = new GatewayTracking();
         $tracking->setValue($content['id']);
-        $tracking->setTitle('PayPal Order ID');
+        $tracking->setTitle(self::TRACKING_TITLE_ORDER);
 
         $checkout->addGatewayTracking($tracking);
 
@@ -154,7 +157,7 @@ class PaypalGateway implements GatewayInterface
         foreach ($capture['purchase_units'] as $purchaseUnit) {
             $tracking = new GatewayTracking();
             $tracking->setValue($purchaseUnit['payments']['captures'][0]['id']);
-            $tracking->setTitle('PayPal Transaction ID');
+            $tracking->setTitle(self::TRACKING_TITLE_TRANSACTION);
 
             $checkout->addGatewayTracking($tracking);
         }
@@ -179,11 +182,34 @@ class PaypalGateway implements GatewayInterface
 
         $event = \json_decode($request->getContent(), true);
         switch ($event['event_type']) {
+            case self::PAYPAL_EVENT_ORDER_COMPLETED:
+                return $this->handleOrderCompleted($event);
             default:
                 return new Response('Event not supported', Response::HTTP_ACCEPTED);
         }
 
         return new Response();
+    }
+
+    private function handleOrderCompleted(array $event)
+    {
+        $orderId = $event['resource']['id'];
+
+        $checkout = $this->checkoutRepository->findOneByTracking(self::TRACKING_TITLE_ORDER, $orderId);
+
+        if ($checkout === null) {
+            throw new \Exception(sprintf("Could not find any GatewayCheckout by the GatewayTracking '%s'", $orderId), 1);
+        }
+
+        foreach ($event['resource']['purchase_units'] as $purchaseUnit) {
+            $tracking = new GatewayTracking();
+            $tracking->setValue($purchaseUnit['payments']['captures'][0]['id']);
+            $tracking->setTitle(self::TRACKING_TITLE_TRANSACTION);
+
+            $checkout->addGatewayTracking($tracking);
+        }
+
+        $checkout = $this->checkoutService->chargeCheckout($checkout);
     }
 
     private function verifyWebhookSignature(Request $request): bool
