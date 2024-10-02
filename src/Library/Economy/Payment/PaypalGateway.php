@@ -97,7 +97,6 @@ class PaypalGateway implements GatewayInterface
         $checkoutId = $request->query->get('checkoutId');
 
         $checkout = $this->checkoutRepository->find($checkoutId);
-
         if ($checkout === null) {
             throw new \Exception(sprintf("GatewayCheckout '%s' could not be found.", $checkoutId));
         }
@@ -107,19 +106,16 @@ class PaypalGateway implements GatewayInterface
         }
 
         $orderId = $request->query->get('token');
-
         if (!$orderId) {
             throw new \Exception(sprintf('PayPal checkout order ID not provided by the gateway.'));
         }
 
         $order = $this->paypal->getOrder($orderId);
-
         if ($order['status'] !== self::PAYPAL_STATUS_APPROVED) {
             throw new \Exception(sprintf("PayPal checkout '%s' has not yet been processed successfully by the gateway.", $orderId));
         }
 
-        $capture = $this->paypal->captureOrder($order);
-
+        $capture = $this->paypal->captureOrderPayment($order);
         if ($capture['status'] !== self::PAYPAL_STATUS_COMPLETED) {
             throw new \Exception(sprintf("Payment capture for PayPal checkout '%s' was not completed.", $orderId));
         }
@@ -140,17 +136,17 @@ class PaypalGateway implements GatewayInterface
 
     public function handleWebhook(Request $request): Response
     {
-        $isSignatureValid = $this->paypal->verifyWebhook($request);
-        if (!$isSignatureValid) {
+        try {
+            $event = $this->paypal->verifyWebhook($request);
+        } catch (\Exception $e) {
             return new JsonResponse([
                 'status' => 'ERROR',
-                'message' => 'Could not verify webhook signature',
+                'message' => $e->getMessage(),
                 'requestBody' => $request->getContent(),
                 'requestHeaders' => $request->headers->all(),
             ], Response::HTTP_ACCEPTED);
         }
 
-        $event = \json_decode($request->getContent(), true);
         switch ($event['event_type']) {
             case self::PAYPAL_EVENT_ORDER_COMPLETED:
                 return $this->handleOrderCompleted($event);

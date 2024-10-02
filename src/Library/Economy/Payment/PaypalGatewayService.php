@@ -67,6 +67,11 @@ class PaypalGatewayService
         });
     }
 
+    /**
+     * Creates a PayPal Order resource with the given data.
+     *
+     * @see https://developer.paypal.com/docs/api/orders/v2/#orders_create
+     */
     public function postOrder(array $order): array
     {
         $response = $this->httpClient->request(Request::METHOD_POST, '/v2/checkout/orders', [
@@ -82,6 +87,11 @@ class PaypalGatewayService
         return $content;
     }
 
+    /**
+     * Retrieve a PayPal Order resource.
+     *
+     * @see https://developer.paypal.com/docs/api/orders/v2/#orders_get
+     */
     public function getOrder(string $orderId): array
     {
         $request = $this->httpClient->request(
@@ -99,7 +109,12 @@ class PaypalGatewayService
         return \json_decode($request->getContent(), true);
     }
 
-    public function captureOrder(array $order): array
+    /**
+     * Process post user-approval payment capture for a given Order.
+     *
+     * @see https://developer.paypal.com/docs/api/orders/v2/#orders_capture
+     */
+    public function captureOrderPayment(array $order): array
     {
         $link = \array_filter($order['links'], function ($order) {
             return $order['rel'] === 'capture';
@@ -126,11 +141,20 @@ class PaypalGatewayService
         return \json_decode($request->getContent(), true);
     }
 
-    public function verifyWebhook(Request $request): bool
+    /**
+     * Verifies a PayPal webhook request.
+     *
+     * @param Request $request The webhook request
+     *
+     * @return array The webhook event data
+     *
+     * @throws \Exception If the verification fails
+     */
+    public function verifyWebhook(Request $request): array
     {
         $headers = $request->headers;
 
-        return \openssl_verify(
+        $isSignatureValid = \openssl_verify(
             implode('|', [
                 $headers->get('paypal-transmission-id'),
                 $headers->get('paypal-transmission-type'),
@@ -140,5 +164,11 @@ class PaypalGatewayService
             \base64_decode($headers->get('paypal-transmission-sig')),
             \openssl_pkey_get_public(\file_get_contents($headers->get('paypal-cert-url')))
         ) === 1;
+
+        if (!$isSignatureValid) {
+            throw new \Exception('Could not verify PayPal webhook signature.');
+        }
+
+        return \json_decode($request->getContent(), true);
     }
 }

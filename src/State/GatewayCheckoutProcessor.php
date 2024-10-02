@@ -3,7 +3,6 @@
 namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\GatewayCheckout;
 use App\Library\Economy\Payment\GatewayLocator;
@@ -21,14 +20,10 @@ class GatewayCheckoutProcessor implements ProcessorInterface
     }
 
     /**
-     * @param GatewayCheckout|void $data
+     * @param GatewayCheckout $data
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        if (!$operation instanceof Post) {
-            return;
-        }
-
         $checkout = $this->innerProcessor->process($data, $operation, $uriVariables, $context);
 
         $gateway = $this->gatewayLocator->getGatewayOf($checkout);
