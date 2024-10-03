@@ -13,7 +13,7 @@ class UserStateProcessor implements ProcessorInterface
 {
     public function __construct(
         private ProcessorInterface $innerProcessor,
-        private UserPasswordHasherInterface $userPasswordHasher
+        private UserPasswordHasherInterface $userPasswordHasher,
     ) {
     }
 

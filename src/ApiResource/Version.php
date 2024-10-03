@@ -23,7 +23,7 @@ class Version
 {
     public function __construct(
         private readonly LogEntry $log,
-        private readonly object $entity
+        private readonly object $entity,
     ) {
     }
 

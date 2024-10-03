@@ -35,7 +35,7 @@ interface GatewayInterface
      *
      * @return GatewayCheckout The GatewayCheckout updated with the data given by the gateway
      */
-    public function sendData(GatewayCheckout $checkout): GatewayCheckout;
+    public function process(GatewayCheckout $checkout): GatewayCheckout;
 
     /**
      * When a user is redirected by the gateway we must handle the redirection

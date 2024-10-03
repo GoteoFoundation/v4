@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\Exception\ParameterCircularReferenceEx
 final class SystemVariablesLoader implements EnvVarLoaderInterface
 {
     public function __construct(
-        private SystemVariableRepository $systemVarRepository
+        private SystemVariableRepository $systemVarRepository,
     ) {
     }
 

@@ -20,7 +20,7 @@ class GatewaysSetupCommand extends Command
     private const FAILURE_MESSAGE = 'Could not setup Gateways. Please review the error.';
 
     public function __construct(
-        private GatewayLocator $gatewayLocator
+        private GatewayLocator $gatewayLocator,
     ) {
         parent::__construct();
     }

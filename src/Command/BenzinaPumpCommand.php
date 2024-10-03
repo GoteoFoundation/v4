@@ -19,7 +19,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class BenzinaPumpCommand extends Command
 {
     public function __construct(
-        private Benzina $benzina
+        private Benzina $benzina,
     ) {
         parent::__construct();
     }

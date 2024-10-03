@@ -17,7 +17,7 @@ final class OrderedLikeFilter extends AbstractFilter
         protected ManagerRegistry $managerRegistry,
         ?LoggerInterface $logger = null,
         protected ?array $properties = null,
-        protected ?NameConverterInterface $nameConverter = null
+        protected ?NameConverterInterface $nameConverter = null,
     ) {
         parent::__construct($managerRegistry, $logger, $properties, $nameConverter);
     }
@@ -29,7 +29,7 @@ final class OrderedLikeFilter extends AbstractFilter
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         if (
             !$this->isPropertyEnabled($property, $resourceClass)

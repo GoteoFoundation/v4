@@ -11,7 +11,7 @@ class Benzina
     private array $availablePumps = [];
 
     public function __construct(
-        iterable $instanceof
+        iterable $instanceof,
     ) {
         $this->availablePumps = \iterator_to_array($instanceof);
     }

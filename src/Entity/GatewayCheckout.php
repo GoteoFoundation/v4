@@ -11,7 +11,6 @@ use App\State\GatewayCheckoutProcessor;
 use App\Validator\GatewayName;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -51,7 +50,6 @@ class GatewayCheckout
      */
     #[Assert\NotBlank()]
     #[Assert\Count(min: 1)]
-    #[API\ApiProperty(readableLink: true, writableLink: true)]
     #[ORM\ManyToMany(targetEntity: GatewayCharge::class, cascade: ['persist'])]
     private Collection $charges;
 
@@ -74,20 +72,24 @@ class GatewayCheckout
     private ?string $gateway = null;
 
     /**
-     * An external identifier provided by the Gateway for the payment.\
-     * Required when a GatewayCheckout is completed.
+     * A list of URLs provided by the Gateway for this checkout.\
+     * e.g: Fulfill payment, API resource address.
+     *
+     * @var Collection<int, GatewayLink>
      */
     #[API\ApiProperty(writable: false)]
-    #[API\ApiFilter(SearchFilter::class)]
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $gatewayReference = null;
+    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayLink::class, cascade: ['persist'])]
+    private Collection $gatewayLinks;
 
     /**
-     * The URL where the checkout with the Gateway is available.
+     * A list of tracking codes provided by the Gateway for this checkout.\
+     * e.g: Order ID, Payment Capture ID, Checkout Session Token.
+     *
+     * @var Collection<int, GatewayTracking>
      */
     #[API\ApiProperty(writable: false)]
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $checkoutUrl = null;
+    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayTracking::class, cascade: ['persist'])]
+    private Collection $gatewayTrackings;
 
     /**
      * GatewayCheckout was migrated from an invest record in Goteo v3 platform.
@@ -113,6 +115,8 @@ class GatewayCheckout
     {
         $this->charges = new ArrayCollection();
         $this->status = GatewayCheckoutStatus::Pending;
+        $this->gatewayLinks = new ArrayCollection();
+        $this->gatewayTrackings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -180,26 +184,62 @@ class GatewayCheckout
         return $this;
     }
 
-    public function getGatewayReference(): ?string
+    /**
+     * @return Collection<int, GatewayLink>
+     */
+    public function getGatewayLinks(): Collection
     {
-        return $this->gatewayReference;
+        return $this->gatewayLinks;
     }
 
-    public function setGatewayReference(string $gatewayReference): static
+    public function addGatewayLink(GatewayLink $link): static
     {
-        $this->gatewayReference = $gatewayReference;
+        if (!$this->gatewayLinks->contains($link)) {
+            $this->gatewayLinks->add($link);
+            $link->setCheckout($this);
+        }
 
         return $this;
     }
 
-    public function getCheckoutUrl(): ?string
+    public function removeGatewayLink(GatewayLink $link): static
     {
-        return $this->checkoutUrl;
+        if ($this->gatewayLinks->removeElement($link)) {
+            // set the owning side to null (unless already changed)
+            if ($link->getCheckout() === $this) {
+                $link->setCheckout(null);
+            }
+        }
+
+        return $this;
     }
 
-    public function setCheckoutUrl(string $checkoutUrl): static
+    /**
+     * @return Collection<int, GatewayTracking>
+     */
+    public function getGatewayTrackings(): Collection
     {
-        $this->checkoutUrl = $checkoutUrl;
+        return $this->gatewayTrackings;
+    }
+
+    public function addGatewayTracking(GatewayTracking $gatewayTracking): static
+    {
+        if (!$this->gatewayTrackings->contains($gatewayTracking)) {
+            $this->gatewayTrackings->add($gatewayTracking);
+            $gatewayTracking->setCheckout($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGatewayTracking(GatewayTracking $gatewayTracking): static
+    {
+        if ($this->gatewayTrackings->removeElement($gatewayTracking)) {
+            // set the owning side to null (unless already changed)
+            if ($gatewayTracking->getCheckout() === $this) {
+                $gatewayTracking->setCheckout(null);
+            }
+        }
 
         return $this;
     }

@@ -16,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class SystemVarsListCommand extends Command
 {
     public function __construct(
-        private SystemVariableRepository $systemVarRepository
+        private SystemVariableRepository $systemVarRepository,
     ) {
         parent::__construct();
     }
