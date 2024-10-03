@@ -8,6 +8,7 @@ use App\Entity\GatewayCharge;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
 use App\Entity\GatewayCheckoutStatus;
+use App\Entity\GatewayTracking;
 use App\Entity\Money;
 use App\Entity\Tipjar;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
@@ -27,9 +28,12 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
 {
     use ArrayPumpTrait;
     use ProgressivePumpTrait;
+    public const TRACKING_TITLE_V3 = 'v3 Invest ID';
+    public const TRACKING_TITLE_PAYMENT = 'v3 Invest Payment';
+    public const TRACKING_TITLE_TRANSACTION = 'v3 Invest Transaction';
+    public const TRACKING_TITLE_PREAPPROVAL = 'v3 Invest Preapproval';
 
     private const PLATFORM_TIPJAR_NAME = 'platform';
-    private const CHECKOUT_URL_DEFAULT = 'https://www.goteo.org/invest';
 
     private const MAX_INT = 2147483647;
 
@@ -115,8 +119,11 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             $checkout->setOrigin($user->getAccounting());
             $checkout->setStatus($this->getCheckoutStatus($record));
             $checkout->setGateway($this->getCheckoutGateway($record));
-            $checkout->setGatewayReference($this->getCheckoutReference($record));
-            $checkout->setCheckoutUrl(self::CHECKOUT_URL_DEFAULT);
+
+            foreach ($this->getCheckoutTrackings($record) as $tracking) {
+                $checkout->addGatewayTracking($tracking);
+            }
+
             $checkout->setMigrated(true);
             $checkout->setMigratedReference($record['id']);
             $checkout->setMetadata([
@@ -264,20 +271,41 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         }
     }
 
-    private function getCheckoutReference(array $record): string
+    /**
+     * @return GatewayTracking[]
+     */
+    private function getCheckoutTrackings(array $record): array
     {
+        $v3Tracking = new GatewayTracking();
+        $v3Tracking->setValue($record['id']);
+        $v3Tracking->setTitle(self::TRACKING_TITLE_V3);
+
+        $trackings = [$v3Tracking];
+
         if (!empty($record['payment'])) {
-            return $record['payment'];
+            $payment = new GatewayTracking();
+            $payment->setValue($record['payment']);
+            $payment->setTitle(self::TRACKING_TITLE_PAYMENT);
+
+            $trackings[] = $payment;
         }
 
         if (!empty($record['transaction'])) {
-            return $record['transaction'];
+            $transaction = new GatewayTracking();
+            $transaction->setValue($record['transaction']);
+            $transaction->setTitle(self::TRACKING_TITLE_TRANSACTION);
+
+            $trackings[] = $transaction;
         }
 
         if (!empty($record['preapproval'])) {
-            return $record['preapproval'];
+            $preapproval = new GatewayTracking();
+            $preapproval->setValue($record['preapproval']);
+            $preapproval->setTitle(self::TRACKING_TITLE_PREAPPROVAL);
+
+            $trackings[] = $preapproval;
         }
 
-        return '';
+        return $trackings;
     }
 }
