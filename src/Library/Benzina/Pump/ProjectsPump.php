@@ -97,24 +97,23 @@ class ProjectsPump extends AbstractPump implements PumpInterface
     public function __construct(
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
-    ) {
-    }
+    ) {}
 
-    public function supports(mixed $data): bool
+    public function supports(mixed $batch): bool
     {
-        if (!\is_array($data) || !\array_key_exists(0, $data)) {
+        if (!\is_array($batch) || !\array_key_exists(0, $batch)) {
             return false;
         }
 
-        return $this->hasAllKeys($data[0], self::PROJECT_KEYS);
+        return $this->hasAllKeys($batch[0], self::PROJECT_KEYS);
     }
 
-    public function process(mixed $data): void
+    public function pump(mixed $batch): void
     {
-        $pumped = $this->getPumped(Project::class, $data, ['migratedReference' => 'id']);
-        $owners = $this->getOwners($data);
+        $pumped = $this->getPumped(Project::class, $batch, ['migratedReference' => 'id']);
+        $owners = $this->getOwners($batch);
 
-        foreach ($data as $key => $record) {
+        foreach ($batch as $key => $record) {
             $isPumped = $this->isPumped($record, $pumped, ['migratedReference' => 'id']);
 
             if ($isPumped) {
@@ -151,11 +150,11 @@ class ProjectsPump extends AbstractPump implements PumpInterface
     /**
      * @return User[]
      */
-    private function getOwners(array $data): array
+    private function getOwners(array $record): array
     {
-        $users = $this->userRepository->findBy(['migratedReference' => \array_map(function ($data) {
-            return $data['owner'];
-        }, $data)]);
+        $users = $this->userRepository->findBy(['migratedReference' => \array_map(function ($record) {
+            return $record['owner'];
+        }, $record)]);
 
         $owners = [];
         foreach ($users as $user) {

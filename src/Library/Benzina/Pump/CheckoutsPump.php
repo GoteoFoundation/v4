@@ -77,25 +77,25 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
     ) {
     }
 
-    public function supports(mixed $data): bool
+    public function supports(mixed $batch): bool
     {
-        if (!\is_array($data) || !\array_key_exists(0, $data)) {
+        if (!\is_array($batch) || !\array_key_exists(0, $batch)) {
             return false;
         }
 
-        return $this->hasAllKeys($data[0], self::INVEST_KEYS);
+        return $this->hasAllKeys($batch[0], self::INVEST_KEYS);
     }
 
-    public function process(mixed $data): void
+    public function pump(mixed $batch): void
     {
-        $users = $this->getUsers($data);
-        $projects = $this->getProjects($data);
+        $users = $this->getUsers($batch);
+        $projects = $this->getProjects($batch);
 
         $tipjar = $this->getPlatformTipjar();
 
-        $pumped = $this->getPumped(GatewayCheckout::class, $data, ['migratedReference' => 'id']);
+        $pumped = $this->getPumped(GatewayCheckout::class, $batch, ['migratedReference' => 'id']);
 
-        foreach ($data as $key => $record) {
+        foreach ($batch as $key => $record) {
             if ($this->isPumped($record, $pumped, ['migratedReference' => 'id'])) {
                 continue;
             }
@@ -173,11 +173,11 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         $this->entityManager->clear();
     }
 
-    private function getUsers(array $data): array
+    private function getUsers(array $batch): array
     {
-        $users = $this->userRepository->findBy(['migratedReference' => \array_map(function ($data) {
-            return $data['user'];
-        }, $data)]);
+        $users = $this->userRepository->findBy(['migratedReference' => \array_map(function ($batch) {
+            return $batch['user'];
+        }, $batch)]);
 
         $usersByMigratedReference = [];
         foreach ($users as $user) {
@@ -187,11 +187,11 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         return $usersByMigratedReference;
     }
 
-    private function getProjects(array $data): array
+    private function getProjects(array $batch): array
     {
-        $projects = $this->projectRepository->findBy(['migratedReference' => \array_map(function ($data) {
-            return $data['project'];
-        }, $data)]);
+        $projects = $this->projectRepository->findBy(['migratedReference' => \array_map(function ($batch) {
+            return $batch['project'];
+        }, $batch)]);
 
         $projectsByMigratedReference = [];
         foreach ($projects as $project) {

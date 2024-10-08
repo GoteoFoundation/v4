@@ -52,23 +52,22 @@ class UsersPump extends AbstractPump implements PumpInterface
 
     public function __construct(
         private EntityManagerInterface $entityManager,
-    ) {
-    }
+    ) {}
 
-    public function supports(mixed $data): bool
+    public function supports(mixed $batch): bool
     {
-        if (!\is_array($data) || !\is_array($data[0])) {
+        if (!\is_array($batch) || !\is_array($batch[0])) {
             return false;
         }
 
-        return $this->hasAllKeys($data[0], self::USER_KEYS);
+        return $this->hasAllKeys($batch[0], self::USER_KEYS);
     }
 
-    public function process(mixed $data): void
+    public function pump(mixed $batch): void
     {
-        $pumped = $this->getPumped(User::class, $data, ['migratedReference' => 'id']);
+        $pumped = $this->getPumped(User::class, $batch, ['migratedReference' => 'id']);
 
-        foreach ($data as $key => $record) {
+        foreach ($batch as $key => $record) {
             if ($this->isPumped($record, $pumped, ['migratedReference' => 'id'])) {
                 continue;
             }
@@ -113,12 +112,12 @@ class UsersPump extends AbstractPump implements PumpInterface
         return $username;
     }
 
-    private function getUsername(array $data): string
+    private function getUsername(array $record): string
     {
-        $username = $this->normalizeUsername($data['id']);
+        $username = $this->normalizeUsername($record['id']);
 
         if (!$username) {
-            $username = $this->normalizeUsername($data['email']);
+            $username = $this->normalizeUsername($record['email']);
         }
 
         return $username;
