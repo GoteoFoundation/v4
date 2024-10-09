@@ -30,3 +30,5 @@
 ###> doctrineencryptbundle/doctrine-encrypt-bundle
 .Halite.key
 ###< doctrineencryptbundle/doctrine-encrypt-bundle
+
+.php-version
