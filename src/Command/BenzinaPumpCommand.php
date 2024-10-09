@@ -47,6 +47,14 @@ class BenzinaPumpCommand extends Command
             99
         );
 
+        $this->addOption(
+            'skip-pumped',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Skips feeding already pumped records in a batch',
+            true
+        );
+
         $this->addUsage('app:benzina:pump --no-debug user');
         $this->setHelp(
             <<<'EOF'
@@ -123,9 +131,15 @@ EOF
 
             $batch = $stream->read();
             $batchStartTime = \microtime(true);
+
+            $streamBatches = $streamBatches - 1;
             $streamedBatches->advance();
 
-            foreach ($pumps as $pump) {
+            foreach ($pumps as $key => $pump) {
+                $pump->setConfig([
+                    'skip-pumped' => $input->getOption('skip-pumped')
+                ]);
+
                 $pump->pump($batch);
 
                 $memUsage->setProgress(\memory_get_peak_usage(false));
@@ -135,9 +149,9 @@ EOF
             $streamedRecords->setProgress($streamed);
 
             $batchEndTime = \microtime(true);
-            $batchTime = $batchEndTime - $batchStartTime;
+            $batchRunTime = $batchEndTime - $batchStartTime;
 
-            $eta = round((($streamSize - $streamed) / count($batch)) * $batchTime);
+            $eta = round($streamBatches * $batchRunTime);
             $etaSection->overwrite(sprintf('ETA %02d:%02d:%02d', $eta / 3600, floor($eta / 60) % 60, $eta % 60));
         }
 
