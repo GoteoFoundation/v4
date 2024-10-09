@@ -7,14 +7,14 @@ use App\Entity\Project;
 use App\Entity\ProjectStatus;
 use App\Entity\User;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
-use App\Library\Benzina\Pump\Trait\ProgressivePumpTrait;
+use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ProjectsPump extends AbstractPump implements PumpInterface
 {
     use ArrayPumpTrait;
-    use ProgressivePumpTrait;
+    use DoctrinePumpTrait;
 
     private const PROJECT_KEYS = [
         'id',
@@ -110,16 +110,11 @@ class ProjectsPump extends AbstractPump implements PumpInterface
 
     public function pump(mixed $batch): void
     {
-        $pumped = $this->getPumped(Project::class, $batch, ['migratedReference' => 'id']);
+        $batch = $this->skipPumped($batch, 'id', Project::class, 'migratedId');
+
         $owners = $this->getOwners($batch);
 
         foreach ($batch as $key => $record) {
-            $isPumped = $this->isPumped($record, $pumped, ['migratedReference' => 'id']);
-
-            if ($isPumped) {
-                continue;
-            }
-
             if (!\array_key_exists($record['owner'], $owners)) {
                 continue;
             }
@@ -133,7 +128,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
             $project->setOwner($owners[$record['owner']]);
             $project->setStatus($this->getProjectStatus($record['status']));
             $project->setMigrated(true);
-            $project->setMigratedReference($record['id']);
+            $project->setMigratedId($record['id']);
             $project->setDateCreated(new \DateTime($record['created']));
 
             $accounting = $this->getAccounting($record);
@@ -152,13 +147,13 @@ class ProjectsPump extends AbstractPump implements PumpInterface
      */
     private function getOwners(array $record): array
     {
-        $users = $this->userRepository->findBy(['migratedReference' => \array_map(function ($record) {
+        $users = $this->userRepository->findBy(['migratedId' => \array_map(function ($record) {
             return $record['owner'];
         }, $record)]);
 
         $owners = [];
         foreach ($users as $user) {
-            $owners[$user->getMigratedReference()] = $user;
+            $owners[$user->getMigratedId()] = $user;
         }
 
         return $owners;

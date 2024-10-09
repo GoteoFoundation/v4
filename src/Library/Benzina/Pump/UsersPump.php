@@ -5,13 +5,13 @@ namespace App\Library\Benzina\Pump;
 use App\Entity\Accounting;
 use App\Entity\User;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
-use App\Library\Benzina\Pump\Trait\ProgressivePumpTrait;
+use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UsersPump extends AbstractPump implements PumpInterface
 {
     use ArrayPumpTrait;
-    use ProgressivePumpTrait;
+    use DoctrinePumpTrait;
 
     public const USER_KEYS = [
         'id',
@@ -65,13 +65,9 @@ class UsersPump extends AbstractPump implements PumpInterface
 
     public function pump(mixed $batch): void
     {
-        $pumped = $this->getPumped(User::class, $batch, ['migratedReference' => 'id']);
+        $batch = $this->skipPumped($batch, 'id', User::class, 'migratedId');
 
         foreach ($batch as $key => $record) {
-            if ($this->isPumped($record, $pumped, ['migratedReference' => 'id'])) {
-                continue;
-            }
-
             $user = new User();
             $user->setAccounting(new Accounting());
             $user->setUsername($this->getUsername($record));
@@ -81,7 +77,7 @@ class UsersPump extends AbstractPump implements PumpInterface
             $user->setName($record['name']);
             $user->setActive(false);
             $user->setMigrated(true);
-            $user->setMigratedReference($record['id']);
+            $user->setMigratedId($record['id']);
 
             $accounting = new Accounting();
             $accounting->setUser($user);

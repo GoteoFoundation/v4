@@ -12,7 +12,7 @@ use App\Entity\GatewayTracking;
 use App\Entity\Money;
 use App\Entity\Tipjar;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
-use App\Library\Benzina\Pump\Trait\ProgressivePumpTrait;
+use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;
 use App\Library\Economy\Payment\CashGateway;
 use App\Library\Economy\Payment\CecaGateway;
 use App\Library\Economy\Payment\DropGateway;
@@ -27,7 +27,8 @@ use Doctrine\ORM\EntityManagerInterface;
 class CheckoutsPump extends AbstractPump implements PumpInterface
 {
     use ArrayPumpTrait;
-    use ProgressivePumpTrait;
+    use DoctrinePumpTrait;
+
     public const TRACKING_TITLE_V3 = 'v3 Invest ID';
     public const TRACKING_TITLE_PAYMENT = 'v3 Invest Payment';
     public const TRACKING_TITLE_TRANSACTION = 'v3 Invest Transaction';
@@ -74,8 +75,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         private ProjectRepository $projectRepository,
         private TipjarRepository $tipjarRepository,
         private EntityManagerInterface $entityManager,
-    ) {
-    }
+    ) {}
 
     public function supports(mixed $batch): bool
     {
@@ -88,19 +88,15 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
 
     public function pump(mixed $batch): void
     {
-        $users = $this->getUsers($batch);
-        $projects = $this->getProjects($batch);
+        $batch = $this->skipPumped($batch, 'id', GatewayCheckout::class, 'migratedId');
 
         $tipjar = $this->getPlatformTipjar();
 
-        $pumped = $this->getPumped(GatewayCheckout::class, $batch, ['migratedReference' => 'id']);
+        $users = $this->getPumpedUsers($batch);
+        $projects = $this->getPumpedProjects($batch);
 
         foreach ($batch as $key => $record) {
-            if ($this->isPumped($record, $pumped, ['migratedReference' => 'id'])) {
-                continue;
-            }
-
-            if (!\array_key_exists($record['project'], $projects)) {
+            if (!$record['user'] || empty($record['user'])) {
                 continue;
             }
 
@@ -113,7 +109,6 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             }
 
             $user = $users[$record['user']];
-            $project = $projects[$record['project']];
 
             $checkout = new GatewayCheckout();
             $checkout->setOrigin($user->getAccounting());
@@ -125,7 +120,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             }
 
             $checkout->setMigrated(true);
-            $checkout->setMigratedReference($record['id']);
+            $checkout->setMigratedId($record['id']);
             $checkout->setMetadata([
                 'payment' => $record['payment'],
                 'transaction' => $record['transaction'],
@@ -133,11 +128,21 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             ]);
 
             $checkout->setDateCreated(new \DateTime($record['invested']));
+            $checkout->setDateUpdated(new \DateTime());
 
             $charge = new GatewayCharge();
             $charge->setType($this->getChargeType($record));
             $charge->setMoney($this->getChargeMoney($record['amount'], $record['currency']));
-            $charge->setTarget($project->getAccounting());
+
+            if (empty($record['project'])) {
+                $charge->setTarget($user->getAccounting());
+            }
+
+            if (!empty($record['project'])) {
+                $project = $projects[$record['project']];
+
+                $charge->setTarget($project->getAccounting());
+            }
 
             if ($record['donate_amount'] > 0) {
                 $tip = new GatewayCharge();
@@ -145,11 +150,9 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
                 $tip->setMoney($this->getChargeMoney($record['donate_amount'], $record['currency']));
                 $tip->setTarget($tipjar->getAccounting());
 
-                $this->entityManager->persist($tip);
                 $checkout->addCharge($tip);
             }
 
-            $this->entityManager->persist($charge);
             $checkout->addCharge($charge);
 
             if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
@@ -160,9 +163,6 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
                     $transaction->setTarget($charge->getTarget());
 
                     $charge->setTransaction($transaction);
-
-                    $this->entityManager->persist($transaction);
-                    $this->entityManager->persist($charge);
                 }
             }
 
@@ -173,29 +173,35 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         $this->entityManager->clear();
     }
 
-    private function getUsers(array $batch): array
+    /**
+     * @return array<string, \App\Entity\User>
+     */
+    private function getPumpedUsers(array $batch): array
     {
-        $users = $this->userRepository->findBy(['migratedReference' => \array_map(function ($batch) {
+        $users = $this->userRepository->findBy(['migratedId' => \array_map(function ($batch) {
             return $batch['user'];
         }, $batch)]);
 
         $usersByMigratedReference = [];
         foreach ($users as $user) {
-            $usersByMigratedReference[$user->getMigratedReference()] = $user;
+            $usersByMigratedReference[$user->getMigratedId()] = $user;
         }
 
         return $usersByMigratedReference;
     }
 
-    private function getProjects(array $batch): array
+    /**
+     * @return array<string, \App\Entity\Project>
+     */
+    private function getPumpedProjects(array $batch): array
     {
-        $projects = $this->projectRepository->findBy(['migratedReference' => \array_map(function ($batch) {
+        $projects = $this->projectRepository->findBy(['migratedId' => \array_map(function ($batch) {
             return $batch['project'];
         }, $batch)]);
 
         $projectsByMigratedReference = [];
         foreach ($projects as $project) {
-            $projectsByMigratedReference[$project->getMigratedReference()] = $project;
+            $projectsByMigratedReference[$project->getMigratedId()] = $project;
         }
 
         return $projectsByMigratedReference;
