@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * A GatewayCharge represents a monetary payment that can be done by an issuer at checkout with the Gateway.
  */
+#[API\ApiResource()]
 #[ORM\Entity(repositoryClass: GatewayChargeRepository::class)]
 class GatewayCharge
 {
