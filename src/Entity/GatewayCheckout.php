@@ -27,6 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Get()]
 #[API\ApiFilter(filterClass: SearchFilter::class, properties: ['origin' => 'exact', 'charges.target' => 'exact'])]
 #[ORM\Entity(repositoryClass: GatewayCheckoutRepository::class)]
+#[ORM\Index(fields: ['migratedReference'])]
 class GatewayCheckout
 {
     use TimestampableCreationEntity;

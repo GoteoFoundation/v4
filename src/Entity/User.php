@@ -37,6 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
 #[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Index(fields: ['migratedReference'])]
 class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface
 {
     use TimestampableCreationEntity;
