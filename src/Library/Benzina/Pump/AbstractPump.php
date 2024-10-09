@@ -4,10 +4,19 @@ namespace App\Library\Benzina\Pump;
 
 abstract class AbstractPump implements PumpInterface
 {
-    protected array $config;
+    protected array $config = [];
 
-    public function configure(array $config = []): void
+    public function setConfig(array $config = []): void
     {
         $this->config = $config;
+    }
+
+    public function getConfig(?string $key = null): array
+    {
+        if ($key !== null) {
+            return [$key => $this->config[$key]];
+        }
+
+        return $this->config;
     }
 }
