@@ -11,17 +11,18 @@ trait DoctrinePumpTrait
         private EntityManagerInterface $entityManager,
     ) {
         if (!$this instanceof PumpInterface) {
-            throw new \Exception("DoctrinePumpTrait can only be used with PumpInterface classes");
+            throw new \Exception('DoctrinePumpTrait can only be used with PumpInterface classes');
         }
     }
 
     /**
      * Skip already pumped records from a pumping stream batch.
      *
-     * @param array  $batch  The batch of records being pumped
-     * @param array  $batchKey The key in the batch records to match against the entity key
-     * @param string $entityClass   The class where the data is being pumped to
-     * @param string $entityKey The property of the pumped to class to match against the batch key
+     * @param array  $batch       The batch of records being pumped
+     * @param array  $batchKey    The key in the batch records to match against the entity key
+     * @param string $entityClass The class where the data is being pumped to
+     * @param string $entityKey   The property of the pumped to class to match against the batch key
+     *
      * @return array The batch of records being pumped, sliced out of already pumped records
      */
     public function skipPumped(

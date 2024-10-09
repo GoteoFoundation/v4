@@ -137,7 +137,7 @@ EOF
 
             foreach ($pumps as $key => $pump) {
                 $pump->setConfig([
-                    'skip-pumped' => $input->getOption('skip-pumped')
+                    'skip-pumped' => $input->getOption('skip-pumped'),
                 ]);
 
                 $pump->pump($batch);
@@ -167,7 +167,7 @@ EOF
         if (preg_match('/^(\d+)(.)$/', $limit, $matches)) {
             if ($matches[2] == 'M') {
                 $limit = $matches[1] * 1024 * 1024; // nnnM -> nnn MB
-            } else if ($matches[2] == 'K') {
+            } elseif ($matches[2] == 'K') {
                 $limit = $matches[1] * 1024; // nnnK -> nnn KB
             }
         }

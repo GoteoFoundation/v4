@@ -75,7 +75,8 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         private ProjectRepository $projectRepository,
         private TipjarRepository $tipjarRepository,
         private EntityManagerInterface $entityManager,
-    ) {}
+    ) {
+    }
 
     public function supports(mixed $batch): bool
     {
