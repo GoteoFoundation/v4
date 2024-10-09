@@ -76,7 +76,7 @@ class Project
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $migratedReference = null;
+    private ?string $migratedId = null;
 
     public function __construct()
     {
@@ -148,14 +148,14 @@ class Project
         return $this;
     }
 
-    public function getMigratedReference(): ?string
+    public function getMigratedId(): ?string
     {
-        return $this->migratedReference;
+        return $this->migratedId;
     }
 
-    public function setMigratedReference(?string $migratedReference): static
+    public function setMigratedId(?string $migratedId): static
     {
-        $this->migratedReference = $migratedReference;
+        $this->migratedId = $migratedId;
 
         return $this;
     }

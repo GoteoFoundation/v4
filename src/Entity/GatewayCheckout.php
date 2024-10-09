@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Get()]
 #[API\ApiFilter(filterClass: SearchFilter::class, properties: ['origin' => 'exact', 'charges.target' => 'exact'])]
 #[ORM\Entity(repositoryClass: GatewayCheckoutRepository::class)]
-#[ORM\Index(fields: ['migratedReference'])]
+#[ORM\Index(fields: ['migratedId'])]
 class GatewayCheckout
 {
     use TimestampableCreationEntity;
@@ -104,7 +104,7 @@ class GatewayCheckout
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $migratedReference = null;
+    private ?string $migratedId = null;
 
     /**
      * A free-form collection of additional data associated with this checkout operation.
@@ -257,14 +257,14 @@ class GatewayCheckout
         return $this;
     }
 
-    public function getMigratedReference(): ?string
+    public function getMigratedId(): ?string
     {
-        return $this->migratedReference;
+        return $this->migratedId;
     }
 
-    public function setMigratedReference(?string $migratedReference): static
+    public function setMigratedId(?string $migratedId): static
     {
-        $this->migratedReference = $migratedReference;
+        $this->migratedId = $migratedId;
 
         return $this;
     }
