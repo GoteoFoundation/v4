@@ -85,7 +85,7 @@ class GatewayCheckout
     /**
      * A list of tracking codes provided by the Gateway for this checkout.\
      * e.g: Order ID, Payment Capture ID, Checkout Session Token.
-     * 
+     *
      * @var GatewayTracking[]
      */
     #[API\ApiProperty(writable: false)]

@@ -17,7 +17,7 @@ abstract class AbstractPump implements PumpInterface
             return [
                 $key => \array_key_exists($key, $this->config)
                     ? $this->config[$key]
-                    : $default
+                    : $default,
             ];
         }
 
