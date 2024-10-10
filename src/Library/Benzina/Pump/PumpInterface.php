@@ -15,10 +15,11 @@ interface PumpInterface
      * Read the configuration values for this pump.
      *
      * @param string|null $key A configuration array key to return
+     * @param mixed|null $default Any value to return in case the configuration key does not exist
      *
      * @return array The configuration array at the specified key, or all keys if null
      */
-    public function getConfig(?string $key = null): array;
+    public function getConfig(?string $key = null, mixed $default = null): array;
 
     /**
      * Determines if a data batch is supported by this pump.
