@@ -108,9 +108,6 @@ EOF
             return $pump::class;
         }, $pumps));
 
-        $etaSection = $output->section();
-        $etaSection->writeln('ETA');
-
         $streamedBatchesSection = $output->section();
         $streamedBatchesSection->writeln("\tStreamed batches:");
         $streamedBatches = new ProgressBar($streamedBatchesSection);
@@ -130,7 +127,6 @@ EOF
             \memory_reset_peak_usage();
 
             $batch = $stream->read();
-            $batchStartTime = \microtime(true);
 
             $streamBatches = $streamBatches - 1;
             $streamedBatches->advance();
@@ -147,12 +143,6 @@ EOF
 
             $streamed = $stream->tell();
             $streamedRecords->setProgress($streamed);
-
-            $batchEndTime = \microtime(true);
-            $batchRunTime = $batchEndTime - $batchStartTime;
-
-            $eta = round($streamBatches * $batchRunTime);
-            $etaSection->overwrite(sprintf('ETA %02d:%02d:%02d', $eta / 3600, floor($eta / 60) % 60, $eta % 60));
         }
 
         $endSection = new SymfonyStyle($input, $output->section());
