@@ -183,12 +183,12 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             return $batch['user'];
         }, $batch)]);
 
-        $usersByMigratedReference = [];
+        $usersByMigratedId = [];
         foreach ($users as $user) {
-            $usersByMigratedReference[$user->getMigratedId()] = $user;
+            $usersByMigratedId[$user->getMigratedId()] = $user;
         }
 
-        return $usersByMigratedReference;
+        return $usersByMigratedId;
     }
 
     /**
@@ -200,12 +200,12 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             return $batch['project'];
         }, $batch)]);
 
-        $projectsByMigratedReference = [];
+        $projectsByMigratedId = [];
         foreach ($projects as $project) {
-            $projectsByMigratedReference[$project->getMigratedId()] = $project;
+            $projectsByMigratedId[$project->getMigratedId()] = $project;
         }
 
-        return $projectsByMigratedReference;
+        return $projectsByMigratedId;
     }
 
     private function getPlatformTipjar(): Tipjar
