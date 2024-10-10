@@ -31,7 +31,7 @@ trait DoctrinePumpTrait
         string $entityClass,
         string $entityKey,
     ): array {
-        if (!$this->getConfig('skip-pumped')) {
+        if (!$this->getConfig('skip-pumped', false)) {
             return $batch;
         }
 
