@@ -75,8 +75,6 @@ class AccountingTransaction
 
     public function setOrigin(?Accounting $origin): static
     {
-        $origin->addTransactionsIssued($this);
-
         $this->origin = $origin;
 
         return $this;
@@ -89,8 +87,6 @@ class AccountingTransaction
 
     public function setTarget(?Accounting $target): static
     {
-        $target->addTransactionsReceived($this);
-
         $this->target = $target;
 
         return $this;
