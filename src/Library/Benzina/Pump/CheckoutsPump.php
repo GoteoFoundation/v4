@@ -3,7 +3,6 @@
 namespace App\Library\Benzina\Pump;
 
 use App\Entity\Accounting;
-use App\Entity\AccountingTransaction;
 use App\Entity\GatewayCharge;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
@@ -22,6 +21,7 @@ use App\Library\Economy\Payment\WalletGateway;
 use App\Repository\ProjectRepository;
 use App\Repository\TipjarRepository;
 use App\Repository\UserRepository;
+use App\Service\GatewayCheckoutService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CheckoutsPump extends AbstractPump implements PumpInterface
@@ -75,6 +75,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         private ProjectRepository $projectRepository,
         private TipjarRepository $tipjarRepository,
         private EntityManagerInterface $entityManager,
+        private GatewayCheckoutService $checkoutService,
     ) {
     }
 
@@ -122,11 +123,6 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
 
             $checkout->setMigrated(true);
             $checkout->setMigratedId($record['id']);
-            $checkout->setMetadata([
-                'payment' => $record['payment'],
-                'transaction' => $record['transaction'],
-                'preapproval' => $record['preapproval'],
-            ]);
 
             $checkout->setDateCreated(new \DateTime($record['invested']));
             $checkout->setDateUpdated(new \DateTime());
@@ -145,6 +141,8 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
                 $charge->setTarget($project->getAccounting());
             }
 
+            $checkout->addCharge($charge);
+
             if ($record['donate_amount'] > 0) {
                 $tip = new GatewayCharge();
                 $tip->setType(GatewayChargeType::Single);
@@ -154,17 +152,8 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
                 $checkout->addCharge($tip);
             }
 
-            $checkout->addCharge($charge);
-
             if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
-                foreach ($checkout->getCharges() as $charge) {
-                    $transaction = new AccountingTransaction();
-                    $transaction->setMoney($charge->getMoney());
-                    $transaction->setOrigin($checkout->getOrigin());
-                    $transaction->setTarget($charge->getTarget());
-
-                    $charge->setTransaction($transaction);
-                }
+                $checkout = $this->checkoutService->chargeCheckout($checkout);
             }
 
             $this->entityManager->persist($checkout);
@@ -284,31 +273,31 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
     private function getCheckoutTrackings(array $record): array
     {
         $v3Tracking = new GatewayTracking();
-        $v3Tracking->setValue($record['id']);
-        $v3Tracking->setTitle(self::TRACKING_TITLE_V3);
+        $v3Tracking->title = self::TRACKING_TITLE_V3;
+        $v3Tracking->value = $record['id'];
 
         $trackings = [$v3Tracking];
 
         if (!empty($record['payment'])) {
             $payment = new GatewayTracking();
-            $payment->setValue($record['payment']);
-            $payment->setTitle(self::TRACKING_TITLE_PAYMENT);
+            $payment->title = self::TRACKING_TITLE_PAYMENT;
+            $payment->value = $record['payment'];
 
             $trackings[] = $payment;
         }
 
         if (!empty($record['transaction'])) {
             $transaction = new GatewayTracking();
-            $transaction->setValue($record['transaction']);
-            $transaction->setTitle(self::TRACKING_TITLE_TRANSACTION);
+            $transaction->title = self::TRACKING_TITLE_TRANSACTION;
+            $transaction->value = $record['transaction'];
 
             $trackings[] = $transaction;
         }
 
         if (!empty($record['preapproval'])) {
             $preapproval = new GatewayTracking();
-            $preapproval->setValue($record['preapproval']);
-            $preapproval->setTitle(self::TRACKING_TITLE_PREAPPROVAL);
+            $preapproval->title = self::TRACKING_TITLE_PREAPPROVAL;
+            $preapproval->value = $record['preapproval'];
 
             $trackings[] = $preapproval;
         }
