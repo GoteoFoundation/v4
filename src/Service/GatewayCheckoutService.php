@@ -84,7 +84,7 @@ class GatewayCheckoutService
     }
 
     /**
-     * Updates a successfully charges GatewayCheckout and generates the transactions for each charge.
+     * Updates a successful GatewayCheckout and generates the transactions for each charge.
      *
      * @param GatewayCheckout $checkout The GatewayCheckout to be updated
      *
