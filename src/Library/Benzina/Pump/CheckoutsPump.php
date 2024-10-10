@@ -3,7 +3,6 @@
 namespace App\Library\Benzina\Pump;
 
 use App\Entity\Accounting;
-use App\Entity\AccountingTransaction;
 use App\Entity\GatewayCharge;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
@@ -12,7 +11,7 @@ use App\Entity\GatewayTracking;
 use App\Entity\Money;
 use App\Entity\Tipjar;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
-use App\Library\Benzina\Pump\Trait\ProgressivePumpTrait;
+use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;
 use App\Library\Economy\Payment\CashGateway;
 use App\Library\Economy\Payment\CecaGateway;
 use App\Library\Economy\Payment\DropGateway;
@@ -22,12 +21,14 @@ use App\Library\Economy\Payment\WalletGateway;
 use App\Repository\ProjectRepository;
 use App\Repository\TipjarRepository;
 use App\Repository\UserRepository;
+use App\Service\GatewayCheckoutService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CheckoutsPump extends AbstractPump implements PumpInterface
 {
     use ArrayPumpTrait;
-    use ProgressivePumpTrait;
+    use DoctrinePumpTrait;
+
     public const TRACKING_TITLE_V3 = 'v3 Invest ID';
     public const TRACKING_TITLE_PAYMENT = 'v3 Invest Payment';
     public const TRACKING_TITLE_TRANSACTION = 'v3 Invest Transaction';
@@ -74,33 +75,30 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         private ProjectRepository $projectRepository,
         private TipjarRepository $tipjarRepository,
         private EntityManagerInterface $entityManager,
+        private GatewayCheckoutService $checkoutService,
     ) {
     }
 
-    public function supports(mixed $data): bool
+    public function supports(mixed $batch): bool
     {
-        if (!\is_array($data) || !\array_key_exists(0, $data)) {
+        if (!\is_array($batch) || !\array_key_exists(0, $batch)) {
             return false;
         }
 
-        return $this->hasAllKeys($data[0], self::INVEST_KEYS);
+        return $this->hasAllKeys($batch[0], self::INVEST_KEYS);
     }
 
-    public function process(mixed $data): void
+    public function pump(mixed $batch): void
     {
-        $users = $this->getUsers($data);
-        $projects = $this->getProjects($data);
+        $batch = $this->skipPumped($batch, 'id', GatewayCheckout::class, 'migratedId');
 
         $tipjar = $this->getPlatformTipjar();
 
-        $pumped = $this->getPumped(GatewayCheckout::class, $data, ['migratedReference' => 'id']);
+        $users = $this->getPumpedUsers($batch);
+        $projects = $this->getPumpedProjects($batch);
 
-        foreach ($data as $key => $record) {
-            if ($this->isPumped($record, $pumped, ['migratedReference' => 'id'])) {
-                continue;
-            }
-
-            if (!\array_key_exists($record['project'], $projects)) {
+        foreach ($batch as $key => $record) {
+            if (!$record['user'] || empty($record['user'])) {
                 continue;
             }
 
@@ -113,7 +111,6 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             }
 
             $user = $users[$record['user']];
-            $project = $projects[$record['project']];
 
             $checkout = new GatewayCheckout();
             $checkout->setOrigin($user->getAccounting());
@@ -125,19 +122,26 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             }
 
             $checkout->setMigrated(true);
-            $checkout->setMigratedReference($record['id']);
-            $checkout->setMetadata([
-                'payment' => $record['payment'],
-                'transaction' => $record['transaction'],
-                'preapproval' => $record['preapproval'],
-            ]);
+            $checkout->setMigratedId($record['id']);
 
             $checkout->setDateCreated(new \DateTime($record['invested']));
+            $checkout->setDateUpdated(new \DateTime());
 
             $charge = new GatewayCharge();
             $charge->setType($this->getChargeType($record));
             $charge->setMoney($this->getChargeMoney($record['amount'], $record['currency']));
-            $charge->setTarget($project->getAccounting());
+
+            if (empty($record['project'])) {
+                $charge->setTarget($user->getAccounting());
+            }
+
+            if (!empty($record['project'])) {
+                $project = $projects[$record['project']];
+
+                $charge->setTarget($project->getAccounting());
+            }
+
+            $checkout->addCharge($charge);
 
             if ($record['donate_amount'] > 0) {
                 $tip = new GatewayCharge();
@@ -145,25 +149,11 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
                 $tip->setMoney($this->getChargeMoney($record['donate_amount'], $record['currency']));
                 $tip->setTarget($tipjar->getAccounting());
 
-                $this->entityManager->persist($tip);
                 $checkout->addCharge($tip);
             }
 
-            $this->entityManager->persist($charge);
-            $checkout->addCharge($charge);
-
             if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
-                foreach ($checkout->getCharges() as $charge) {
-                    $transaction = new AccountingTransaction();
-                    $transaction->setMoney($charge->getMoney());
-                    $transaction->setOrigin($checkout->getOrigin());
-                    $transaction->setTarget($charge->getTarget());
-
-                    $charge->setTransaction($transaction);
-
-                    $this->entityManager->persist($transaction);
-                    $this->entityManager->persist($charge);
-                }
+                $checkout = $this->checkoutService->chargeCheckout($checkout);
             }
 
             $this->entityManager->persist($checkout);
@@ -173,32 +163,38 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         $this->entityManager->clear();
     }
 
-    private function getUsers(array $data): array
+    /**
+     * @return array<string, \App\Entity\User>
+     */
+    private function getPumpedUsers(array $batch): array
     {
-        $users = $this->userRepository->findBy(['migratedReference' => \array_map(function ($data) {
-            return $data['user'];
-        }, $data)]);
+        $users = $this->userRepository->findBy(['migratedId' => \array_map(function ($batch) {
+            return $batch['user'];
+        }, $batch)]);
 
-        $usersByMigratedReference = [];
+        $usersByMigratedId = [];
         foreach ($users as $user) {
-            $usersByMigratedReference[$user->getMigratedReference()] = $user;
+            $usersByMigratedId[$user->getMigratedId()] = $user;
         }
 
-        return $usersByMigratedReference;
+        return $usersByMigratedId;
     }
 
-    private function getProjects(array $data): array
+    /**
+     * @return array<string, \App\Entity\Project>
+     */
+    private function getPumpedProjects(array $batch): array
     {
-        $projects = $this->projectRepository->findBy(['migratedReference' => \array_map(function ($data) {
-            return $data['project'];
-        }, $data)]);
+        $projects = $this->projectRepository->findBy(['migratedId' => \array_map(function ($batch) {
+            return $batch['project'];
+        }, $batch)]);
 
-        $projectsByMigratedReference = [];
+        $projectsByMigratedId = [];
         foreach ($projects as $project) {
-            $projectsByMigratedReference[$project->getMigratedReference()] = $project;
+            $projectsByMigratedId[$project->getMigratedId()] = $project;
         }
 
-        return $projectsByMigratedReference;
+        return $projectsByMigratedId;
     }
 
     private function getPlatformTipjar(): Tipjar
@@ -277,31 +273,31 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
     private function getCheckoutTrackings(array $record): array
     {
         $v3Tracking = new GatewayTracking();
-        $v3Tracking->setValue($record['id']);
-        $v3Tracking->setTitle(self::TRACKING_TITLE_V3);
+        $v3Tracking->title = self::TRACKING_TITLE_V3;
+        $v3Tracking->value = $record['id'];
 
         $trackings = [$v3Tracking];
 
         if (!empty($record['payment'])) {
             $payment = new GatewayTracking();
-            $payment->setValue($record['payment']);
-            $payment->setTitle(self::TRACKING_TITLE_PAYMENT);
+            $payment->title = self::TRACKING_TITLE_PAYMENT;
+            $payment->value = $record['payment'];
 
             $trackings[] = $payment;
         }
 
         if (!empty($record['transaction'])) {
             $transaction = new GatewayTracking();
-            $transaction->setValue($record['transaction']);
-            $transaction->setTitle(self::TRACKING_TITLE_TRANSACTION);
+            $transaction->title = self::TRACKING_TITLE_TRANSACTION;
+            $transaction->value = $record['transaction'];
 
             $trackings[] = $transaction;
         }
 
         if (!empty($record['preapproval'])) {
             $preapproval = new GatewayTracking();
-            $preapproval->setValue($record['preapproval']);
-            $preapproval->setTitle(self::TRACKING_TITLE_PREAPPROVAL);
+            $preapproval->title = self::TRACKING_TITLE_PREAPPROVAL;
+            $preapproval->value = $record['preapproval'];
 
             $trackings[] = $preapproval;
         }

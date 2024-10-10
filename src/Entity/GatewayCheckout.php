@@ -27,6 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Get()]
 #[API\ApiFilter(filterClass: SearchFilter::class, properties: ['origin' => 'exact', 'charges.target' => 'exact'])]
 #[ORM\Entity(repositoryClass: GatewayCheckoutRepository::class)]
+#[ORM\Index(fields: ['migratedId'])]
 class GatewayCheckout
 {
     use TimestampableCreationEntity;
@@ -75,21 +76,21 @@ class GatewayCheckout
      * A list of URLs provided by the Gateway for this checkout.\
      * e.g: Fulfill payment, API resource address.
      *
-     * @var Collection<int, GatewayLink>
+     * @var GatewayLink[]
      */
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayLink::class, cascade: ['persist'])]
-    private Collection $gatewayLinks;
+    #[ORM\Column]
+    private array $gatewayLinks = [];
 
     /**
      * A list of tracking codes provided by the Gateway for this checkout.\
      * e.g: Order ID, Payment Capture ID, Checkout Session Token.
      *
-     * @var Collection<int, GatewayTracking>
+     * @var GatewayTracking[]
      */
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayTracking::class, cascade: ['persist'])]
-    private Collection $gatewayTrackings;
+    #[ORM\Column]
+    private array $gatewayTrackings = [];
 
     /**
      * GatewayCheckout was migrated from an invest record in Goteo v3 platform.
@@ -103,7 +104,7 @@ class GatewayCheckout
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $migratedReference = null;
+    private ?string $migratedId = null;
 
     /**
      * A free-form collection of additional data associated with this checkout operation.
@@ -115,8 +116,6 @@ class GatewayCheckout
     {
         $this->charges = new ArrayCollection();
         $this->status = GatewayCheckoutStatus::Pending;
-        $this->gatewayLinks = new ArrayCollection();
-        $this->gatewayTrackings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -185,61 +184,56 @@ class GatewayCheckout
     }
 
     /**
-     * @return Collection<int, GatewayLink>
+     * @return GatewayLink[]
      */
-    public function getGatewayLinks(): Collection
+    public function getGatewayLinks(): array
     {
         return $this->gatewayLinks;
     }
 
     public function addGatewayLink(GatewayLink $link): static
     {
-        if (!$this->gatewayLinks->contains($link)) {
-            $this->gatewayLinks->add($link);
-            $link->setCheckout($this);
-        }
+        $this->gatewayLinks = [...$this->gatewayLinks, $link];
 
         return $this;
     }
 
     public function removeGatewayLink(GatewayLink $link): static
     {
-        if ($this->gatewayLinks->removeElement($link)) {
-            // set the owning side to null (unless already changed)
-            if ($link->getCheckout() === $this) {
-                $link->setCheckout(null);
+        $this->gatewayLinks = \array_filter(
+            $this->gatewayLinks,
+            function (GatewayLink $existingLink) use ($link) {
+                return $existingLink->href !== $link->href;
             }
-        }
+        );
 
         return $this;
     }
 
     /**
-     * @return Collection<int, GatewayTracking>
+     * @return GatewayTracking[]
      */
-    public function getGatewayTrackings(): Collection
+    public function getGatewayTrackings(): array
     {
         return $this->gatewayTrackings;
     }
 
-    public function addGatewayTracking(GatewayTracking $gatewayTracking): static
+    public function addGatewayTracking(GatewayTracking $tracking): static
     {
-        if (!$this->gatewayTrackings->contains($gatewayTracking)) {
-            $this->gatewayTrackings->add($gatewayTracking);
-            $gatewayTracking->setCheckout($this);
-        }
+        $this->gatewayTrackings = [...$this->gatewayTrackings, $tracking];
 
         return $this;
     }
 
-    public function removeGatewayTracking(GatewayTracking $gatewayTracking): static
+    public function removeGatewayTracking(GatewayTracking $tracking): static
     {
-        if ($this->gatewayTrackings->removeElement($gatewayTracking)) {
-            // set the owning side to null (unless already changed)
-            if ($gatewayTracking->getCheckout() === $this) {
-                $gatewayTracking->setCheckout(null);
+        $this->gatewayTrackings = \array_filter(
+            $this->gatewayTrackings,
+            function (GatewayTracking $existingTracking) use ($tracking) {
+                return $existingTracking->title !== $tracking->title
+                    && $existingTracking->value !== $tracking->value;
             }
-        }
+        );
 
         return $this;
     }
@@ -256,14 +250,14 @@ class GatewayCheckout
         return $this;
     }
 
-    public function getMigratedReference(): ?string
+    public function getMigratedId(): ?string
     {
-        return $this->migratedReference;
+        return $this->migratedId;
     }
 
-    public function setMigratedReference(?string $migratedReference): static
+    public function setMigratedId(?string $migratedId): static
     {
-        $this->migratedReference = $migratedReference;
+        $this->migratedId = $migratedId;
 
         return $this;
     }

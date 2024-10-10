@@ -7,14 +7,14 @@ use App\Entity\Project;
 use App\Entity\ProjectStatus;
 use App\Entity\User;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
-use App\Library\Benzina\Pump\Trait\ProgressivePumpTrait;
+use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ProjectsPump extends AbstractPump implements PumpInterface
 {
     use ArrayPumpTrait;
-    use ProgressivePumpTrait;
+    use DoctrinePumpTrait;
 
     private const PROJECT_KEYS = [
         'id',
@@ -100,27 +100,22 @@ class ProjectsPump extends AbstractPump implements PumpInterface
     ) {
     }
 
-    public function supports(mixed $data): bool
+    public function supports(mixed $batch): bool
     {
-        if (!\is_array($data) || !\array_key_exists(0, $data)) {
+        if (!\is_array($batch) || !\array_key_exists(0, $batch)) {
             return false;
         }
 
-        return $this->hasAllKeys($data[0], self::PROJECT_KEYS);
+        return $this->hasAllKeys($batch[0], self::PROJECT_KEYS);
     }
 
-    public function process(mixed $data): void
+    public function pump(mixed $batch): void
     {
-        $pumped = $this->getPumped(Project::class, $data, ['migratedReference' => 'id']);
-        $owners = $this->getOwners($data);
+        $batch = $this->skipPumped($batch, 'id', Project::class, 'migratedId');
 
-        foreach ($data as $key => $record) {
-            $isPumped = $this->isPumped($record, $pumped, ['migratedReference' => 'id']);
+        $owners = $this->getOwners($batch);
 
-            if ($isPumped) {
-                continue;
-            }
-
+        foreach ($batch as $key => $record) {
             if (!\array_key_exists($record['owner'], $owners)) {
                 continue;
             }
@@ -134,8 +129,9 @@ class ProjectsPump extends AbstractPump implements PumpInterface
             $project->setOwner($owners[$record['owner']]);
             $project->setStatus($this->getProjectStatus($record['status']));
             $project->setMigrated(true);
-            $project->setMigratedReference($record['id']);
+            $project->setMigratedId($record['id']);
             $project->setDateCreated(new \DateTime($record['created']));
+            $project->setDateUpdated(new \DateTime());
 
             $accounting = $this->getAccounting($record);
             $accounting->setProject($project);
@@ -151,15 +147,15 @@ class ProjectsPump extends AbstractPump implements PumpInterface
     /**
      * @return User[]
      */
-    private function getOwners(array $data): array
+    private function getOwners(array $record): array
     {
-        $users = $this->userRepository->findBy(['migratedReference' => \array_map(function ($data) {
-            return $data['owner'];
-        }, $data)]);
+        $users = $this->userRepository->findBy(['migratedId' => \array_map(function ($record) {
+            return $record['owner'];
+        }, $record)]);
 
         $owners = [];
         foreach ($users as $user) {
-            $owners[$user->getMigratedReference()] = $user;
+            $owners[$user->getMigratedId()] = $user;
         }
 
         return $owners;

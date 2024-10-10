@@ -37,6 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
 #[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Index(fields: ['migratedId'])]
 class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface
 {
     use TimestampableCreationEntity;
@@ -136,7 +137,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $migratedReference = null;
+    private ?string $migratedId = null;
 
     /**
      * The projects owned by this User.
@@ -373,14 +374,14 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
         return $this;
     }
 
-    public function getMigratedReference(): ?string
+    public function getMigratedId(): ?string
     {
-        return $this->migratedReference;
+        return $this->migratedId;
     }
 
-    public function setMigratedReference(?string $migratedReference): static
+    public function setMigratedId(?string $migratedId): static
     {
-        $this->migratedReference = $migratedReference;
+        $this->migratedId = $migratedId;
 
         return $this;
     }

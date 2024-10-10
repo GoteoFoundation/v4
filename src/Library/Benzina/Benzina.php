@@ -23,7 +23,7 @@ class Benzina
      *
      * @return PumpInterface[]
      */
-    public function getPumps(StreamInterface $stream, int $sampleSize = 1): array
+    public function getPumpsFor(StreamInterface $stream, int $sampleSize = 1): array
     {
         $sample = $stream->read($sampleSize);
         $stream->rewind();

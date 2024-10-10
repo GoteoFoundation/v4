@@ -7,7 +7,6 @@ use App\Entity\AccountingTransaction;
 use App\Entity\GatewayCharge;
 use App\Entity\GatewayCheckout;
 use App\Entity\GatewayCheckoutStatus;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class GatewayCheckoutService
@@ -17,10 +16,14 @@ class GatewayCheckoutService
 
     public function __construct(
         private RouterInterface $router,
-        private EntityManagerInterface $entityManager,
     ) {
     }
 
+    /**
+     * Generates a suitable value for redirection params to external gateways.
+     *
+     * @return string Absolute URL to the gateways redirection handler
+     */
     public function generateRedirectUrl(
         GatewayCheckout $checkout,
         string $type = self::RESPONSE_TYPE_SUCCESS,
@@ -38,17 +41,55 @@ class GatewayCheckoutService
         );
     }
 
-    public function getGatewayReference(GatewayCheckout $checkout, GatewayCharge $charge): string
+    /**
+     * Generates a full tracking code for a given charge in a checkout.
+     *
+     * @return string A tracking code suitable for external gateway data matching
+     */
+    public function generateTracking(GatewayCheckout $checkout, GatewayCharge $charge): string
     {
-        return sprintf(
-            'AO%d-CO%d-CH%d-AT%d',
+        return \sprintf(
+            '%s-%s',
+            $this->generateCheckoutTracking($checkout),
+            $this->generateChargeTracking($charge)
+        );
+    }
+
+    /**
+     * Generates a partial tracking code for any given checkout.
+     *
+     * @return string A tracking code suitable for external gateway data matching
+     */
+    public function generateCheckoutTracking(GatewayCheckout $checkout): string
+    {
+        return \sprintf(
+            'AO%d-CO%d',
             $checkout->getOrigin()->getId(),
-            $checkout->getId(),
+            $checkout->getId()
+        );
+    }
+
+    /**
+     * Generates a partial tracking code for any given charge.
+     *
+     * @return string A tracking code suitable for external gateway data matching
+     */
+    public function generateChargeTracking(GatewayCharge $charge): string
+    {
+        return \sprintf(
+            'CH%d-AT%d',
             $charge->getId(),
             $charge->getTarget()->getId()
         );
     }
 
+    /**
+     * Updates a successful GatewayCheckout and generates the transactions for each charge.
+     *
+     * @param GatewayCheckout $checkout The GatewayCheckout to be updated
+     *
+     * @return GatewayCheckout The updated GatewayCheckout with updated charges and generated transactions
+     */
     public function chargeCheckout(GatewayCheckout $checkout): GatewayCheckout
     {
         $checkout->setStatus(GatewayCheckoutStatus::Charged);
@@ -59,14 +100,8 @@ class GatewayCheckoutService
             $transaction->setOrigin($checkout->getOrigin());
             $transaction->setTarget($charge->getTarget());
 
-            $this->entityManager->persist($transaction);
-
             $charge->setTransaction($transaction);
-
-            $this->entityManager->persist($charge);
         }
-
-        $this->entityManager->flush();
 
         return $checkout;
     }

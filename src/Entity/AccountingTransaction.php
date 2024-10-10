@@ -36,8 +36,6 @@ class AccountingTransaction
     /**
      * The Accounting issuing the money of this Transaction.
      */
-    #[Assert\NotBlank()]
-    #[API\ApiProperty(writable: false)]
     #[ORM\ManyToOne(inversedBy: 'transactionsIssued', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $origin = null;
@@ -45,8 +43,6 @@ class AccountingTransaction
     /**
      * The Accounting receiving the money of this Transaction.
      */
-    #[Assert\NotBlank()]
-    #[API\ApiProperty(writable: false)]
     #[ORM\ManyToOne(inversedBy: 'transactionsReceived', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $target = null;
@@ -75,8 +71,6 @@ class AccountingTransaction
 
     public function setOrigin(?Accounting $origin): static
     {
-        $origin->addTransactionsIssued($this);
-
         $this->origin = $origin;
 
         return $this;
@@ -89,8 +83,6 @@ class AccountingTransaction
 
     public function setTarget(?Accounting $target): static
     {
-        $target->addTransactionsReceived($this);
-
         $this->target = $target;
 
         return $this;
