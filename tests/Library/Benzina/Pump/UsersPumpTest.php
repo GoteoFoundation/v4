@@ -95,7 +95,7 @@ class UsersPumpTest extends KernelTestCase
 
         $this->assertCount(0, $usersPrePumping);
 
-        $this->pump->process([$testUser]);
+        $this->pump->pump([$testUser]);
 
         $usersPostPumping = $this->entityManager->getRepository(User::class)
             ->findAll();
@@ -108,6 +108,6 @@ class UsersPumpTest extends KernelTestCase
         $this->assertNotEquals($testUser['confirmed'], $user->isEmailConfirmed());
 
         $this->assertTrue($user->isMigrated());
-        $this->assertEquals($testUser['id'], $user->getMigratedReference());
+        $this->assertEquals($testUser['id'], $user->getMigratedId());
     }
 }
