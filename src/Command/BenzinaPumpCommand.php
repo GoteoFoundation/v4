@@ -52,7 +52,7 @@ class BenzinaPumpCommand extends Command
             null,
             InputOption::VALUE_OPTIONAL,
             'Skips feeding already pumped records in a batch',
-            true
+            false
         );
 
         $this->addUsage('app:benzina:pump --no-debug user');
