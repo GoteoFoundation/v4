@@ -65,8 +65,8 @@ class PaypalGateway implements GatewayInterface
         ]);
 
         $tracking = new GatewayTracking();
-        $tracking->setValue($order['id']);
-        $tracking->setTitle(self::TRACKING_TITLE_ORDER);
+        $tracking->title = self::TRACKING_TITLE_ORDER;
+        $tracking->value = $order['id'];
 
         $checkout->addGatewayTracking($tracking);
 
@@ -76,10 +76,10 @@ class PaypalGateway implements GatewayInterface
                 : GatewayLinkType::Debug;
 
             $link = new GatewayLink();
-            $link->setHref($linkData['href']);
-            $link->setRel($linkData['rel']);
-            $link->setMethod($linkData['method']);
-            $link->setType($linkType);
+            $link->href = $linkData['href'];
+            $link->rel = $linkData['rel'];
+            $link->method = $linkData['method'];
+            $link->type = $linkType;
 
             $checkout->addGatewayLink($link);
         }
@@ -121,8 +121,8 @@ class PaypalGateway implements GatewayInterface
 
         foreach ($capture['purchase_units'] as $purchaseUnit) {
             $tracking = new GatewayTracking();
-            $tracking->setValue($purchaseUnit['payments']['captures'][0]['id']);
-            $tracking->setTitle(self::TRACKING_TITLE_TRANSACTION);
+            $tracking->title = self::TRACKING_TITLE_TRANSACTION;
+            $tracking->value = $purchaseUnit['payments']['captures'][0]['id'];
 
             $checkout->addGatewayTracking($tracking);
         }
@@ -168,8 +168,8 @@ class PaypalGateway implements GatewayInterface
 
         foreach ($event['resource']['purchase_units'] as $purchaseUnit) {
             $tracking = new GatewayTracking();
-            $tracking->setValue($purchaseUnit['payments']['captures'][0]['id']);
-            $tracking->setTitle(self::TRACKING_TITLE_TRANSACTION);
+            $tracking->title = self::TRACKING_TITLE_TRANSACTION;
+            $tracking->value = $purchaseUnit['payments']['captures'][0]['id'];
 
             $checkout->addGatewayTracking($tracking);
         }
@@ -196,7 +196,7 @@ class PaypalGateway implements GatewayInterface
 
         foreach ($checkout->getCharges() as $charge) {
             $money = $this->getPaypalMoney($charge);
-            $reference = $this->checkoutService->getGatewayReference($checkout, $charge);
+            $reference = $this->checkoutService->generateTracking($checkout, $charge);
 
             $units[] = [
                 'reference_id' => $reference,

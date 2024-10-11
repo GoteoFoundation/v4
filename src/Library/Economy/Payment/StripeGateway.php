@@ -59,16 +59,16 @@ class StripeGateway implements GatewayInterface
 
         $link = new GatewayLink();
 
-        $link->setHref($session->url);
-        $link->setRel('approve');
-        $link->setMethod(Request::METHOD_GET);
-        $link->setType(GatewayLinkType::Payment);
+        $link->href = $session->url;
+        $link->rel = 'approve';
+        $link->method = Request::METHOD_GET;
+        $link->type = GatewayLinkType::Payment;
 
         $checkout->addGatewayLink($link);
 
         $tracking = new GatewayTracking();
-        $tracking->setValue($session->id);
-        $tracking->setTitle(self::TRACKING_TITLE_CHECKOUT);
+        $tracking->title = self::TRACKING_TITLE_CHECKOUT;
+        $tracking->value = $session->id;
 
         $checkout->addGatewayTracking($tracking);
 
