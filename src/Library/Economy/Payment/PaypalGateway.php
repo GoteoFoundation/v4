@@ -49,8 +49,7 @@ class PaypalGateway implements GatewayInterface
         private IriConverterInterface $iriConverter,
         private GatewayCheckoutService $checkoutService,
         private GatewayCheckoutRepository $checkoutRepository,
-    ) {
-    }
+    ) {}
 
     public static function getName(): string
     {

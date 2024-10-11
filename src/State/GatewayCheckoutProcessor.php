@@ -16,8 +16,7 @@ class GatewayCheckoutProcessor implements ProcessorInterface
         private ProcessorInterface $innerProcessor,
         private GatewayLocator $gatewayLocator,
         private EntityManagerInterface $entityManager,
-    ) {
-    }
+    ) {}
 
     /**
      * @param GatewayCheckout $data

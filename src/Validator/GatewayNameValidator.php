@@ -11,8 +11,7 @@ class GatewayNameValidator extends ChoiceValidator
 {
     public function __construct(
         private GatewayLocator $gateways,
-    ) {
-    }
+    ) {}
 
     public function validate($value, Constraint $constraint): void
     {

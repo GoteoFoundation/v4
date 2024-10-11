@@ -13,8 +13,7 @@ class GatewayStateProvider implements ProviderInterface
 {
     public function __construct(
         private GatewayLocator $gateways,
-    ) {
-    }
+    ) {}
 
     private function getGateways(): array
     {

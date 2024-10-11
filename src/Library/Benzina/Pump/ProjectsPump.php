@@ -97,8 +97,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
     public function __construct(
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
-    ) {
-    }
+    ) {}
 
     public function supports(mixed $batch): bool
     {

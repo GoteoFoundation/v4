@@ -16,8 +16,7 @@ class GatewayCheckoutService
 
     public function __construct(
         private RouterInterface $router,
-    ) {
-    }
+    ) {}
 
     /**
      * Generates a suitable value for redirection params to external gateways.

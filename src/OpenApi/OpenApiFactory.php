@@ -12,9 +12,7 @@ use ApiPlatform\OpenApi\OpenApi;
 
 class OpenApiFactory implements OpenApiFactoryInterface
 {
-    public function __construct(private OpenApiFactoryInterface $decorated)
-    {
-    }
+    public function __construct(private OpenApiFactoryInterface $decorated) {}
 
     private function updateOperation(Operation $operation): Operation
     {

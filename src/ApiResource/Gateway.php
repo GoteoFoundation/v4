@@ -17,9 +17,7 @@ use App\State\GatewayStateProvider;
 #[API\Get(provider: GatewayStateProvider::class)]
 class Gateway
 {
-    public function __construct(private readonly GatewayInterface $gateway)
-    {
-    }
+    public function __construct(private readonly GatewayInterface $gateway) {}
 
     #[API\ApiProperty(identifier: true)]
     public function getName(): string
