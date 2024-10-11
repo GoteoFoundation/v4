@@ -13,9 +13,10 @@ use App\State\GatewayStateProvider;
  * These implementations make use of external or internal services to gather the funds that are inside a Transaction,
  * perform corroboration of funds and store the Transactions into the system.
  */
+#[API\ApiResource(shortName: 'Gateway')]
 #[API\GetCollection(provider: GatewayStateProvider::class)]
 #[API\Get(provider: GatewayStateProvider::class)]
-class Gateway
+class GatewayApiResource
 {
     public function __construct(private readonly GatewayInterface $gateway) {}
 
