@@ -129,6 +129,9 @@ class PaypalGateway implements GatewayInterface
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
 
+        $this->entityManager->persist($checkout);
+        $this->entityManager->flush();
+
         // TO-DO: This should redirect the user to a GUI
         return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
     }
