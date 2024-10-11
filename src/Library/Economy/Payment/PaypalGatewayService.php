@@ -21,7 +21,11 @@ class PaypalGatewayService
         private string $paypalWebhookId,
         private HttpClientInterface $httpClient,
     ) {
-        $this->cache = new FilesystemAdapter();
+        $this->cache = new FilesystemAdapter(\preg_replace(
+            '/[^-+_\.A-Za-z0-9]/',
+            '-',
+            $this->paypalApiAddress
+        ));
 
         $httpOptions = new HttpOptions();
         $httpOptions->setBaseUri($paypalApiAddress);
@@ -58,7 +62,7 @@ class PaypalGatewayService
      */
     public function getAuthToken(): array
     {
-        return $this->cache->get($this->paypalApiAddress, function (ItemInterface $item): array {
+        return $this->cache->get(urlencode('/v1/oauth2/token'), function (ItemInterface $item): array {
             $tokenData = $this->generateAuthToken();
 
             $item->expiresAfter($tokenData['expires_in']);
