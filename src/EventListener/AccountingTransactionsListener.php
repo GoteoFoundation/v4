@@ -12,12 +12,12 @@ use Doctrine\ORM\Events;
 final class AccountingTransactionsListener
 {
     public function __construct(
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
     ) {}
 
     public function postPersist(
         AccountingTransaction $transaction,
-        PostPersistEventArgs $event
+        PostPersistEventArgs $event,
     ) {
         $origin = $transaction->getOrigin();
         $origin->addTransactionsIssued($transaction);
