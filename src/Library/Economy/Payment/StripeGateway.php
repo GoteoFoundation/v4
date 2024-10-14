@@ -44,6 +44,14 @@ class StripeGateway implements GatewayInterface
         return 'stripe';
     }
 
+    public static function getSupportedChargeTypes(): array
+    {
+        return [
+            GatewayChargeType::Single,
+            GatewayChargeType::Recurring,
+        ];
+    }
+
     public function process(GatewayCheckout $checkout): GatewayCheckout
     {
         $session = $this->stripe->checkout->sessions->create([

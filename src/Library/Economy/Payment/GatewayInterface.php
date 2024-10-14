@@ -29,6 +29,11 @@ interface GatewayInterface
     public static function getName(): string;
 
     /**
+     * @return \App\Entity\GatewayChargeType[] The charge types that can be processed by this Gateway
+     */
+    public static function getSupportedChargeTypes(): array;
+
+    /**
      * Connects with the payment gateway and creates a checkout session so the gateway can process the payment.
      *
      * @param GatewayCheckout $checkout The GatewayCheckout with the data for the payment to be charged

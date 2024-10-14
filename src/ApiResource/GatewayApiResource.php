@@ -25,4 +25,14 @@ class GatewayApiResource
     {
         return $this->gateway->getName();
     }
+
+    /**
+     * The GatewayCharge types that can be processed by this Gateway.
+     *
+     * @return \App\Entity\GatewayChargeType[]
+     */
+    public function getSupported(): array
+    {
+        return $this->gateway->getSupportedChargeTypes();
+    }
 }

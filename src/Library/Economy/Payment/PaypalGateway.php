@@ -4,6 +4,7 @@ namespace App\Library\Economy\Payment;
 
 use ApiPlatform\Api\IriConverterInterface;
 use App\Entity\GatewayCharge;
+use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
 use App\Entity\GatewayCheckoutStatus;
 use App\Entity\GatewayLink;
@@ -54,6 +55,13 @@ class PaypalGateway implements GatewayInterface
     public static function getName(): string
     {
         return 'paypal';
+    }
+
+    public static function getSupportedChargeTypes(): array
+    {
+        return [
+            GatewayChargeType::Single,
+        ];
     }
 
     public function process(GatewayCheckout $checkout): GatewayCheckout
