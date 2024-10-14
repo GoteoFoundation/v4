@@ -22,9 +22,9 @@ class GatewayNameValidator extends ChoiceValidator
         }
 
         try {
-            if ($this->gateways->getGateway($value)) {
-                return;
-            }
+            $this->gateways->getGateway($value);
+
+            return;
         } catch (\Exception $e) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ value }}', $this->formatValue($value))
