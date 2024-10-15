@@ -20,12 +20,12 @@ final class AccountingTransactionsListener
         PostPersistEventArgs $event,
     ) {
         $origin = $transaction->getOrigin();
-        $origin->addTransactionsIssued($transaction);
+        $origin->addTransactionsOutgoing($transaction);
 
         $this->entityManager->persist($origin);
 
         $target = $transaction->getTarget();
-        $target->addTransactionsReceived($transaction);
+        $target->addTransactionsIncoming($transaction);
 
         $this->entityManager->persist($target);
 

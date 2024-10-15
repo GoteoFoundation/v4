@@ -34,16 +34,16 @@ class AccountingTransaction
     private ?Money $money = null;
 
     /**
-     * The Accounting issuing the money of this Transaction.
+     * The Accounting from which the Transaction comes from.
      */
-    #[ORM\ManyToOne(inversedBy: 'transactionsIssued', cascade: ['persist'])]
+    #[ORM\ManyToOne(inversedBy: 'transactionsOutgoing')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $origin = null;
 
     /**
-     * The Accounting receiving the money of this Transaction.
+     * The Accounting where the Transaction goes to.
      */
-    #[ORM\ManyToOne(inversedBy: 'transactionsReceived', cascade: ['persist'])]
+    #[ORM\ManyToOne(inversedBy: 'transactionsIncoming')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $target = null;
 

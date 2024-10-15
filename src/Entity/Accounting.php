@@ -32,18 +32,20 @@ class Accounting
     private ?string $currency = null;
 
     /**
+     * Transactions which originated from this Accounting.
+     *
      * @var Collection<int, AccountingTransaction>
      */
-    #[API\ApiProperty(writable: false)]
     #[ORM\OneToMany(mappedBy: 'origin', targetEntity: AccountingTransaction::class)]
-    private Collection $transactionsIssued;
+    private Collection $transactionsOutgoing;
 
     /**
+     * Transactions which targeted this Accounting.
+     *
      * @var Collection<int, AccountingTransaction>
      */
-    #[API\ApiProperty(writable: false)]
     #[ORM\OneToMany(mappedBy: 'target', targetEntity: AccountingTransaction::class)]
-    private Collection $transactionsReceived;
+    private Collection $transactionsIncoming;
 
     #[API\ApiProperty(writable: false, readable: false)]
     #[ORM\Column(length: 255)]
@@ -68,8 +70,8 @@ class Accounting
          * ideally a configuration that can be updated via a frontend, not env var only
          */
         $this->currency = 'EUR';
-        $this->transactionsIssued = new ArrayCollection();
-        $this->transactionsReceived = new ArrayCollection();
+        $this->transactionsOutgoing = new ArrayCollection();
+        $this->transactionsIncoming = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -92,27 +94,27 @@ class Accounting
     /**
      * @return Collection<int, AccountingTransaction>
      */
-    public function getTransactionsIssued(): Collection
+    public function getTransactionsOutgoing(): Collection
     {
-        return $this->transactionsIssued;
+        return $this->transactionsOutgoing;
     }
 
-    public function addTransactionsIssued(AccountingTransaction $transactionsIssued): static
+    public function addTransactionsOutgoing(AccountingTransaction $transactionsOutgoing): static
     {
-        if (!$this->transactionsIssued->contains($transactionsIssued)) {
-            $this->transactionsIssued->add($transactionsIssued);
-            $transactionsIssued->setOrigin($this);
+        if (!$this->transactionsOutgoing->contains($transactionsOutgoing)) {
+            $this->transactionsOutgoing->add($transactionsOutgoing);
+            $transactionsOutgoing->setOrigin($this);
         }
 
         return $this;
     }
 
-    public function removeTransactionsIssued(AccountingTransaction $transactionsIssued): static
+    public function removeTransactionsOutgoing(AccountingTransaction $transactionsOutgoing): static
     {
-        if ($this->transactionsIssued->removeElement($transactionsIssued)) {
+        if ($this->transactionsOutgoing->removeElement($transactionsOutgoing)) {
             // set the owning side to null (unless already changed)
-            if ($transactionsIssued->getOrigin() === $this) {
-                $transactionsIssued->setOrigin(null);
+            if ($transactionsOutgoing->getOrigin() === $this) {
+                $transactionsOutgoing->setOrigin(null);
             }
         }
 
@@ -122,27 +124,27 @@ class Accounting
     /**
      * @return Collection<int, AccountingTransaction>
      */
-    public function getTransactionsReceived(): Collection
+    public function getTransactionsIncoming(): Collection
     {
-        return $this->transactionsReceived;
+        return $this->transactionsIncoming;
     }
 
-    public function addTransactionsReceived(AccountingTransaction $transactionsReceived): static
+    public function addTransactionsIncoming(AccountingTransaction $transactionsIncoming): static
     {
-        if (!$this->transactionsReceived->contains($transactionsReceived)) {
-            $this->transactionsReceived->add($transactionsReceived);
-            $transactionsReceived->setTarget($this);
+        if (!$this->transactionsIncoming->contains($transactionsIncoming)) {
+            $this->transactionsIncoming->add($transactionsIncoming);
+            $transactionsIncoming->setTarget($this);
         }
 
         return $this;
     }
 
-    public function removeTransactionsReceived(AccountingTransaction $transactionsReceived): static
+    public function removeTransactionsIncoming(AccountingTransaction $transactionsIncoming): static
     {
-        if ($this->transactionsReceived->removeElement($transactionsReceived)) {
+        if ($this->transactionsIncoming->removeElement($transactionsIncoming)) {
             // set the owning side to null (unless already changed)
-            if ($transactionsReceived->getTarget() === $this) {
-                $transactionsReceived->setTarget(null);
+            if ($transactionsIncoming->getTarget() === $this) {
+                $transactionsIncoming->setTarget(null);
             }
         }
 
