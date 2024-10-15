@@ -70,11 +70,16 @@ class AccountingTest extends KernelTestCase
         $accountingA = new Accounting();
         $accountingA->setTipjar($tipjarA);
 
+        $this->entityManager->persist($accountingA);
+
         $tipjarB = new Tipjar();
         $tipjarB->setName('TEST_TIPJAR_B');
 
         $accountingB = new Accounting();
         $accountingB->setTipjar($tipjarB);
+
+        $this->entityManager->persist($accountingB);
+        $this->entityManager->flush();
 
         $transaction = new AccountingTransaction();
         $transaction->setMoney(new Money(120, 'EUR'));
@@ -84,26 +89,28 @@ class AccountingTest extends KernelTestCase
         $this->entityManager->persist($transaction);
         $this->entityManager->flush();
 
+        /** @var Accounting */
         $accountingA = $this->entityManager
             ->getRepository(Tipjar::class)
             ->findOneBy(['name' => 'TEST_TIPJAR_A'])
             ->getAccounting();
 
+        /** @var Accounting */
         $accountingB = $this->entityManager
             ->getRepository(Tipjar::class)
             ->findOneBy(['name' => 'TEST_TIPJAR_B'])
             ->getAccounting();
 
-        $this->assertCount(1, $accountingA->getTransactionsIssued());
-        $this->assertCount(0, $accountingA->getTransactionsReceived());
+        $this->assertCount(1, $accountingA->getTransactionsOutgoing());
+        $this->assertCount(0, $accountingA->getTransactionsIncoming());
 
-        $this->assertCount(0, $accountingB->getTransactionsIssued());
-        $this->assertCount(1, $accountingB->getTransactionsReceived());
+        $this->assertCount(0, $accountingB->getTransactionsOutgoing());
+        $this->assertCount(1, $accountingB->getTransactionsIncoming());
 
-        $this->assertEquals(120, $accountingA->getTransactionsIssued()[0]->getMoney()->amount);
-        $this->assertEquals('EUR', $accountingA->getTransactionsIssued()[0]->getMoney()->currency);
+        $this->assertEquals(120, $accountingA->getTransactionsOutgoing()[0]->getMoney()->amount);
+        $this->assertEquals('EUR', $accountingA->getTransactionsOutgoing()[0]->getMoney()->currency);
 
-        $this->assertEquals(120, $accountingB->getTransactionsReceived()[0]->getMoney()->amount);
-        $this->assertEquals('EUR', $accountingB->getTransactionsReceived()[0]->getMoney()->currency);
+        $this->assertEquals(120, $accountingB->getTransactionsIncoming()[0]->getMoney()->amount);
+        $this->assertEquals('EUR', $accountingB->getTransactionsIncoming()[0]->getMoney()->currency);
     }
 }
