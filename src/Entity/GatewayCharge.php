@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
 use App\Repository\GatewayChargeRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -14,27 +15,30 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: GatewayChargeRepository::class)]
 class GatewayCharge
 {
-    // TO-DO: This message should be translatable to the User's language
-    public const MESSAGE_STATEMENT = 'PAGO EN GOTEO.ORG';
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     /**
-     * The type of a GatewayCharge represents the kind of payment.
+     * The type represents the kind of payment for the charged money.
      */
     #[Assert\NotBlank()]
     #[ORM\Column()]
     private ?GatewayChargeType $type = null;
 
     /**
-     * The charged monetary sum.
+     * A short, descriptive text for this charge operation.
      */
     #[Assert\NotBlank()]
-    #[ORM\Embedded(Money::class)]
-    private ?Money $money = null;
+    #[ORM\Column(length: 255)]
+    private ?string $title = null;
+
+    /**
+     * Detailed message about this charge operation.
+     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
 
     /**
      * The Accounting receiving the consequent Transaction for this GatewayCharge.
@@ -45,11 +49,11 @@ class GatewayCharge
     private ?Accounting $target = null;
 
     /**
-     * The AccountingTransaction generated for this charge after the checkout with the Gateway.
+     * The charged monetary sum.
      */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    private ?AccountingTransaction $transaction = null;
+    #[Assert\NotBlank()]
+    #[ORM\Embedded(Money::class)]
+    private ?Money $money = null;
 
     public function getId(): ?int
     {
@@ -68,18 +72,6 @@ class GatewayCharge
         return $this;
     }
 
-    public function getMoney(): ?Money
-    {
-        return $this->money;
-    }
-
-    public function setMoney(Money $money): static
-    {
-        $this->money = $money;
-
-        return $this;
-    }
-
     public function getTarget(): ?Accounting
     {
         return $this->target;
@@ -92,14 +84,38 @@ class GatewayCharge
         return $this;
     }
 
-    public function getTransaction(): ?AccountingTransaction
+    public function getMoney(): ?Money
     {
-        return $this->transaction;
+        return $this->money;
     }
 
-    public function setTransaction(?AccountingTransaction $transaction): static
+    public function setMoney(Money $money): static
     {
-        $this->transaction = $transaction;
+        $this->money = $money;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): static
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
 
         return $this;
     }
