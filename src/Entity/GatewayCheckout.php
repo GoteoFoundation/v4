@@ -57,7 +57,7 @@ class GatewayCheckout
 
     /**
      * The GatewayCharges to be charged at checkout with the gateway.
-     * 
+     *
      * @var Collection<int, GatewayCharge>
      */
     #[Assert\NotBlank()]
