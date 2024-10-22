@@ -99,7 +99,7 @@ class GatewayCheckoutService
             $transaction->setOrigin($checkout->getOrigin());
             $transaction->setTarget($charge->getTarget());
 
-            $charge->setTransaction($transaction);
+            $charge->addTransaction($transaction);
         }
 
         return $checkout;

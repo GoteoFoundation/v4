@@ -214,8 +214,8 @@ class PaypalGateway implements GatewayInterface
                 'custom_id' => $reference,
                 'items' => [
                     [
-                        'name' => $charge::MESSAGE_STATEMENT,
-                        'description' => $charge::MESSAGE_STATEMENT,
+                        'name' => $charge->getTitle(),
+                        'description' => $charge->getDescription(),
                         'quantity' => '1',
                         'unit_amount' => [
                             ...$money,

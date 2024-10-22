@@ -34,6 +34,10 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
     public const TRACKING_TITLE_TRANSACTION = 'v3 Invest Transaction';
     public const TRACKING_TITLE_PREAPPROVAL = 'v3 Invest Preapproval';
 
+    public const CHARGE_TITLE_PROJECT = 'Pago en Goteo v3 - Donación a proyecto';
+    public const CHARGE_TITLE_POOL = 'Pago en Goteo v3 - Carga de monedero';
+    public const CHARGE_TITLE_TIP = 'Pago en Goteo v3 - Propina a la plataforma';
+
     private const PLATFORM_TIPJAR_NAME = 'platform';
 
     private const MAX_INT = 2147483647;
@@ -131,12 +135,14 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             $charge->setMoney($this->getChargeMoney($record['amount'], $record['currency']));
 
             if (empty($record['project'])) {
+                $charge->setTitle(self::CHARGE_TITLE_POOL);
                 $charge->setTarget($user->getAccounting());
             }
 
             if (!empty($record['project'])) {
                 $project = $projects[$record['project']];
 
+                $charge->setTitle(self::CHARGE_TITLE_PROJECT);
                 $charge->setTarget($project->getAccounting());
             }
 
@@ -145,6 +151,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             if ($record['donate_amount'] > 0) {
                 $tip = new GatewayCharge();
                 $tip->setType(GatewayChargeType::Single);
+                $tip->setTitle(self::CHARGE_TITLE_TIP);
                 $tip->setMoney($this->getChargeMoney($record['donate_amount'], $record['currency']));
                 $tip->setTarget($tipjar->getAccounting());
 

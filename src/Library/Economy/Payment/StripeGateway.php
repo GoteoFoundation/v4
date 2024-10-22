@@ -152,8 +152,8 @@ class StripeGateway implements GatewayInterface
                 'currency' => $charge->getMoney()->currency,
                 'unit_amount' => $charge->getMoney()->amount,
                 'product_data' => [
-                    'name' => $charge::MESSAGE_STATEMENT,
-                    'statement_descriptor' => $charge::MESSAGE_STATEMENT,
+                    'name' => $charge->getTitle(),
+                    'statement_descriptor' => $charge->getDescription(),
                 ],
             ];
 

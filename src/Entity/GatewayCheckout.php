@@ -47,14 +47,6 @@ class GatewayCheckout
     private ?Accounting $origin = null;
 
     /**
-     * The GatewayCharges to be charged at checkout with the Gateway.
-     */
-    #[Assert\NotBlank()]
-    #[Assert\Count(min: 1)]
-    #[ORM\ManyToMany(targetEntity: GatewayCharge::class, cascade: ['persist'])]
-    private Collection $charges;
-
-    /**
      * The status of the checkout with the Gateway.
      */
     #[Gedmo\Versioned]
@@ -62,6 +54,16 @@ class GatewayCheckout
     #[API\ApiFilter(SearchFilter::class)]
     #[ORM\Column()]
     private ?GatewayCheckoutStatus $status = null;
+
+    /**
+     * The GatewayCharges to be charged at checkout with the gateway.
+     * 
+     * @var Collection<int, GatewayCharge>
+     */
+    #[Assert\NotBlank()]
+    #[Assert\Count(min: 1)]
+    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayCharge::class, cascade: ['persist'])]
+    private Collection $charges;
 
     /**
      * The name of the Gateway implementation to checkout with.
@@ -114,8 +116,8 @@ class GatewayCheckout
 
     public function __construct()
     {
-        $this->charges = new ArrayCollection();
         $this->status = GatewayCheckoutStatus::Pending;
+        $this->charges = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -135,6 +137,18 @@ class GatewayCheckout
         return $this;
     }
 
+    public function getStatus(): ?GatewayCheckoutStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(GatewayCheckoutStatus $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
     /**
      * @return Collection<int, GatewayCharge>
      */
@@ -147,6 +161,7 @@ class GatewayCheckout
     {
         if (!$this->charges->contains($charge)) {
             $this->charges->add($charge);
+            $charge->setCheckout($this);
         }
 
         return $this;
@@ -154,19 +169,12 @@ class GatewayCheckout
 
     public function removeCharge(GatewayCharge $charge): static
     {
-        $this->charges->removeElement($charge);
-
-        return $this;
-    }
-
-    public function getStatus(): ?GatewayCheckoutStatus
-    {
-        return $this->status;
-    }
-
-    public function setStatus(GatewayCheckoutStatus $status): static
-    {
-        $this->status = $status;
+        if ($this->charges->removeElement($charge)) {
+            // set the owning side to null (unless already changed)
+            if ($charge->getCheckout() === $this) {
+                $charge->setCheckout(null);
+            }
+        }
 
         return $this;
     }
