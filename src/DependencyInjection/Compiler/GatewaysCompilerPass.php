@@ -104,9 +104,7 @@ class GatewaysCompilerPass implements CompilerPassInterface
      *
      * @param array $gatewayClasses Fully-qualified Gateway class names
      *
-     * @throws \Exception If there are two different Gateway classes with the same name
-     *
-     * @see \App\Library\Economy\Payment\GatewayInterface::getName() To see the names returned by the implementations
+     * @throws \Exception If there are two different Gateway classes that return the same name string
      */
     public static function validateGatewayNames(array $gatewayClasses): void
     {

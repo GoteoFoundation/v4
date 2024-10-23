@@ -50,7 +50,7 @@ class BenzinaPumpCommand extends Command
         $this->addOption(
             'skip-pumped',
             null,
-            InputOption::VALUE_OPTIONAL,
+            InputOption::VALUE_NEGATABLE,
             'Skips feeding already pumped records in a batch',
             false
         );

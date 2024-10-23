@@ -19,8 +19,7 @@ class GatewaysController extends AbstractController
 
     public function __construct(
         private GatewayLocator $gatewayLocator,
-    ) {
-    }
+    ) {}
 
     #[Route('/gateway_redirects', name: self::REDIRECT)]
     public function handleRedirect(Request $request): Response

@@ -13,8 +13,7 @@ class AuthService
 
     public function __construct(
         private string $appSecret,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array{CORS_ALLOW_ORIGIN: string, SESSION_LIFETIME: int}

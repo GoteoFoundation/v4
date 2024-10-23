@@ -45,7 +45,7 @@ class GatewayLocator
     /**
      * @return array<string> List of the available Gateway names
      *
-     * @see GatewaysCompilerPass::compileGatewayNames()
+     * @see \App\DependencyInjection\Compiler\GatewaysCompilerPass::compileGatewayNames()
      */
     public static function getNamesStatic(): array
     {

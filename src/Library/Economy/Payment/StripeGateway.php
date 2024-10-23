@@ -44,6 +44,14 @@ class StripeGateway implements GatewayInterface
         return 'stripe';
     }
 
+    public static function getSupportedChargeTypes(): array
+    {
+        return [
+            GatewayChargeType::Single,
+            GatewayChargeType::Recurring,
+        ];
+    }
+
     public function process(GatewayCheckout $checkout): GatewayCheckout
     {
         $session = $this->stripe->checkout->sessions->create([
@@ -59,16 +67,16 @@ class StripeGateway implements GatewayInterface
 
         $link = new GatewayLink();
 
-        $link->setHref($session->url);
-        $link->setRel('approve');
-        $link->setMethod(Request::METHOD_GET);
-        $link->setType(GatewayLinkType::Payment);
+        $link->href = $session->url;
+        $link->rel = 'approve';
+        $link->method = Request::METHOD_GET;
+        $link->type = GatewayLinkType::Payment;
 
         $checkout->addGatewayLink($link);
 
         $tracking = new GatewayTracking();
-        $tracking->setValue($session->id);
-        $tracking->setTitle(self::TRACKING_TITLE_CHECKOUT);
+        $tracking->title = self::TRACKING_TITLE_CHECKOUT;
+        $tracking->value = $session->id;
 
         $checkout->addGatewayTracking($tracking);
 
@@ -99,6 +107,9 @@ class StripeGateway implements GatewayInterface
         }
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
+
+        $this->entityManager->persist($checkout);
+        $this->entityManager->flush();
 
         // TO-DO: This should redirect the user to a GUI
         return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
@@ -141,8 +152,8 @@ class StripeGateway implements GatewayInterface
                 'currency' => $charge->getMoney()->currency,
                 'unit_amount' => $charge->getMoney()->amount,
                 'product_data' => [
-                    'name' => $charge::MESSAGE_STATEMENT,
-                    'statement_descriptor' => $charge::MESSAGE_STATEMENT,
+                    'name' => $charge->getTitle(),
+                    'statement_descriptor' => $charge->getDescription(),
                 ],
             ];
 

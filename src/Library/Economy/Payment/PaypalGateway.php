@@ -4,6 +4,7 @@ namespace App\Library\Economy\Payment;
 
 use ApiPlatform\Api\IriConverterInterface;
 use App\Entity\GatewayCharge;
+use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
 use App\Entity\GatewayCheckoutStatus;
 use App\Entity\GatewayLink;
@@ -49,12 +50,18 @@ class PaypalGateway implements GatewayInterface
         private IriConverterInterface $iriConverter,
         private GatewayCheckoutService $checkoutService,
         private GatewayCheckoutRepository $checkoutRepository,
-    ) {
-    }
+    ) {}
 
     public static function getName(): string
     {
         return 'paypal';
+    }
+
+    public static function getSupportedChargeTypes(): array
+    {
+        return [
+            GatewayChargeType::Single,
+        ];
     }
 
     public function process(GatewayCheckout $checkout): GatewayCheckout
@@ -66,8 +73,8 @@ class PaypalGateway implements GatewayInterface
         ]);
 
         $tracking = new GatewayTracking();
-        $tracking->setValue($order['id']);
-        $tracking->setTitle(self::TRACKING_TITLE_ORDER);
+        $tracking->title = self::TRACKING_TITLE_ORDER;
+        $tracking->value = $order['id'];
 
         $checkout->addGatewayTracking($tracking);
 
@@ -77,10 +84,10 @@ class PaypalGateway implements GatewayInterface
                 : GatewayLinkType::Debug;
 
             $link = new GatewayLink();
-            $link->setHref($linkData['href']);
-            $link->setRel($linkData['rel']);
-            $link->setMethod($linkData['method']);
-            $link->setType($linkType);
+            $link->href = $linkData['href'];
+            $link->rel = $linkData['rel'];
+            $link->method = $linkData['method'];
+            $link->type = $linkType;
 
             $checkout->addGatewayLink($link);
         }
@@ -122,13 +129,16 @@ class PaypalGateway implements GatewayInterface
 
         foreach ($capture['purchase_units'] as $purchaseUnit) {
             $tracking = new GatewayTracking();
-            $tracking->setValue($purchaseUnit['payments']['captures'][0]['id']);
-            $tracking->setTitle(self::TRACKING_TITLE_TRANSACTION);
+            $tracking->title = self::TRACKING_TITLE_TRANSACTION;
+            $tracking->value = $purchaseUnit['payments']['captures'][0]['id'];
 
             $checkout->addGatewayTracking($tracking);
         }
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
+
+        $this->entityManager->persist($checkout);
+        $this->entityManager->flush();
 
         // TO-DO: This should redirect the user to a GUI
         return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
@@ -169,8 +179,8 @@ class PaypalGateway implements GatewayInterface
 
         foreach ($event['resource']['purchase_units'] as $purchaseUnit) {
             $tracking = new GatewayTracking();
-            $tracking->setValue($purchaseUnit['payments']['captures'][0]['id']);
-            $tracking->setTitle(self::TRACKING_TITLE_TRANSACTION);
+            $tracking->title = self::TRACKING_TITLE_TRANSACTION;
+            $tracking->value = $purchaseUnit['payments']['captures'][0]['id'];
 
             $checkout->addGatewayTracking($tracking);
         }
@@ -197,15 +207,15 @@ class PaypalGateway implements GatewayInterface
 
         foreach ($checkout->getCharges() as $charge) {
             $money = $this->getPaypalMoney($charge);
-            $reference = $this->checkoutService->getGatewayReference($checkout, $charge);
+            $reference = $this->checkoutService->generateTracking($checkout, $charge);
 
             $units[] = [
                 'reference_id' => $reference,
                 'custom_id' => $reference,
                 'items' => [
                     [
-                        'name' => $charge::MESSAGE_STATEMENT,
-                        'description' => $charge::MESSAGE_STATEMENT,
+                        'name' => $charge->getTitle(),
+                        'description' => $charge->getDescription(),
                         'quantity' => '1',
                         'unit_amount' => [
                             ...$money,

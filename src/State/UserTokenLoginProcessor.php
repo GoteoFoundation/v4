@@ -21,8 +21,7 @@ class UserTokenLoginProcessor implements ProcessorInterface
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $userPasswordHasher,
-    ) {
-    }
+    ) {}
 
     /**
      * @param UserTokenLoginDto $data

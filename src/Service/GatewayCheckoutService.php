@@ -16,8 +16,7 @@ class GatewayCheckoutService
 
     public function __construct(
         private RouterInterface $router,
-    ) {
-    }
+    ) {}
 
     /**
      * Generates a suitable value for redirection params to external gateways.
@@ -100,7 +99,7 @@ class GatewayCheckoutService
             $transaction->setOrigin($checkout->getOrigin());
             $transaction->setTarget($charge->getTarget());
 
-            $charge->setTransaction($transaction);
+            $charge->addTransaction($transaction);
         }
 
         return $checkout;

@@ -24,8 +24,7 @@ class Version
     public function __construct(
         private readonly LogEntry $log,
         private readonly object $entity,
-    ) {
-    }
+    ) {}
 
     /**
      * The ID of the version record.
