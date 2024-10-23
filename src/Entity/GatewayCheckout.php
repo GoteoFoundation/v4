@@ -60,6 +60,7 @@ class GatewayCheckout
      *
      * @var Collection<int, GatewayCharge>
      */
+    #[API\ApiProperty(readableLink: true)]
     #[Assert\NotBlank()]
     #[Assert\Count(min: 1)]
     #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayCharge::class, cascade: ['persist'])]
