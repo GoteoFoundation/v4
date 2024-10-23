@@ -5,8 +5,6 @@ namespace App\Entity;
 use ApiPlatform\Metadata as API;
 use App\Repository\AccountingRepository;
 use App\Service\ApiResourceNormalizer;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -31,22 +29,6 @@ class Accounting
     #[ORM\Column(length: 3)]
     private ?string $currency = null;
 
-    /**
-     * Transactions which originated from this Accounting.
-     *
-     * @var Collection<int, AccountingTransaction>
-     */
-    #[ORM\OneToMany(mappedBy: 'origin', targetEntity: AccountingTransaction::class)]
-    private Collection $transactionsOutgoing;
-
-    /**
-     * Transactions which targeted this Accounting.
-     *
-     * @var Collection<int, AccountingTransaction>
-     */
-    #[ORM\OneToMany(mappedBy: 'target', targetEntity: AccountingTransaction::class)]
-    private Collection $transactionsIncoming;
-
     #[API\ApiProperty(writable: false, readable: false)]
     #[ORM\Column(length: 255)]
     private ?string $ownerClass = null;
@@ -70,8 +52,6 @@ class Accounting
          * ideally a configuration that can be updated via a frontend, not env var only
          */
         $this->currency = 'EUR';
-        $this->transactionsOutgoing = new ArrayCollection();
-        $this->transactionsIncoming = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -87,66 +67,6 @@ class Accounting
     public function setCurrency(string $currency): static
     {
         $this->currency = $currency;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, AccountingTransaction>
-     */
-    public function getTransactionsOutgoing(): Collection
-    {
-        return $this->transactionsOutgoing;
-    }
-
-    public function addTransactionsOutgoing(AccountingTransaction $transactionsOutgoing): static
-    {
-        if (!$this->transactionsOutgoing->contains($transactionsOutgoing)) {
-            $this->transactionsOutgoing->add($transactionsOutgoing);
-            $transactionsOutgoing->setOrigin($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTransactionsOutgoing(AccountingTransaction $transactionsOutgoing): static
-    {
-        if ($this->transactionsOutgoing->removeElement($transactionsOutgoing)) {
-            // set the owning side to null (unless already changed)
-            if ($transactionsOutgoing->getOrigin() === $this) {
-                $transactionsOutgoing->setOrigin(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, AccountingTransaction>
-     */
-    public function getTransactionsIncoming(): Collection
-    {
-        return $this->transactionsIncoming;
-    }
-
-    public function addTransactionsIncoming(AccountingTransaction $transactionsIncoming): static
-    {
-        if (!$this->transactionsIncoming->contains($transactionsIncoming)) {
-            $this->transactionsIncoming->add($transactionsIncoming);
-            $transactionsIncoming->setTarget($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTransactionsIncoming(AccountingTransaction $transactionsIncoming): static
-    {
-        if ($this->transactionsIncoming->removeElement($transactionsIncoming)) {
-            // set the owning side to null (unless already changed)
-            if ($transactionsIncoming->getTarget() === $this) {
-                $transactionsIncoming->setTarget(null);
-            }
-        }
 
         return $this;
     }

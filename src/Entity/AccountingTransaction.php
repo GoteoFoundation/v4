@@ -36,14 +36,14 @@ class AccountingTransaction
     /**
      * The Accounting from which the Transaction comes from.
      */
-    #[ORM\ManyToOne(inversedBy: 'transactionsOutgoing')]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $origin = null;
 
     /**
      * The Accounting where the Transaction goes to.
      */
-    #[ORM\ManyToOne(inversedBy: 'transactionsIncoming')]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $target = null;
 
