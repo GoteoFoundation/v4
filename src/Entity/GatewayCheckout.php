@@ -9,6 +9,7 @@ use App\Entity\Trait\TimestampableUpdationEntity;
 use App\Repository\GatewayCheckoutRepository;
 use App\State\GatewayCheckoutProcessor;
 use App\Validator\GatewayName;
+use App\Validator\SupportedChargeTypes;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -63,6 +64,7 @@ class GatewayCheckout
     #[API\ApiProperty(readableLink: true, writableLink: true)]
     #[Assert\NotBlank()]
     #[Assert\Count(min: 1)]
+    #[SupportedChargeTypes()]
     #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayCharge::class, cascade: ['persist'])]
     private Collection $charges;
 
