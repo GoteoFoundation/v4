@@ -10,7 +10,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 class SupportedChargeTypesValidator extends ConstraintValidator
 {
     public function __construct(
-        private GatewayLocator $gatewayLocator
+        private GatewayLocator $gatewayLocator,
     ) {}
 
     public function validate(mixed $value, Constraint $constraint): void

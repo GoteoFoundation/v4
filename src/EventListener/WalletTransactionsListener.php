@@ -11,7 +11,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Events;
 
-#[AsEntityListener(event: Events::postPersist, method: 'processTransaction', entity: AccountingTransaction::class)]
+#[AsEntityListener(
+    event: Events::postPersist,
+    method: 'processTransaction',
+    entity: AccountingTransaction::class
+)]
 final class WalletTransactionsListener
 {
     public function __construct(
