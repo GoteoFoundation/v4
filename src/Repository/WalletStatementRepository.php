@@ -21,6 +21,22 @@ class WalletStatementRepository extends ServiceEntityRepository
     /**
      * @return WalletStatement[]
      */
+    public function findByAccounting(Accounting $accounting): array
+    {
+        return $this->createQueryBuilder('w')
+            ->join('w.transaction', 'wt', Join::WITH, 'wt.id = w.transaction')
+            ->where('wt.origin = :val')
+            ->orWhere('wt.target = :val')
+            ->setParameter('val', $accounting->getId())
+            ->orderBy('w.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * @return WalletStatement[]
+     */
     public function findByOrigin(Accounting $accounting): array
     {
         return $this->createQueryBuilder('w')
