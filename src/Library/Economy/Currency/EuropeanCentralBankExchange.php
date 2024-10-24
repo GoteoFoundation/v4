@@ -125,11 +125,11 @@ class EuropeanCentralBankExchange implements ExchangeInterface
         return 100;
     }
 
-    public function getConversion(MoneyContainer $money, string $currency): EntityMoney
+    public function convert(MoneyContainer $money, string $toCurrency): EntityMoney
     {
         $converted = $this->converter->convert(
             $money,
-            $currency,
+            $toCurrency,
             null,
             RoundingMode::HALF_EVEN
         );
@@ -140,14 +140,14 @@ class EuropeanCentralBankExchange implements ExchangeInterface
         );
     }
 
-    public function getConversionRate(string $source, string $target): float
+    public function getConversionRate(string $fromCurrency, string $toCurrency): float
     {
-        return $this->provider->getExchangeRate($source, $target)->toFloat();
+        return $this->provider->getExchangeRate($fromCurrency, $toCurrency)->toFloat();
     }
 
-    public function getConversionDate(string $source, string $target): \DateTimeInterface
+    public function getConversionDate(string $fromCurrency, string $toCurrency): \DateTimeInterface
     {
-        $this->provider->getExchangeRate($source, $target);
+        $this->provider->getExchangeRate($fromCurrency, $toCurrency);
 
         return $this->date;
     }
