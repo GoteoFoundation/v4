@@ -1,11 +1,24 @@
+version: '3.8'
+
 services:
   php:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
     container_name: goteo-v4-php
     volumes:
       - .:/app
       - ./docker/php/conf.d/apc.ini:/usr/local/etc/php/conf.d/apc.ini:ro
       - ./docker/php/conf.d/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
+    environment:
+      XDEBUG_MODE: debug
+      XDEBUG_CONFIG: "client_host=host.docker.internal"
+      APP_ENV: development
+      APP_DEBUG: true
+    ports:
+      - "9000:9000"
+      - "9003:9003"
 
   nginx:
     image: nginx:alpine
@@ -15,7 +28,9 @@ services:
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "${APP_HTTP_PORT:-8090}:80"
-      - "${APP_HTTPS_PORT:-8091}:433"
+      - "${APP_HTTPS_PORT:-8091}:443"
+    depends_on:
+      - php
 
   mariadb:
     image: mariadb:10.11.2
