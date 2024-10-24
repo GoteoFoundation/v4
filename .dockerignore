@@ -1,0 +1,14 @@
+/public/bundles/
+/var/
+
+.phpunit.result.cache
+/phpunit.xml
+
+/phpunit.xml
+.phpunit.result.cache
+
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+.git/
+.github/
+.vscode/
