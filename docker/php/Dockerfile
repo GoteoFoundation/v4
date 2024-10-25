@@ -10,27 +10,29 @@ RUN apk --no-cache add \
     unzip
 
 RUN docker-php-ext-install \
-    opcache \
     pdo \
-    pdo_mysql \
+    pdo_mysql
+
+RUN docker-php-ext-install \
     intl \
     zip
 
-COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:lts /usr/bin/composer /usr/local/bin/composer
 
-WORKDIR /app
 
 FROM base AS dev
 
-RUN apk --no-cache add $PHPIZE_DEPS \
-    && pecl install xdebug \
+RUN docker-php-ext-install opcache
+
+RUN apk --no-cache add $PHPIZE_DEPS
+RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
 
 COPY . /app
-
 RUN chown -R www-data:www-data /app
 
 USER www-data
+WORKDIR /app
 
 RUN composer install --prefer-dist --no-scripts
 
@@ -40,6 +42,7 @@ COPY . /app
 RUN chown -R www-data:www-data /app
 
 USER www-data
+WORKDIR /app
 
 RUN composer install --prefer-dist --no-scripts --no-dev --optimize-autoloader
 

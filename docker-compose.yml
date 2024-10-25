@@ -4,18 +4,14 @@ services:
   php:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/php/Dockerfile
       target: dev
     container_name: goteo-v4-php
     volumes:
       - .:/app
       - ./docker/php/conf.d/apc.ini:/usr/local/etc/php/conf.d/apc.ini:ro
       - ./docker/php/conf.d/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
-    environment:
-      XDEBUG_MODE: debug
-      XDEBUG_CONFIG: "client_host=host.docker.internal"
-      APP_ENV: development
-      APP_DEBUG: true
+    env_file: ".env.local"
     ports:
       - "9000:9000"
       - "9003:9003"
