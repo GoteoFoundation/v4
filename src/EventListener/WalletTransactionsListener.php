@@ -4,8 +4,7 @@ namespace App\EventListener;
 
 use App\Entity\AccountingTransaction;
 use App\Entity\User;
-use App\Entity\WalletStatement;
-use App\Entity\WalletStatementDirection;
+use App\Library\Economy\Payment\WalletGatewayService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PostPersistEventArgs;
@@ -20,6 +19,7 @@ final class WalletTransactionsListener
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private WalletGatewayService $wallet
     ) {}
 
     /**
@@ -30,16 +30,9 @@ final class WalletTransactionsListener
         PostPersistEventArgs $event,
     ) {
         $target = $transaction->getTarget();
-        if ($target->getOwnerClass() !== User::class) {
-            return;
+
+        if ($target->getOwnerClass() === User::class) {
+            $this->wallet->save($transaction);
         }
-
-        $statement = new WalletStatement();
-        $statement->setTransaction($transaction);
-        $statement->setDirection(WalletStatementDirection::Incoming);
-        $statement->setBalance($transaction->getMoney());
-
-        $this->entityManager->persist($statement);
-        $this->entityManager->flush();
     }
 }
