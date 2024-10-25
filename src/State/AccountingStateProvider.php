@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\State\CollectionProvider;
 use ApiPlatform\Doctrine\Orm\State\ItemProvider;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\AccountingApiResource;
 use App\Entity\Accounting;
@@ -27,11 +28,17 @@ class AccountingStateProvider implements ProviderInterface
         if ($operation instanceof CollectionOperationInterface) {
             $accountings = $this->collectionProvider->provide($operation, $uriVariables, $context);
 
-            foreach ($accountings as $key => $accounting) {
-                $accountings[$key] = $this->toResource($accounting);
+            $resources = [];
+            foreach ($accountings as $accounting) {
+                $resources[] = $this->toResource($accounting);
             }
 
-            return $accountings;
+            return new TraversablePaginator(
+                new \ArrayIterator($resources),
+                $accountings->getCurrentPage(),
+                $accountings->getItemsPerPage(),
+                $accountings->getTotalItems()
+            );
         }
 
         $accounting = $this->itemProvider->provide($operation, $uriVariables, $context);
@@ -39,8 +46,12 @@ class AccountingStateProvider implements ProviderInterface
         return $this->toResource($accounting);
     }
 
-    private function toResource(Accounting $accounting): AccountingApiResource
+    private function toResource(?Accounting $accounting): ?AccountingApiResource
     {
+        if ($accounting === null) {
+            return null;
+        }
+
         $owner = $this->entityManager->find($accounting->getOwnerClass(), $accounting->getOwnerId());
 
         return new AccountingApiResource($accounting, $owner);
