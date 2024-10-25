@@ -7,6 +7,7 @@ use App\Entity\AccountingTransaction;
 use App\Entity\Money;
 use App\Entity\Tipjar;
 use App\Entity\User;
+use App\Entity\WalletStatementDirection;
 use App\Library\Economy\Payment\WalletGatewayService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -63,22 +64,112 @@ class WalletGatewayServiceTest extends KernelTestCase
         $tipjar = $this->getTipjarAccounting();
         $user = $this->getUserAccounting();
 
-        $balance = $this->walletService->calcBalance($user);
+        $statements = $this->walletService->getStatements($user);
+
+        $this->assertCount(0, $statements);
+
+        $balance = $this->walletService->getBalance($user);
 
         $this->assertEquals(0, $balance->amount);
         $this->assertEquals($user->getCurrency(), $balance->currency);
 
-        $transaction = new AccountingTransaction();
-        $transaction->setMoney(new Money(100, 'EUR'));
-        $transaction->setOrigin($tipjar);
-        $transaction->setTarget($user);
+        $incoming = new AccountingTransaction();
+        $incoming->setMoney(new Money(100, 'EUR'));
+        $incoming->setOrigin($tipjar);
+        $incoming->setTarget($user);
 
-        $this->entityManager->persist($transaction);
+        $this->entityManager->persist($incoming);
         $this->entityManager->flush();
 
-        $balance = $this->walletService->calcBalance($user);
+        /**
+         * $this->walletService->save($incoming);
+         * called automatically on Transaction persist
+         * @see \App\EventListener\WalletTransactionsListener
+         */
+
+        $statements = $this->walletService->getStatements($user);
+
+        $this->assertCount(1, $statements);
+
+        $balance = $this->walletService->getBalance($user);
 
         $this->assertEquals(100, $balance->amount);
         $this->assertEquals('EUR', $balance->currency);
+    }
+
+    public function testTransactionsGetFinanced()
+    {
+        $tipjar = $this->getTipjarAccounting();
+        $user = $this->getUserAccounting();
+
+        $incoming = new AccountingTransaction();
+        $incoming->setMoney(new Money(100, 'EUR'));
+        $incoming->setOrigin($tipjar);
+        $incoming->setTarget($user);
+
+        $this->entityManager->persist($incoming);
+        $this->entityManager->flush();
+
+        $outgoing = new AccountingTransaction();
+        $outgoing->setMoney(new Money(20, 'EUR'));
+        $outgoing->setOrigin($user);
+        $outgoing->setTarget($tipjar);
+
+        $this->walletService->spend($outgoing);
+
+        $statements = $this->walletService->getStatements($user);
+
+        $this->assertCount(2, $statements);
+
+        $balance = $this->walletService->getBalance($user);
+
+        $this->assertEquals(80, $balance->amount);
+        $this->assertEquals('EUR', $balance->currency);
+
+        $this->assertEquals(80, $statements[0]->getBalance()->amount);
+        $this->assertEquals(WalletStatementDirection::Incoming->value, $statements[0]->getDirection()->value);
+        $this->assertEquals('EUR', $balance->currency);
+        $this->assertCount(1, $statements[0]->getFinancesTo());
+        $this->assertCount(0, $statements[0]->getFinancedBy());
+
+        $this->assertEquals(20, $statements[1]->getBalance()->amount);
+        $this->assertEquals(WalletStatementDirection::Outgoing->value, $statements[1]->getDirection()->value);
+        $this->assertEquals('EUR', $balance->currency);
+        $this->assertCount(0, $statements[1]->getFinancesTo());
+        $this->assertCount(1, $statements[1]->getFinancedBy());
+
+        $outgoing = new AccountingTransaction();
+        $outgoing->setMoney(new Money(30, 'EUR'));
+        $outgoing->setOrigin($user);
+        $outgoing->setTarget($tipjar);
+
+        $this->walletService->spend($outgoing);
+
+        $statements = $this->walletService->getStatements($user);
+
+        $this->assertCount(3, $statements);
+
+        $balance = $this->walletService->getBalance($user);
+
+        $this->assertEquals(50, $balance->amount);
+        $this->assertEquals('EUR', $balance->currency);
+
+        $this->assertEquals(50, $statements[0]->getBalance()->amount);
+        $this->assertEquals(WalletStatementDirection::Incoming->value, $statements[0]->getDirection()->value);
+        $this->assertEquals('EUR', $balance->currency);
+        $this->assertCount(2, $statements[0]->getFinancesTo());
+        $this->assertCount(0, $statements[0]->getFinancedBy());
+
+        $this->assertEquals(20, $statements[1]->getBalance()->amount);
+        $this->assertEquals(WalletStatementDirection::Outgoing->value, $statements[1]->getDirection()->value);
+        $this->assertEquals('EUR', $balance->currency);
+        $this->assertCount(0, $statements[1]->getFinancesTo());
+        $this->assertCount(1, $statements[1]->getFinancedBy());
+
+        $this->assertEquals(30, $statements[2]->getBalance()->amount);
+        $this->assertEquals(WalletStatementDirection::Outgoing->value, $statements[2]->getDirection()->value);
+        $this->assertEquals('EUR', $balance->currency);
+        $this->assertCount(0, $statements[2]->getFinancesTo());
+        $this->assertCount(1, $statements[2]->getFinancedBy());
     }
 }
