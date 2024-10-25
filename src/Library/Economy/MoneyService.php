@@ -48,34 +48,34 @@ class MoneyService
     }
 
     /**
-     * Compares `a` to `b`.
+     * Compares if one Money is of less value than other.
      *
-     * @return bool `true` if `a` is less than `b`
+     * @return bool `true` if `$money` is less than `$than`
      */
-    public function isLessThan(Money $a, Money $b): bool
+    public function isLess(Money $money, Money $than): bool
     {
-        $a = $this->convert($a, $b->currency);
+        $money = $this->convert($money, $than->currency);
 
-        return $a->isLessThan(self::toBrick($b));
+        return $money->isLessThan(self::toBrick($than));
     }
 
     /**
-     * Compaers `a` to `b`.
+     * Compaers if one Money is of greater or equal value to other.
      *
-     * @return bool `true` if `a` is more than `b`
+     * @return bool `true` if `$money` is more than `$than`
      */
-    public function isGreaterThanOrEqual(Money $a, Money $b): bool
+    public function isMoreOrSame(Money $money, Money $than): bool
     {
-        $a = $this->convert($a, $b->currency);
+        $money = $this->convert($money, $than->currency);
 
-        return $a->isGreaterThanOrEqualTo(self::toBrick($b));
+        return $money->isGreaterThanOrEqualTo(self::toBrick($than));
     }
 
     private function convert(Money $money, string $toCurrency): Brick\Money
     {
         $fromCurrency = $money->currency;
         if ($fromCurrency === $toCurrency) {
-            return $money;
+            return self::toBrick($money);
         }
 
         $exchange = $this->exchangeLocator->getExchangeFor($fromCurrency, $toCurrency);
