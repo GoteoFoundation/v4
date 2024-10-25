@@ -24,6 +24,9 @@ class WalletStatement
     #[ORM\Column(enumType: WalletStatementDirection::class)]
     private ?WalletStatementDirection $direction = null;
 
+    #[ORM\Embedded(class: Money::class)]
+    private ?Money $balance = null;
+
     /**
      * The Statements from which the money in the Transaction was drawed out of.
      *
@@ -72,6 +75,18 @@ class WalletStatement
     public function setDirection(WalletStatementDirection $direction): static
     {
         $this->direction = $direction;
+
+        return $this;
+    }
+
+    public function getBalance(): ?Money
+    {
+        return $this->balance;
+    }
+
+    public function setBalance(Money $balance): static
+    {
+        $this->balance = $balance;
 
         return $this;
     }

@@ -37,6 +37,7 @@ final class WalletTransactionsListener
         $statement = new WalletStatement();
         $statement->setTransaction($transaction);
         $statement->setDirection(WalletStatementDirection::Incoming);
+        $statement->setBalance($transaction->getMoney());
 
         $this->entityManager->persist($statement);
         $this->entityManager->flush();
