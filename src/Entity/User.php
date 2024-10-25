@@ -151,6 +151,8 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
 
     public function __construct()
     {
+        $this->emailConfirmed = false;
+        $this->active = false;
         $this->migrated = false;
 
         $this->tokens = new ArrayCollection();
