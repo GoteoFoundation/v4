@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 /**
  * WARNING: This test compares currencies, which change over time
  * and might cause the test to fail without justifiable cause in the code.
- * 
+ *
  * Test currencies and values have been selected for their stability to minimize chances of external factors such as
  * * Hyper inflation/deflation
  * * Currency intervention
@@ -47,7 +47,7 @@ class MoneyServiceTest extends KernelTestCase
 
         $this->assertTrue($this->moneyService->isMoreOrSame($a, $b));
         $this->assertTrue($this->moneyService->isMoreOrSame($b, $a));
-        
+
         $c = new Money(300, 'GBP');
 
         $this->assertTrue($this->moneyService->isMoreOrSame($c, $b));

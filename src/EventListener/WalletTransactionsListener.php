@@ -19,7 +19,7 @@ final class WalletTransactionsListener
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private WalletGatewayService $wallet
+        private WalletGatewayService $wallet,
     ) {}
 
     /**

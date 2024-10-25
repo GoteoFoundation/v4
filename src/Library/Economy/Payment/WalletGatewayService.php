@@ -51,9 +51,10 @@ class WalletGatewayService
 
     /**
      * Puts the money of a Transaction into the target wallet.
-     * 
+     *
      * @param AccountingTransaction $transaction The Transaction targetting a wallet
-     * @return \App\Entity\WalletStatement An incoming statement for the target wallet
+     *
+     * @return WalletStatement An incoming statement for the target wallet
      */
     public function save(AccountingTransaction $transaction): WalletStatement
     {
@@ -70,9 +71,10 @@ class WalletGatewayService
 
     /**
      * Takes the money of a Transaction from the origin wallet.
-     * 
+     *
      * @param AccountingTransaction $transaction The Transaction originating from a wallet
-     * @return \App\Entity\WalletStatement An outgoing statement financed by previous incoming statements
+     *
+     * @return WalletStatement An outgoing statement financed by previous incoming statements
      */
     public function spend(AccountingTransaction $transaction): WalletStatement
     {

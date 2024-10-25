@@ -83,10 +83,10 @@ class WalletGatewayServiceTest extends KernelTestCase
 
         /**
          * $this->walletService->save($incoming);
-         * called automatically on Transaction persist
+         * called automatically on Transaction persist.
+         *
          * @see \App\EventListener\WalletTransactionsListener
          */
-
         $statements = $this->walletService->getStatements($user);
 
         $this->assertCount(1, $statements);
