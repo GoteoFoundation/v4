@@ -27,7 +27,7 @@ class AccountingTest extends KernelTestCase
         $tipjarA->setName('TEST_TIPJAR_A');
 
         $accountingA = new Accounting();
-        $accountingA->setTipjar($tipjarA);
+        $accountingA->setOwner($tipjarA);
 
         $this->entityManager->persist($tipjarA);
         $this->entityManager->flush();
@@ -38,14 +38,14 @@ class AccountingTest extends KernelTestCase
             ->getAccounting();
 
         $this->assertNotNull($accountingA->getId());
+        $this->assertEquals($tipjarA->getId(), $accountingA->getOwnerId());
         $this->assertEquals(Tipjar::class, $accountingA->getOwnerClass());
-        $this->assertEquals('TEST_TIPJAR_A', $accountingA->getTipjar()->getName());
 
         $tipjarB = new Tipjar();
         $tipjarB->setName('TEST_TIPJAR_B');
 
         $accountingB = new Accounting();
-        $accountingB->setTipjar($tipjarB);
+        $accountingB->setOwner($tipjarB);
 
         $this->entityManager->persist($tipjarB);
         $this->entityManager->flush();
@@ -56,7 +56,7 @@ class AccountingTest extends KernelTestCase
             ->getAccounting();
 
         $this->assertNotNull($accountingB->getId());
+        $this->assertEquals($tipjarB->getId(), $accountingB->getOwnerId());
         $this->assertEquals(Tipjar::class, $accountingB->getOwnerClass());
-        $this->assertEquals('TEST_TIPJAR_B', $accountingB->getTipjar()->getName());
     }
 }

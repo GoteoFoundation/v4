@@ -69,7 +69,6 @@ class UsersPump extends AbstractPump implements PumpInterface
 
         foreach ($batch as $key => $record) {
             $user = new User();
-            $user->setAccounting(new Accounting());
             $user->setUsername($this->getUsername($record));
             $user->setPassword($record['password'] ?? '');
             $user->setEmail($record['email']);
@@ -79,11 +78,7 @@ class UsersPump extends AbstractPump implements PumpInterface
             $user->setMigrated(true);
             $user->setMigratedId($record['id']);
 
-            $accounting = new Accounting();
-            $accounting->setUser($user);
-
             $this->entityManager->persist($user);
-            $this->entityManager->persist($accounting);
         }
 
         $this->entityManager->flush();

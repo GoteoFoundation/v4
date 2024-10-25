@@ -28,41 +28,34 @@ class WalletGatewayServiceTest extends KernelTestCase
         $this->walletService = static::getContainer()->get(WalletGatewayService::class);
     }
 
-    private function getUserAccounting(): Accounting
+    private function getUser(): User
     {
         $user = new User();
         $user->setUsername('wallettestuser');
         $user->setEmail('testuser@wallet.com');
         $user->setPassword('wallettestpassword');
 
-        $accounting = new Accounting();
-        $accounting->setCurrency('EUR');
-        $accounting->setUser($user);
-
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        return $accounting;
+        return $user;
     }
 
-    private function getTipjarAccounting(): Accounting
+    private function getTipjar(): Tipjar
     {
         $tipjar = new Tipjar();
         $tipjar->setName('WALLET_TEST_TIPJAR');
 
-        $accounting = new Accounting();
-        $accounting->setTipjar($tipjar);
-
         $this->entityManager->persist($tipjar);
         $this->entityManager->flush();
 
-        return $accounting;
+        return $tipjar;
     }
 
     public function testTransactionsAddFunds()
     {
-        $tipjar = $this->getTipjarAccounting();
-        $user = $this->getUserAccounting();
+        $tipjar = $this->getTipjar()->getAccounting();
+        $user = $this->getUser()->getAccounting();
 
         $statements = $this->walletService->getStatements($user);
 
@@ -99,8 +92,8 @@ class WalletGatewayServiceTest extends KernelTestCase
 
     public function testTransactionsGetFinanced()
     {
-        $tipjar = $this->getTipjarAccounting();
-        $user = $this->getUserAccounting();
+        $tipjar = $this->getTipjar()->getAccounting();
+        $user = $this->getUser()->getAccounting();
 
         $incoming = new AccountingTransaction();
         $incoming->setMoney(new Money(100, 'EUR'));

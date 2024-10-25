@@ -132,11 +132,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
             $project->setDateCreated(new \DateTime($record['created']));
             $project->setDateUpdated(new \DateTime());
 
-            $accounting = $this->getAccounting($record);
-            $accounting->setProject($project);
-
             $this->entityManager->persist($project);
-            $this->entityManager->persist($accounting);
         }
 
         $this->entityManager->flush();

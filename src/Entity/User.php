@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
+use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\Trait\TimestampableCreationEntity;
 use App\Entity\Trait\TimestampableUpdationEntity;
@@ -38,7 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Index(fields: ['migratedId'])]
-class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
     use TimestampableCreationEntity;
     use TimestampableUpdationEntity;
@@ -95,8 +96,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     private ?bool $emailConfirmed = null;
 
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(cascade: ['persist'])]
     private ?Accounting $accounting = null;
 
     /**

@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
+use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Trait\TimestampableCreationEntity;
 use App\Entity\Trait\TimestampableUpdationEntity;
 use App\Repository\ProjectRepository;
@@ -23,7 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
     'owner' => 'exact',
 ])]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
-class Project
+class Project implements AccountingOwnerInterface
 {
     use TimestampableCreationEntity;
     use TimestampableUpdationEntity;
@@ -44,8 +45,7 @@ class Project
      * A Project's Accounting represents how much money the Project has raised from the community.
      */
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(inversedBy: 'project', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(cascade: ['persist'])]
     private ?Accounting $accounting = null;
 
     /**
