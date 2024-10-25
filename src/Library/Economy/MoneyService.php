@@ -64,11 +64,11 @@ class MoneyService
      *
      * @return bool `true` if `a` is more than `b`
      */
-    public function isGreaterThan(Money $a, Money $b): bool
+    public function isGreaterThanOrEqual(Money $a, Money $b): bool
     {
         $a = $this->convert($a, $b->currency);
 
-        return $a->isGreaterThan(self::toBrick($b));
+        return $a->isGreaterThanOrEqualTo(self::toBrick($b));
     }
 
     private function convert(Money $money, string $toCurrency): Brick\Money
