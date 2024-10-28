@@ -35,9 +35,6 @@ final class AccountingOwnerListener
             $accounting = new Accounting();
             $accounting->setOwner($entity);
 
-            $this->entityManager->persist($accounting);
-            $this->entityManager->flush();
-
             $entity->setAccounting($accounting);
 
             $this->entityManager->persist($entity);
