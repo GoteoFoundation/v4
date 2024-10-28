@@ -2,7 +2,7 @@
 
 namespace App\DependencyInjection\Compiler;
 
-use App\Service\ApiResourceNormalizer;
+use App\Service\ApiService;
 use App\Service\VersionedResourceService;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -28,7 +28,7 @@ class VersionedResourcePass implements CompilerPassInterface
 
             $versionedResourceNames = [
                 ...$versionedResourceNames,
-                ApiResourceNormalizer::toResource($entityClass),
+                ApiService::toResource($entityClass),
             ];
         }
 

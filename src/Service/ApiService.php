@@ -2,10 +2,7 @@
 
 namespace App\Service;
 
-/**
- * Normalizes between Entity classnames and API resource names.
- */
-class ApiResourceNormalizer
+class ApiService
 {
     /**
      * Converts an Entity class name into an API resource name.
