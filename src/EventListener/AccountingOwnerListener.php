@@ -39,6 +39,9 @@ final class AccountingOwnerListener
             $this->entityManager->flush();
 
             $entity->setAccounting($accounting);
+
+            $this->entityManager->persist($entity);
+            $this->entityManager->flush();
         }
     }
 }
