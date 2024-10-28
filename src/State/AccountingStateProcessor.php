@@ -15,11 +15,11 @@ class AccountingStateProcessor implements ProcessorInterface
     ) {}
 
     /**
-     * @param \App\ApiResource\AccountingApiResource $data
+     * @param AccountingApiResource $data
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        /** @var \App\Entity\Accounting */
+        /** @var Accounting */
         $accounting = $this->entityManager->find(Accounting::class, $data->getId());
         $accounting->setCurrency($data->getCurrency());
 

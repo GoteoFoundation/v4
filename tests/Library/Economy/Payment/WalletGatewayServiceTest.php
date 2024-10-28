@@ -2,7 +2,6 @@
 
 namespace App\Tests\Library\Economy\Payment;
 
-use App\Entity\Accounting;
 use App\Entity\AccountingTransaction;
 use App\Entity\Money;
 use App\Entity\Tipjar;

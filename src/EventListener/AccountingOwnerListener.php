@@ -22,7 +22,7 @@ final class AccountingOwnerListener
      * Generates a WalletStatement for User-received Transactions.
      */
     public function postPersist(
-        PostPersistEventArgs $event
+        PostPersistEventArgs $event,
     ) {
         $entity = $event->getObject();
 

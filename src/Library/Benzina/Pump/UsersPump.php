@@ -2,7 +2,6 @@
 
 namespace App\Library\Benzina\Pump;
 
-use App\Entity\Accounting;
 use App\Entity\User;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
 use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;

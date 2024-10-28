@@ -31,7 +31,7 @@ class AccountingApiResource
 {
     public function __construct(
         private readonly Accounting $accounting,
-        private readonly AccountingOwnerInterface $owner
+        private readonly AccountingOwnerInterface $owner,
     ) {}
 
     public function getId(): ?int
