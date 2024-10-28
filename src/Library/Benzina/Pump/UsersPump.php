@@ -68,6 +68,11 @@ class UsersPump extends AbstractPump implements PumpInterface
         $batch = $this->skipPumped($batch, 'id', User::class, 'migratedId');
 
         foreach ($batch as $key => $record) {
+            $created = new \DateTime($record['created']);
+            if ($created < new \DateTime('2000-01-01')) {
+                $created = new \DateTime($record['modified']);
+            }
+
             $user = new User();
             $user->setUsername($this->getUsername($record));
             $user->setPassword($record['password'] ?? '');
@@ -77,6 +82,8 @@ class UsersPump extends AbstractPump implements PumpInterface
             $user->setActive(false);
             $user->setMigrated(true);
             $user->setMigratedId($record['id']);
+            $user->setDateCreated($created);
+            $user->setDateUpdated(new \DateTime());
 
             $this->entityManager->persist($user);
         }
