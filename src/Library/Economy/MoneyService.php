@@ -60,9 +60,9 @@ class MoneyService
     }
 
     /**
-     * Compaers if one Money is of greater or equal value to other.
+     * Compares if one Money is of greater or equal value than other.
      *
-     * @return bool `true` if `$money` is more than `$than`
+     * @return bool `true` if `$money` is more than or same as `$than`
      */
     public function isMoreOrSame(Money $money, Money $than): bool
     {
