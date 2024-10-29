@@ -2,7 +2,6 @@
 
 namespace App\Library\Benzina\Pump;
 
-use App\Entity\Accounting;
 use App\Entity\GatewayCharge;
 use App\Entity\GatewayChargeType;
 use App\Entity\GatewayCheckout;
@@ -214,11 +213,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         $tipjar = new Tipjar();
         $tipjar->setName(self::PLATFORM_TIPJAR_NAME);
 
-        $accounting = new Accounting();
-        $accounting->setTipjar($tipjar);
-
         $this->entityManager->persist($tipjar);
-        $this->entityManager->persist($accounting);
         $this->entityManager->flush();
 
         return $tipjar;
