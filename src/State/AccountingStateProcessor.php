@@ -16,6 +16,8 @@ class AccountingStateProcessor implements ProcessorInterface
 
     /**
      * @param AccountingApiResource $data
+     *
+     * @return AccountingApiResource
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
