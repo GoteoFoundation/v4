@@ -72,7 +72,7 @@ class WalletGateway implements GatewayInterface
     private function getChargeTotal(GatewayCheckout $checkout): Money
     {
         $total = new Money(0, $checkout->getOrigin()->getCurrency());
-        
+
         $charges = $checkout->getCharges();
         foreach ($charges as $charge) {
             $total = $this->money->add($charge->getMoney(), $total);
