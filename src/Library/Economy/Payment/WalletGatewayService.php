@@ -79,7 +79,9 @@ class WalletGatewayService
     public function spend(AccountingTransaction $transaction): WalletStatement
     {
         $origin = $transaction->getOrigin();
-        $toSpend = $transaction->getMoney();
+
+        $spendGoal = $transaction->getMoney();
+        $spentTotal = new Money(0, $spendGoal->currency);
 
         $outgoing = new WalletStatement();
         $outgoing->setTransaction($transaction);
@@ -87,31 +89,36 @@ class WalletGatewayService
 
         $incomings = $this->getStatements($origin);
         foreach ($incomings as $incoming) {
-            $spent = new Money(0, $toSpend->currency);
+            if ($spendGoal->amount === 0) {
+                break;
+            }
+
             $balance = $incoming->getBalance();
 
             if ($balance->amount === 0) {
                 continue;
             }
 
-            if ($this->money->isMoreOrSame($balance, $spent)) {
-                $spent = $toSpend;
+            if ($this->money->isLess($spendGoal, $balance)) {
+                $balanceSpent = $spendGoal;
             } else {
-                $spent = $this->money->add($balance, $spent);
+                $balanceSpent = $balance;
             }
 
-            $balance = $this->money->substract($spent, $balance);
+            $spendGoal = $this->money->substract($balanceSpent, $spendGoal);
+            $spentTotal = $this->money->add($balanceSpent, $spentTotal);
 
+            $balance = $this->money->substract($balanceSpent, $balance);
             $incoming->setBalance($balance);
 
-            $outgoing->setBalance($spent);
+            $outgoing->setBalance($spentTotal);
             $outgoing->addFinancedBy($incoming);
 
             $this->entityManager->persist($incoming);
             $this->entityManager->persist($outgoing);
             $this->entityManager->flush();
-
-            return $outgoing;
         }
+
+        return $outgoing;
     }
 }
