@@ -70,23 +70,30 @@ class WalletGatewayServiceTest extends KernelTestCase
         $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
 
-        $this->entityManager->persist($incoming);
-        $this->entityManager->flush();
-
-        /**
+        /*
          * $this->walletService->save($incoming);
          * called automatically on Transaction persist.
          *
          * @see \App\EventListener\WalletTransactionsListener
          */
-        $statements = $this->walletService->getStatements($user);
-
-        $this->assertCount(1, $statements);
+        $this->entityManager->persist($incoming);
+        $this->entityManager->flush();
 
         $balance = $this->walletService->getBalance($user);
 
         $this->assertEquals(100, $balance->amount);
         $this->assertEquals('EUR', $balance->currency);
+
+        $statements = $this->walletService->getStatements($user);
+
+        $this->assertCount(1, $statements);
+
+        $statement = $statements[0];
+        $this->assertEquals(100, $statement->getBalance()->amount);
+        $this->assertEquals(WalletStatementDirection::Incoming->value, $statement->getDirection()->value);
+        $this->assertEquals('EUR', $balance->currency);
+        $this->assertCount(0, $statement->getFinancesTo());
+        $this->assertCount(0, $statement->getFinancedBy());
     }
 
     public function testTransactionsGetFinanced()
@@ -109,26 +116,28 @@ class WalletGatewayServiceTest extends KernelTestCase
 
         $this->walletService->spend($outgoing);
 
-        $statements = $this->walletService->getStatements($user);
-
-        $this->assertCount(2, $statements);
-
         $balance = $this->walletService->getBalance($user);
 
         $this->assertEquals(80, $balance->amount);
         $this->assertEquals('EUR', $balance->currency);
 
-        $this->assertEquals(80, $statements[0]->getBalance()->amount);
-        $this->assertEquals(WalletStatementDirection::Incoming->value, $statements[0]->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
-        $this->assertCount(1, $statements[0]->getFinancesTo());
-        $this->assertCount(0, $statements[0]->getFinancedBy());
+        $statements = $this->walletService->getStatements($user);
 
-        $this->assertEquals(20, $statements[1]->getBalance()->amount);
-        $this->assertEquals(WalletStatementDirection::Outgoing->value, $statements[1]->getDirection()->value);
+        $this->assertCount(2, $statements);
+
+        $statement = $statements[0];
+        $this->assertEquals(80, $statement->getBalance()->amount);
+        $this->assertEquals(WalletStatementDirection::Incoming->value, $statement->getDirection()->value);
         $this->assertEquals('EUR', $balance->currency);
-        $this->assertCount(0, $statements[1]->getFinancesTo());
-        $this->assertCount(1, $statements[1]->getFinancedBy());
+        $this->assertCount(1, $statement->getFinancesTo());
+        $this->assertCount(0, $statement->getFinancedBy());
+
+        $statement = $statements[1];
+        $this->assertEquals(20, $statement->getBalance()->amount);
+        $this->assertEquals(WalletStatementDirection::Outgoing->value, $statement->getDirection()->value);
+        $this->assertEquals('EUR', $balance->currency);
+        $this->assertCount(0, $statement->getFinancesTo());
+        $this->assertCount(1, $statement->getFinancedBy());
 
         $outgoing = new AccountingTransaction();
         $outgoing->setMoney(new Money(30, 'EUR'));
@@ -137,32 +146,35 @@ class WalletGatewayServiceTest extends KernelTestCase
 
         $this->walletService->spend($outgoing);
 
-        $statements = $this->walletService->getStatements($user);
-
-        $this->assertCount(3, $statements);
-
         $balance = $this->walletService->getBalance($user);
 
         $this->assertEquals(50, $balance->amount);
         $this->assertEquals('EUR', $balance->currency);
 
-        $this->assertEquals(50, $statements[0]->getBalance()->amount);
-        $this->assertEquals(WalletStatementDirection::Incoming->value, $statements[0]->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
-        $this->assertCount(2, $statements[0]->getFinancesTo());
-        $this->assertCount(0, $statements[0]->getFinancedBy());
+        $statements = $this->walletService->getStatements($user);
 
-        $this->assertEquals(20, $statements[1]->getBalance()->amount);
-        $this->assertEquals(WalletStatementDirection::Outgoing->value, $statements[1]->getDirection()->value);
-        $this->assertEquals('EUR', $balance->currency);
-        $this->assertCount(0, $statements[1]->getFinancesTo());
-        $this->assertCount(1, $statements[1]->getFinancedBy());
+        $this->assertCount(3, $statements);
 
-        $this->assertEquals(30, $statements[2]->getBalance()->amount);
-        $this->assertEquals(WalletStatementDirection::Outgoing->value, $statements[2]->getDirection()->value);
+        $statement = $statements[0];
+        $this->assertEquals(50, $statement->getBalance()->amount);
+        $this->assertEquals(WalletStatementDirection::Incoming->value, $statement->getDirection()->value);
         $this->assertEquals('EUR', $balance->currency);
-        $this->assertCount(0, $statements[2]->getFinancesTo());
-        $this->assertCount(1, $statements[2]->getFinancedBy());
+        $this->assertCount(2, $statement->getFinancesTo());
+        $this->assertCount(0, $statement->getFinancedBy());
+
+        $statement = $statements[1];
+        $this->assertEquals(20, $statement->getBalance()->amount);
+        $this->assertEquals(WalletStatementDirection::Outgoing->value, $statement->getDirection()->value);
+        $this->assertEquals('EUR', $balance->currency);
+        $this->assertCount(0, $statement->getFinancesTo());
+        $this->assertCount(1, $statement->getFinancedBy());
+
+        $statement = $statements[2];
+        $this->assertEquals(30, $statement->getBalance()->amount);
+        $this->assertEquals(WalletStatementDirection::Outgoing->value, $statement->getDirection()->value);
+        $this->assertEquals('EUR', $balance->currency);
+        $this->assertCount(0, $statement->getFinancesTo());
+        $this->assertCount(1, $statement->getFinancedBy());
     }
 
     public function testBalanceIsFIFO()
