@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Library\Economy\Payment;
+namespace App\Gateway;
 
 use App\DependencyInjection\Compiler\GatewaysCompilerPass;
-use App\Entity\GatewayCheckout;
+use App\Entity\Gateway\Checkout;
 
 class GatewayLocator
 {
@@ -77,7 +77,7 @@ class GatewayLocator
     /**
      * @throws \Exception When the $checkout::gateway does not match to that of an implemented Gateway
      */
-    public function getGatewayOf(GatewayCheckout $checkout): GatewayInterface
+    public function getGatewayOf(Checkout $checkout): GatewayInterface
     {
         $gateway = $checkout->getGateway();
         if (!$gateway) {

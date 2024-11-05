@@ -1,12 +1,12 @@
 <?php
 
-namespace App\State;
+namespace App\State\Gateway;
 
 use ApiPlatform\Metadata as API;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\ApiResource\GatewayApiResource;
-use App\Library\Economy\Payment\GatewayLocator;
+use App\ApiResource\Gateway\Gateway;
+use App\Gateway\GatewayLocator;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class GatewayStateProvider implements ProviderInterface
@@ -19,18 +19,18 @@ class GatewayStateProvider implements ProviderInterface
     {
         $gateways = [];
         foreach ($this->gateways->getGateways() as $gateway) {
-            $gateways[] = new GatewayApiResource($gateway);
+            $gateways[] = new Gateway($gateway);
         }
 
         return $gateways;
     }
 
-    private function getGateway(string $name): GatewayApiResource
+    private function getGateway(string $name): Gateway
     {
         try {
             $gateway = $this->gateways->getGateway($name);
 
-            return new GatewayApiResource($gateway);
+            return new Gateway($gateway);
         } catch (\Exception $e) {
             throw new NotFoundHttpException('Not Found');
         }

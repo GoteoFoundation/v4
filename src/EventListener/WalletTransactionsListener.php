@@ -4,7 +4,7 @@ namespace App\EventListener;
 
 use App\Entity\Accounting\Transaction;
 use App\Entity\User;
-use App\Library\Economy\Payment\WalletGatewayService;
+use App\Gateway\Wallet\WalletService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PostPersistEventArgs;
@@ -19,7 +19,7 @@ final class WalletTransactionsListener
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private WalletGatewayService $wallet,
+        private WalletService $wallet,
     ) {}
 
     /**

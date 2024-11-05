@@ -2,7 +2,7 @@
 
 namespace App\Validator;
 
-use App\Library\Economy\Payment\GatewayLocator;
+use App\Gateway\GatewayLocator;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;

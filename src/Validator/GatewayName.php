@@ -2,7 +2,7 @@
 
 namespace App\Validator;
 
-use App\Library\Economy\Payment\GatewayLocator;
+use App\Gateway\GatewayLocator;
 use Symfony\Component\Validator\Constraints\Choice;
 
 /**

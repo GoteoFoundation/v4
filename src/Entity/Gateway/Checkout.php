@@ -7,8 +7,11 @@ use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Trait\TimestampableCreationEntity;
 use App\Entity\Trait\TimestampableUpdationEntity;
+use App\Gateway\CheckoutStatus;
+use App\Gateway\Link;
+use App\Gateway\Tracking;
 use App\Repository\Gateway\CheckoutRepository;
-use App\State\GatewayCheckoutProcessor;
+use App\State\Gateway\CheckoutStateProcessor;
 use App\Validator\GatewayName;
 use App\Validator\SupportedChargeTypes;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -25,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[Gedmo\Loggable()]
 #[API\GetCollection()]
-#[API\Post(processor: GatewayCheckoutProcessor::class)]
+#[API\Post(processor: CheckoutStateProcessor::class)]
 #[API\Get()]
 #[API\ApiFilter(filterClass: SearchFilter::class, properties: ['origin' => 'exact', 'charges.target' => 'exact'])]
 #[ORM\Entity(repositoryClass: CheckoutRepository::class)]

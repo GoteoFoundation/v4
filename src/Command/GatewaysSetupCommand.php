@@ -3,7 +3,7 @@
 namespace App\Command;
 
 use App\DependencyInjection\Compiler\GatewaysCompilerPass;
-use App\Library\Economy\Payment\GatewayLocator;
+use App\Gateway\GatewayLocator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

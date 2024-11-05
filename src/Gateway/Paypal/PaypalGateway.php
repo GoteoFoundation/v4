@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Library\Economy\Payment;
+namespace App\Gateway\Paypal;
 
 use ApiPlatform\Api\IriConverterInterface;
 use App\Entity\Gateway\Charge;
-use App\Entity\Gateway\ChargeType;
 use App\Entity\Gateway\Checkout;
-use App\Entity\Gateway\CheckoutStatus;
-use App\Entity\Gateway\Link;
-use App\Entity\Gateway\LinkType;
-use App\Entity\Gateway\Tracking;
+use App\Gateway\ChargeType;
+use App\Gateway\CheckoutStatus;
+use App\Gateway\GatewayInterface;
+use App\Gateway\Link;
+use App\Gateway\LinkType;
+use App\Gateway\Tracking;
 use App\Repository\Gateway\CheckoutRepository;
 use App\Service\Gateway\CheckoutService;
 use Brick\Money\Money as BrickMoney;
@@ -18,7 +19,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @see https://developer.paypal.com/studio/checkout/standard/integrate
@@ -44,8 +44,7 @@ class PaypalGateway implements GatewayInterface
     public const TRACKING_TITLE_TRANSACTION = 'PayPal Transaction ID';
 
     public function __construct(
-        private PaypalGatewayService $paypal,
-        private RouterInterface $router,
+        private PaypalService $paypal,
         private EntityManagerInterface $entityManager,
         private IriConverterInterface $iriConverter,
         private CheckoutService $checkoutService,

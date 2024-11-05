@@ -3,8 +3,8 @@
 namespace App\ApiResource\Gateway;
 
 use ApiPlatform\Metadata as API;
-use App\Library\Economy\Payment\GatewayInterface;
-use App\State\GatewayStateProvider;
+use App\Gateway\GatewayInterface;
+use App\State\Gateway\GatewayStateProvider;
 
 /**
  * Gateways represent payment services used to perform the necessary payments for Transactions between Accounts.\
@@ -29,7 +29,7 @@ class Gateway
     /**
      * The GatewayCharge types that can be processed by this Gateway.
      *
-     * @return \App\Entity\Gateway\ChargeType[]
+     * @return \App\Gateway\ChargeType[]
      */
     public function getSupported(): array
     {

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Library\Economy\Payment;
+namespace App\Gateway\Wallet;
 
 use App\Entity\Accounting\Transaction;
-use App\Entity\Gateway\ChargeType;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Money;
 use App\Entity\WalletStatement;
-use App\Entity\WalletStatementDirection;
+use App\Gateway\ChargeType;
+use App\Gateway\GatewayInterface;
 use App\Library\Economy\MoneyService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +28,7 @@ class WalletGateway implements GatewayInterface
     }
 
     public function __construct(
-        private WalletGatewayService $wallet,
+        private WalletService $wallet,
         private MoneyService $money,
     ) {}
 
@@ -51,7 +51,7 @@ class WalletGateway implements GatewayInterface
 
             $outgoing = new WalletStatement();
             $outgoing->setTransaction($transaction);
-            $outgoing->setDirection(WalletStatementDirection::Outgoing);
+            $outgoing->setDirection(StatementDirection::Outgoing);
 
             $outgoing = $this->wallet->spend($transaction);
         }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Library\Economy\Payment;
+namespace App\Gateway\Paypal;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpClient\HttpOptions;
@@ -10,7 +10,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class PaypalGatewayService
+class PaypalService
 {
     private CacheInterface $cache;
 

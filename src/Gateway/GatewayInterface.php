@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Library\Economy\Payment;
+namespace App\Gateway;
 
 use App\Entity\Gateway\Checkout;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -29,7 +29,7 @@ interface GatewayInterface
     public static function getName(): string;
 
     /**
-     * @return \App\Entity\Gateway\ChargeType[] The charge types that can be processed by this Gateway
+     * @return \App\Gateway\ChargeType[] The charge types that can be processed by this Gateway
      */
     public static function getSupportedChargeTypes(): array;
 

@@ -1,18 +1,17 @@
 <?php
 
-namespace App\Library\Economy\Payment;
+namespace App\Gateway\Wallet;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Entity\WalletStatement;
-use App\Entity\WalletStatementDirection;
 use App\Library\Economy\MoneyService;
 use App\Repository\WalletStatementRepository;
 use Brick\Money as Brick;
 use Doctrine\ORM\EntityManagerInterface;
 
-class WalletGatewayService
+class WalletService
 {
     public function __construct(
         private MoneyService $money,
@@ -37,10 +36,10 @@ class WalletGatewayService
             $transacted = $this->money->toBrick($statement->getTransaction()->getMoney());
 
             switch ($statement->getDirection()) {
-                case WalletStatementDirection::Incoming:
+                case StatementDirection::Incoming:
                     $total = $total->plus($transacted);
                     break;
-                case WalletStatementDirection::Outgoing:
+                case StatementDirection::Outgoing:
                     $total = $total->minus($transacted);
                     break;
             }
@@ -60,7 +59,7 @@ class WalletGatewayService
     {
         $statement = new WalletStatement();
         $statement->setTransaction($transaction);
-        $statement->setDirection(WalletStatementDirection::Incoming);
+        $statement->setDirection(StatementDirection::Incoming);
         $statement->setBalance($transaction->getMoney());
 
         $this->entityManager->persist($statement);
@@ -85,7 +84,7 @@ class WalletGatewayService
 
         $outgoing = new WalletStatement();
         $outgoing->setTransaction($transaction);
-        $outgoing->setDirection(WalletStatementDirection::Outgoing);
+        $outgoing->setDirection(StatementDirection::Outgoing);
 
         $incomings = $this->getStatements($origin);
         foreach ($incomings as $incoming) {

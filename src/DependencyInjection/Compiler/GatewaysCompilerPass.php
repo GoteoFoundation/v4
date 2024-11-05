@@ -2,7 +2,7 @@
 
 namespace App\DependencyInjection\Compiler;
 
-use App\Library\Economy\Payment\GatewayInterface;
+use App\Gateway\GatewayInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -72,14 +72,27 @@ class GatewaysCompilerPass implements CompilerPassInterface
         return $names;
     }
 
-    private static function getGatewayClasses(string $classesDir): array
+    private static function getGatewayClasses(string $classesDir, string $namespace): array
     {
-        $namespace = self::getGatewaysNamespace();
         $economyDirPaths = \scandir($classesDir);
 
         $classes = [];
         foreach ($economyDirPaths as $path) {
             if ($path === '.' || $path === '..') {
+                continue;
+            }
+
+            $fullpath = sprintf('%s%s%s', $classesDir, \DIRECTORY_SEPARATOR, $path);
+
+            if (\is_dir($fullpath)) {
+                $classes = [
+                    ...$classes,
+                    ...self::getGatewayClasses(
+                        $fullpath,
+                        sprintf('%s\%s', $namespace, $path)
+                    ),
+                ];
+
                 continue;
             }
 
@@ -141,13 +154,15 @@ class GatewaysCompilerPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container): void
     {
+        $namespace = self::getGatewaysNamespace();
+
         $classesDir = join(DIRECTORY_SEPARATOR, [
             $container->getParameter('kernel.project_dir'),
             'src',
-            ...\array_slice(explode('\\', self::getGatewaysNamespace()), 1),
+            ...\array_slice(explode('\\', $namespace), 1),
         ]);
 
-        $gatewayClasses = self::getGatewayClasses($classesDir);
+        $gatewayClasses = self::getGatewayClasses($classesDir, $namespace);
         self::validateGatewayNames($gatewayClasses);
 
         $gatewayNames = $this->getGatewayNames($gatewayClasses);

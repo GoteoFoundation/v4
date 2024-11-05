@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Entity\Accounting\Transaction;
+use App\Gateway\Wallet\StatementDirection;
 use App\Repository\WalletStatementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -22,8 +23,8 @@ class WalletStatement
     #[ORM\JoinColumn(nullable: false)]
     private ?Transaction $transaction = null;
 
-    #[ORM\Column(enumType: WalletStatementDirection::class)]
-    private ?WalletStatementDirection $direction = null;
+    #[ORM\Column(enumType: StatementDirection::class)]
+    private ?StatementDirection $direction = null;
 
     #[ORM\Embedded(class: Money::class)]
     private ?Money $balance = null;
@@ -68,12 +69,12 @@ class WalletStatement
         return $this;
     }
 
-    public function getDirection(): ?WalletStatementDirection
+    public function getDirection(): ?StatementDirection
     {
         return $this->direction;
     }
 
-    public function setDirection(WalletStatementDirection $direction): static
+    public function setDirection(StatementDirection $direction): static
     {
         $this->direction = $direction;
 

@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Library\Economy\Payment\GatewayLocator;
+use App\Gateway\GatewayLocator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

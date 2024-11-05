@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\Gateway;
+namespace App\Gateway;
 
 use Symfony\Component\Validator\Constraints as Assert;
 

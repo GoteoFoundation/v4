@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Library\Economy\Payment;
+namespace App\Gateway\Stripe;
 
 use ApiPlatform\Api\IriConverterInterface;
-use App\Entity\Gateway\ChargeType;
 use App\Entity\Gateway\Checkout;
-use App\Entity\Gateway\CheckoutStatus;
-use App\Entity\Gateway\Link;
-use App\Entity\Gateway\LinkType;
-use App\Entity\Gateway\Tracking;
 use App\Entity\User;
+use App\Gateway\ChargeType;
+use App\Gateway\CheckoutStatus;
+use App\Gateway\GatewayInterface;
+use App\Gateway\Link;
+use App\Gateway\LinkType;
+use App\Gateway\Tracking;
 use App\Repository\Gateway\CheckoutRepository;
 use App\Repository\UserRepository;
 use App\Service\Gateway\CheckoutService;

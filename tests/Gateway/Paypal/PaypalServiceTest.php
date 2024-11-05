@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Tests\Library\Economy\Payment;
+namespace App\Tests\Gateway\Paypal;
 
-use App\Library\Economy\Payment\PaypalGatewayService;
+use App\Gateway\Paypal\PaypalService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
-class PaypalGatewayServiceTest extends KernelTestCase
+class PaypalServiceTest extends KernelTestCase
 {
-    private PaypalGatewayService $paypalService;
+    private PaypalService $paypalService;
 
     public function setUp(): void
     {
         self::bootKernel();
 
-        $this->paypalService = static::getContainer()->get(PaypalGatewayService::class);
+        $this->paypalService = static::getContainer()->get(PaypalService::class);
     }
 
     public function testAuthenticates(): void

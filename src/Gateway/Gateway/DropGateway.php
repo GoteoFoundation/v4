@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Library\Economy\Payment;
+namespace App\Gateway\Gateway;
+
+use App\Gateway\GatewayInterface;
 
 abstract class DropGateway implements GatewayInterface
 {

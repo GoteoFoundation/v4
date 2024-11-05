@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Gateway\Wallet;
 
-enum WalletStatementDirection: string
+enum StatementDirection: string
 {
     /**
      * The Transaction was received by the Accounting.

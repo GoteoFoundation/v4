@@ -1,14 +1,14 @@
 <?php
 
-namespace App\State;
+namespace App\State\Gateway;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\GatewayCheckout;
-use App\Library\Economy\Payment\GatewayLocator;
+use App\Gateway\GatewayLocator;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class GatewayCheckoutProcessor implements ProcessorInterface
+class CheckoutStateProcessor implements ProcessorInterface
 {
     public function __construct(
         #[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]

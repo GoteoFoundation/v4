@@ -6,6 +6,7 @@ use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
+use App\Gateway\ChargeType;
 use App\Repository\Gateway\ChargeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
