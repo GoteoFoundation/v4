@@ -1,28 +1,28 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\Accounting;
 
-use App\Entity\AccountingTransaction;
+use App\Entity\Accounting\Transaction;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<AccountingTransaction>
+ * @extends ServiceEntityRepository<Transaction>
  *
- * @method AccountingTransaction|null find($id, $lockMode = null, $lockVersion = null)
- * @method AccountingTransaction|null findOneBy(array $criteria, array $orderBy = null)
- * @method AccountingTransaction[]    findAll()
- * @method AccountingTransaction[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Transaction|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Transaction|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Transaction[]    findAll()
+ * @method Transaction[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class AccountingTransactionRepository extends ServiceEntityRepository
+class TransactionRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, AccountingTransaction::class);
+        parent::__construct($registry, Transaction::class);
     }
 
     //    /**
-    //     * @return AccountingTransaction[] Returns an array of AccountingTransaction objects
+    //     * @return Transaction[] Returns an array of Transaction objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -36,7 +36,7 @@ class AccountingTransactionRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?AccountingTransaction
+    //    public function findOneBySomeField($value): ?Transaction
     //    {
     //        return $this->createQueryBuilder('t')
     //            ->andWhere('t.exampleField = :val')

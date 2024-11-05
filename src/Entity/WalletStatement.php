@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use App\Entity\Accounting\Transaction;
 use App\Repository\WalletStatementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -19,7 +20,7 @@ class WalletStatement
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?AccountingTransaction $transaction = null;
+    private ?Transaction $transaction = null;
 
     #[ORM\Column(enumType: WalletStatementDirection::class)]
     private ?WalletStatementDirection $direction = null;
@@ -55,12 +56,12 @@ class WalletStatement
         return $this->id;
     }
 
-    public function getTransaction(): ?AccountingTransaction
+    public function getTransaction(): ?Transaction
     {
         return $this->transaction;
     }
 
-    public function setTransaction(AccountingTransaction $transaction): static
+    public function setTransaction(Transaction $transaction): static
     {
         $this->transaction = $transaction;
 

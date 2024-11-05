@@ -2,9 +2,9 @@
 
 namespace App\Library\Economy\Payment;
 
-use App\Entity\AccountingTransaction;
-use App\Entity\GatewayChargeType;
-use App\Entity\GatewayCheckout;
+use App\Entity\Accounting\Transaction;
+use App\Entity\Gateway\ChargeType;
+use App\Entity\Gateway\Checkout;
 use App\Entity\Money;
 use App\Entity\WalletStatement;
 use App\Entity\WalletStatementDirection;
@@ -23,7 +23,7 @@ class WalletGateway implements GatewayInterface
     public static function getSupportedChargeTypes(): array
     {
         return [
-            GatewayChargeType::Single,
+            ChargeType::Single,
         ];
     }
 
@@ -32,7 +32,7 @@ class WalletGateway implements GatewayInterface
         private MoneyService $money,
     ) {}
 
-    public function process(GatewayCheckout $checkout): GatewayCheckout
+    public function process(Checkout $checkout): Checkout
     {
         $origin = $checkout->getOrigin();
         $available = $this->wallet->getBalance($origin);
@@ -44,7 +44,7 @@ class WalletGateway implements GatewayInterface
 
         $charges = $checkout->getCharges();
         foreach ($charges as $charge) {
-            $transaction = new AccountingTransaction();
+            $transaction = new Transaction();
             $transaction->setMoney($charge->getMoney());
             $transaction->setOrigin($origin);
             $transaction->setTarget($charge->getTarget());
@@ -69,7 +69,7 @@ class WalletGateway implements GatewayInterface
         return new Response();
     }
 
-    private function getChargeTotal(GatewayCheckout $checkout): Money
+    private function getChargeTotal(Checkout $checkout): Money
     {
         $total = new Money(0, $checkout->getOrigin()->getCurrency());
 

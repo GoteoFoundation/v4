@@ -2,7 +2,7 @@
 
 namespace App\EventListener;
 
-use App\Entity\Accounting;
+use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\EntityManagerInterface;

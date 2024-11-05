@@ -2,7 +2,7 @@
 
 namespace App\Tests\Library\Economy\Payment;
 
-use App\Entity\AccountingTransaction;
+use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Entity\Tipjar;
 use App\Entity\User;
@@ -65,7 +65,7 @@ class WalletGatewayServiceTest extends KernelTestCase
         $this->assertEquals(0, $balance->amount);
         $this->assertEquals($user->getCurrency(), $balance->currency);
 
-        $incoming = new AccountingTransaction();
+        $incoming = new Transaction();
         $incoming->setMoney(new Money(100, 'EUR'));
         $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
@@ -101,7 +101,7 @@ class WalletGatewayServiceTest extends KernelTestCase
         $tipjar = $this->getTipjar()->getAccounting();
         $user = $this->getUser()->getAccounting();
 
-        $incoming = new AccountingTransaction();
+        $incoming = new Transaction();
         $incoming->setMoney(new Money(100, 'EUR'));
         $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
@@ -109,7 +109,7 @@ class WalletGatewayServiceTest extends KernelTestCase
         $this->entityManager->persist($incoming);
         $this->entityManager->flush();
 
-        $outgoing = new AccountingTransaction();
+        $outgoing = new Transaction();
         $outgoing->setMoney(new Money(20, 'EUR'));
         $outgoing->setOrigin($user);
         $outgoing->setTarget($tipjar);
@@ -139,7 +139,7 @@ class WalletGatewayServiceTest extends KernelTestCase
         $this->assertCount(0, $statement->getFinancesTo());
         $this->assertCount(1, $statement->getFinancedBy());
 
-        $outgoing = new AccountingTransaction();
+        $outgoing = new Transaction();
         $outgoing->setMoney(new Money(30, 'EUR'));
         $outgoing->setOrigin($user);
         $outgoing->setTarget($tipjar);
@@ -182,7 +182,7 @@ class WalletGatewayServiceTest extends KernelTestCase
         $tipjar = $this->getTipjar()->getAccounting();
         $user = $this->getUser()->getAccounting();
 
-        $incoming = new AccountingTransaction();
+        $incoming = new Transaction();
         $incoming->setMoney(new Money(10, 'EUR'));
         $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
@@ -190,7 +190,7 @@ class WalletGatewayServiceTest extends KernelTestCase
         $this->entityManager->persist($incoming);
         $this->entityManager->flush();
 
-        $incoming = new AccountingTransaction();
+        $incoming = new Transaction();
         $incoming->setMoney(new Money(10, 'EUR'));
         $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
@@ -198,14 +198,14 @@ class WalletGatewayServiceTest extends KernelTestCase
         $this->entityManager->persist($incoming);
         $this->entityManager->flush();
 
-        $outgoing = new AccountingTransaction();
+        $outgoing = new Transaction();
         $outgoing->setMoney(new Money(15, 'EUR'));
         $outgoing->setOrigin($user);
         $outgoing->setTarget($tipjar);
 
         $this->walletService->spend($outgoing);
 
-        $incoming = new AccountingTransaction();
+        $incoming = new Transaction();
         $incoming->setMoney(new Money(5, 'EUR'));
         $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Gateway;
 
-class GatewayLink
+class Link
 {
     /**
      * The complete target URL.
@@ -26,5 +26,5 @@ class GatewayLink
      * `debug` links are for developers and platform maintainers to get useful information about the checkout.\
      * `payment` links are for end-users who must visit this link to complete the checkout.
      */
-    public GatewayLinkType $type;
+    public LinkType $type;
 }

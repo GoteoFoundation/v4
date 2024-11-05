@@ -2,11 +2,11 @@
 
 namespace App\Library\Benzina\Pump;
 
-use App\Entity\GatewayCharge;
-use App\Entity\GatewayChargeType;
-use App\Entity\GatewayCheckout;
-use App\Entity\GatewayCheckoutStatus;
-use App\Entity\GatewayTracking;
+use App\Entity\Gateway\Charge;
+use App\Entity\Gateway\ChargeType;
+use App\Entity\Gateway\Checkout;
+use App\Entity\Gateway\CheckoutStatus;
+use App\Entity\Gateway\Tracking;
 use App\Entity\Money;
 use App\Entity\Tipjar;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
@@ -20,7 +20,7 @@ use App\Library\Economy\Payment\WalletGateway;
 use App\Repository\ProjectRepository;
 use App\Repository\TipjarRepository;
 use App\Repository\UserRepository;
-use App\Service\GatewayCheckoutService;
+use App\Service\Gateway\CheckoutService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CheckoutsPump extends AbstractPump implements PumpInterface
@@ -78,7 +78,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         private ProjectRepository $projectRepository,
         private TipjarRepository $tipjarRepository,
         private EntityManagerInterface $entityManager,
-        private GatewayCheckoutService $checkoutService,
+        private CheckoutService $checkoutService,
     ) {}
 
     public function supports(mixed $batch): bool
@@ -92,7 +92,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
 
     public function pump(mixed $batch): void
     {
-        $batch = $this->skipPumped($batch, 'id', GatewayCheckout::class, 'migratedId');
+        $batch = $this->skipPumped($batch, 'id', Checkout::class, 'migratedId');
 
         $tipjar = $this->getPlatformTipjar();
 
@@ -114,7 +114,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
 
             $user = $users[$record['user']];
 
-            $checkout = new GatewayCheckout();
+            $checkout = new Checkout();
             $checkout->setOrigin($user->getAccounting());
             $checkout->setStatus($this->getCheckoutStatus($record));
             $checkout->setGateway($this->getCheckoutGateway($record));
@@ -129,7 +129,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             $checkout->setDateCreated(new \DateTime($record['invested']));
             $checkout->setDateUpdated(new \DateTime());
 
-            $charge = new GatewayCharge();
+            $charge = new Charge();
             $charge->setType($this->getChargeType($record));
             $charge->setMoney($this->getChargeMoney($record['amount'], $record['currency']));
 
@@ -148,8 +148,8 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             $checkout->addCharge($charge);
 
             if ($record['donate_amount'] > 0) {
-                $tip = new GatewayCharge();
-                $tip->setType(GatewayChargeType::Single);
+                $tip = new Charge();
+                $tip->setType(ChargeType::Single);
                 $tip->setTitle(self::CHARGE_TITLE_TIP);
                 $tip->setMoney($this->getChargeMoney($record['donate_amount'], $record['currency']));
                 $tip->setTarget($tipjar->getAccounting());
@@ -157,7 +157,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
                 $checkout->addCharge($tip);
             }
 
-            if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
+            if ($checkout->getStatus() === CheckoutStatus::Charged) {
                 $checkout = $this->checkoutService->chargeCheckout($checkout);
             }
 
@@ -219,13 +219,13 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         return $tipjar;
     }
 
-    private function getChargeType(array $record): GatewayChargeType
+    private function getChargeType(array $record): ChargeType
     {
         if (\in_array($record['method'], ['stripe_subscription'])) {
-            return GatewayChargeType::Recurring;
+            return ChargeType::Recurring;
         }
 
-        return GatewayChargeType::Single;
+        return ChargeType::Single;
     }
 
     private function getChargeMoney(int $amount, string $currency): Money
@@ -239,13 +239,13 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         return new Money($amount, $currency);
     }
 
-    private function getCheckoutStatus(array $record): GatewayCheckoutStatus
+    private function getCheckoutStatus(array $record): CheckoutStatus
     {
         if ($record['status'] < 1) {
-            return GatewayCheckoutStatus::Pending;
+            return CheckoutStatus::Pending;
         }
 
-        return GatewayCheckoutStatus::Charged;
+        return CheckoutStatus::Charged;
     }
 
     private function getCheckoutGateway(array $record): string
@@ -269,18 +269,18 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
     }
 
     /**
-     * @return GatewayTracking[]
+     * @return Tracking[]
      */
     private function getCheckoutTrackings(array $record): array
     {
-        $v3Tracking = new GatewayTracking();
+        $v3Tracking = new Tracking();
         $v3Tracking->title = self::TRACKING_TITLE_V3;
         $v3Tracking->value = $record['id'];
 
         $trackings = [$v3Tracking];
 
         if (!empty($record['payment'])) {
-            $payment = new GatewayTracking();
+            $payment = new Tracking();
             $payment->title = self::TRACKING_TITLE_PAYMENT;
             $payment->value = $record['payment'];
 
@@ -288,7 +288,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         }
 
         if (!empty($record['transaction'])) {
-            $transaction = new GatewayTracking();
+            $transaction = new Tracking();
             $transaction->title = self::TRACKING_TITLE_TRANSACTION;
             $transaction->value = $record['transaction'];
 
@@ -296,7 +296,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         }
 
         if (!empty($record['preapproval'])) {
-            $preapproval = new GatewayTracking();
+            $preapproval = new Tracking();
             $preapproval->title = self::TRACKING_TITLE_PREAPPROVAL;
             $preapproval->value = $record['preapproval'];
 

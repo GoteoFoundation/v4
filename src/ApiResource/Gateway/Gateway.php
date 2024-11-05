@@ -1,6 +1,6 @@
 <?php
 
-namespace App\ApiResource;
+namespace App\ApiResource\Gateway;
 
 use ApiPlatform\Metadata as API;
 use App\Library\Economy\Payment\GatewayInterface;
@@ -16,7 +16,7 @@ use App\State\GatewayStateProvider;
 #[API\ApiResource(shortName: 'Gateway')]
 #[API\GetCollection(provider: GatewayStateProvider::class)]
 #[API\Get(provider: GatewayStateProvider::class)]
-class GatewayApiResource
+class Gateway
 {
     public function __construct(private readonly GatewayInterface $gateway) {}
 
@@ -29,7 +29,7 @@ class GatewayApiResource
     /**
      * The GatewayCharge types that can be processed by this Gateway.
      *
-     * @return \App\Entity\GatewayChargeType[]
+     * @return \App\Entity\Gateway\ChargeType[]
      */
     public function getSupported(): array
     {

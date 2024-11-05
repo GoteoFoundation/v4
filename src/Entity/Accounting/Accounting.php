@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Accounting;
 
 use App\Entity\Interface\AccountingOwnerInterface;
-use App\Repository\AccountingRepository;
+use App\Repository\Accounting\AccountingRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 

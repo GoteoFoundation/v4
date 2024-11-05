@@ -2,7 +2,7 @@
 
 namespace App\EventListener;
 
-use App\Entity\AccountingTransaction;
+use App\Entity\Accounting\Transaction;
 use App\Entity\User;
 use App\Library\Economy\Payment\WalletGatewayService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
@@ -13,7 +13,7 @@ use Doctrine\ORM\Events;
 #[AsEntityListener(
     event: Events::postPersist,
     method: 'processTransaction',
-    entity: AccountingTransaction::class
+    entity: Transaction::class
 )]
 final class WalletTransactionsListener
 {
@@ -26,7 +26,7 @@ final class WalletTransactionsListener
      * Generates a WalletStatement for User-received Transactions.
      */
     public function processTransaction(
-        AccountingTransaction $transaction,
+        Transaction $transaction,
         PostPersistEventArgs $event,
     ) {
         $target = $transaction->getTarget();

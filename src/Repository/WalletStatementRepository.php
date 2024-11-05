@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Entity\Accounting;
+use App\Entity\Accounting\Accounting;
 use App\Entity\WalletStatement;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;

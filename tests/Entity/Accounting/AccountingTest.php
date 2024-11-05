@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Tests\Entity;
+namespace App\Tests\Entity\Accounting;
 
-use App\Entity\Accounting;
+use App\Entity\Accounting\Accounting;
 use App\Entity\Tipjar;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

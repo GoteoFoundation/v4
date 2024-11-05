@@ -1,14 +1,14 @@
 <?php
 
-namespace App\ApiResource;
+namespace App\ApiResource\Accounting;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\Entity\Accounting;
+use App\Entity\Accounting as Entity;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\ApiResource;
-use App\State\AccountingStateProcessor;
-use App\State\AccountingStateProvider;
+use App\State\Accounting\AccountingStateProcessor;
+use App\State\Accounting\AccountingStateProvider;
 
 /**
  * Accountings represent payment services used to perform the necessary payments for Transactions between Accounts.\
@@ -27,10 +27,10 @@ use App\State\AccountingStateProvider;
     processor: AccountingStateProcessor::class,
     security: 'is_granted("ACCOUNTING_EDIT", object)'
 )]
-class AccountingApiResource
+class Accounting
 {
     public function __construct(
-        private readonly Accounting $accounting,
+        private readonly Entity\Accounting $accounting,
         private readonly AccountingOwnerInterface $owner,
     ) {}
 

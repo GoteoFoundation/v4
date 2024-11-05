@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Gateway;
 
-enum GatewayCheckoutStatus: string
+enum CheckoutStatus: string
 {
     case Pending = 'pending';
 

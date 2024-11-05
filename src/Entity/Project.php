@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
+use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Trait\TimestampableCreationEntity;
 use App\Entity\Trait\TimestampableUpdationEntity;

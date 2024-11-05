@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
+use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\Trait\TimestampableCreationEntity;

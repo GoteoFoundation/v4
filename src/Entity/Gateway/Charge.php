@@ -1,9 +1,12 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Gateway;
 
 use ApiPlatform\Metadata as API;
-use App\Repository\GatewayChargeRepository;
+use App\Entity\Accounting\Accounting;
+use App\Entity\Accounting\Transaction;
+use App\Entity\Money;
+use App\Repository\Gateway\ChargeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -14,8 +17,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * A GatewayCharge represents a monetary payment that can be done by an issuer at checkout with the Gateway.
  */
 #[API\Get()]
-#[ORM\Entity(repositoryClass: GatewayChargeRepository::class)]
-class GatewayCharge
+#[ORM\Entity(repositoryClass: ChargeRepository::class)]
+class Charge
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -24,14 +27,14 @@ class GatewayCharge
 
     #[API\ApiProperty(readable: false, writable: false)]
     #[ORM\ManyToOne(inversedBy: 'charges')]
-    private ?GatewayCheckout $checkout = null;
+    private ?Checkout $checkout = null;
 
     /**
      * The type represents the kind of payment for the charged money.
      */
     #[Assert\NotBlank()]
     #[ORM\Column()]
-    private ?GatewayChargeType $type = null;
+    private ?ChargeType $type = null;
 
     /**
      * A short, descriptive text for this charge operation.
@@ -62,10 +65,10 @@ class GatewayCharge
     private ?Money $money = null;
 
     /**
-     * @var Collection<int, AccountingTransaction>
+     * @var Collection<int, Transaction>
      */
     #[API\ApiProperty(readableLink: false, writable: false)]
-    #[ORM\ManyToMany(targetEntity: AccountingTransaction::class, cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: Transaction::class, cascade: ['persist'])]
     private Collection $transactions;
 
     public function __construct()
@@ -78,24 +81,24 @@ class GatewayCharge
         return $this->id;
     }
 
-    public function getCheckout(): ?GatewayCheckout
+    public function getCheckout(): ?Checkout
     {
         return $this->checkout;
     }
 
-    public function setCheckout(?GatewayCheckout $checkout): static
+    public function setCheckout(?Checkout $checkout): static
     {
         $this->checkout = $checkout;
 
         return $this;
     }
 
-    public function getType(): ?GatewayChargeType
+    public function getType(): ?ChargeType
     {
         return $this->type;
     }
 
-    public function setType(GatewayChargeType $type): static
+    public function setType(ChargeType $type): static
     {
         $this->type = $type;
 
@@ -151,14 +154,14 @@ class GatewayCharge
     }
 
     /**
-     * @return Collection<int, AccountingTransaction>
+     * @return Collection<int, Transaction>
      */
     public function getTransactions(): Collection
     {
         return $this->transactions;
     }
 
-    public function addTransaction(AccountingTransaction $transaction): static
+    public function addTransaction(Transaction $transaction): static
     {
         if (!$this->transactions->contains($transaction)) {
             $this->transactions->add($transaction);
@@ -167,7 +170,7 @@ class GatewayCharge
         return $this;
     }
 
-    public function removeTransaction(AccountingTransaction $transaction): static
+    public function removeTransaction(Transaction $transaction): static
     {
         $this->transactions->removeElement($transaction);
 

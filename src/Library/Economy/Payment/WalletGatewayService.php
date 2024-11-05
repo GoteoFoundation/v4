@@ -2,8 +2,8 @@
 
 namespace App\Library\Economy\Payment;
 
-use App\Entity\Accounting;
-use App\Entity\AccountingTransaction;
+use App\Entity\Accounting\Accounting;
+use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Entity\WalletStatement;
 use App\Entity\WalletStatementDirection;
@@ -52,11 +52,11 @@ class WalletGatewayService
     /**
      * Puts the money of a Transaction into the target wallet.
      *
-     * @param AccountingTransaction $transaction The Transaction targetting a wallet
+     * @param Transaction $transaction The Transaction targetting a wallet
      *
      * @return WalletStatement An incoming statement for the target wallet
      */
-    public function save(AccountingTransaction $transaction): WalletStatement
+    public function save(Transaction $transaction): WalletStatement
     {
         $statement = new WalletStatement();
         $statement->setTransaction($transaction);
@@ -72,11 +72,11 @@ class WalletGatewayService
     /**
      * Takes the money of a Transaction from the origin wallet.
      *
-     * @param AccountingTransaction $transaction The Transaction originating from a wallet
+     * @param Transaction $transaction The Transaction originating from a wallet
      *
      * @return WalletStatement An outgoing statement financed by previous incoming statements
      */
-    public function spend(AccountingTransaction $transaction): WalletStatement
+    public function spend(Transaction $transaction): WalletStatement
     {
         $origin = $transaction->getOrigin();
 

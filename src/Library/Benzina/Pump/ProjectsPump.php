@@ -2,7 +2,7 @@
 
 namespace App\Library\Benzina\Pump;
 
-use App\Entity\Accounting;
+use App\Entity\Accounting\Accounting;
 use App\Entity\Project;
 use App\Entity\ProjectStatus;
 use App\Entity\User;

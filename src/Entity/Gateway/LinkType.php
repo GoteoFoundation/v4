@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Gateway;
 
-enum GatewayLinkType: string
+enum LinkType: string
 {
     /**
      * A 'debug' type link indicates a link that is helpful to developers and platform maintainers to get info about the checkout.

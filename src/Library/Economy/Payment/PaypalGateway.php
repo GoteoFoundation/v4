@@ -3,15 +3,15 @@
 namespace App\Library\Economy\Payment;
 
 use ApiPlatform\Api\IriConverterInterface;
-use App\Entity\GatewayCharge;
-use App\Entity\GatewayChargeType;
-use App\Entity\GatewayCheckout;
-use App\Entity\GatewayCheckoutStatus;
-use App\Entity\GatewayLink;
-use App\Entity\GatewayLinkType;
-use App\Entity\GatewayTracking;
-use App\Repository\GatewayCheckoutRepository;
-use App\Service\GatewayCheckoutService;
+use App\Entity\Gateway\Charge;
+use App\Entity\Gateway\ChargeType;
+use App\Entity\Gateway\Checkout;
+use App\Entity\Gateway\CheckoutStatus;
+use App\Entity\Gateway\Link;
+use App\Entity\Gateway\LinkType;
+use App\Entity\Gateway\Tracking;
+use App\Repository\Gateway\CheckoutRepository;
+use App\Service\Gateway\CheckoutService;
 use Brick\Money\Money as BrickMoney;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,8 +48,8 @@ class PaypalGateway implements GatewayInterface
         private RouterInterface $router,
         private EntityManagerInterface $entityManager,
         private IriConverterInterface $iriConverter,
-        private GatewayCheckoutService $checkoutService,
-        private GatewayCheckoutRepository $checkoutRepository,
+        private CheckoutService $checkoutService,
+        private CheckoutRepository $checkoutRepository,
     ) {}
 
     public static function getName(): string
@@ -60,11 +60,11 @@ class PaypalGateway implements GatewayInterface
     public static function getSupportedChargeTypes(): array
     {
         return [
-            GatewayChargeType::Single,
+            ChargeType::Single,
         ];
     }
 
-    public function process(GatewayCheckout $checkout): GatewayCheckout
+    public function process(Checkout $checkout): Checkout
     {
         $order = $this->paypal->postOrder([
             'intent' => self::PAYPAL_ORDER_INTENT,
@@ -72,7 +72,7 @@ class PaypalGateway implements GatewayInterface
             'payment_source' => $this->getPaypalPaymentSource($checkout),
         ]);
 
-        $tracking = new GatewayTracking();
+        $tracking = new Tracking();
         $tracking->title = self::TRACKING_TITLE_ORDER;
         $tracking->value = $order['id'];
 
@@ -80,10 +80,10 @@ class PaypalGateway implements GatewayInterface
 
         foreach ($order['links'] as $linkData) {
             $linkType = \in_array($linkData['rel'], ['approve', 'payer-action'])
-                ? GatewayLinkType::Payment
-                : GatewayLinkType::Debug;
+                ? LinkType::Payment
+                : LinkType::Debug;
 
-            $link = new GatewayLink();
+            $link = new Link();
             $link->href = $linkData['href'];
             $link->rel = $linkData['rel'];
             $link->method = $linkData['method'];
@@ -97,7 +97,7 @@ class PaypalGateway implements GatewayInterface
 
     public function handleRedirect(Request $request): RedirectResponse
     {
-        if ($request->query->get('type') !== GatewayCheckoutService::RESPONSE_TYPE_SUCCESS) {
+        if ($request->query->get('type') !== CheckoutService::RESPONSE_TYPE_SUCCESS) {
             throw new \Exception(sprintf('Checkout was not completed successfully.'));
         }
 
@@ -105,10 +105,10 @@ class PaypalGateway implements GatewayInterface
 
         $checkout = $this->checkoutRepository->find($checkoutId);
         if ($checkout === null) {
-            throw new \Exception(sprintf("GatewayCheckout '%s' could not be found.", $checkoutId));
+            throw new \Exception(sprintf("Checkout '%s' could not be found.", $checkoutId));
         }
 
-        if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
+        if ($checkout->getStatus() === CheckoutStatus::Charged) {
             return new RedirectResponse($this->iriConverter->getIriFromResource($checkout));
         }
 
@@ -128,7 +128,7 @@ class PaypalGateway implements GatewayInterface
         }
 
         foreach ($capture['purchase_units'] as $purchaseUnit) {
-            $tracking = new GatewayTracking();
+            $tracking = new Tracking();
             $tracking->title = self::TRACKING_TITLE_TRANSACTION;
             $tracking->value = $purchaseUnit['payments']['captures'][0]['id'];
 
@@ -174,11 +174,11 @@ class PaypalGateway implements GatewayInterface
         $checkout = $this->checkoutRepository->findOneByTracking(self::TRACKING_TITLE_ORDER, $orderId);
 
         if ($checkout === null) {
-            throw new \Exception(sprintf("Could not find any GatewayCheckout by the GatewayTracking '%s'", $orderId), 1);
+            throw new \Exception(sprintf("Could not find any Checkout by the Tracking '%s'", $orderId), 1);
         }
 
         foreach ($event['resource']['purchase_units'] as $purchaseUnit) {
-            $tracking = new GatewayTracking();
+            $tracking = new Tracking();
             $tracking->title = self::TRACKING_TITLE_TRANSACTION;
             $tracking->value = $purchaseUnit['payments']['captures'][0]['id'];
 
@@ -188,7 +188,7 @@ class PaypalGateway implements GatewayInterface
         $checkout = $this->checkoutService->chargeCheckout($checkout);
     }
 
-    private function getPaypalMoney(GatewayCharge $charge): array
+    private function getPaypalMoney(Charge $charge): array
     {
         $brick = BrickMoney::ofMinor(
             $charge->getMoney()->amount,
@@ -201,7 +201,7 @@ class PaypalGateway implements GatewayInterface
         ];
     }
 
-    private function getPaypalPurchaseUnits(GatewayCheckout $checkout): array
+    private function getPaypalPurchaseUnits(Checkout $checkout): array
     {
         $units = [];
 
@@ -236,7 +236,7 @@ class PaypalGateway implements GatewayInterface
         return $units;
     }
 
-    private function getPaypalPaymentSource(GatewayCheckout $checkout): array
+    private function getPaypalPaymentSource(Checkout $checkout): array
     {
         return [
             'paypal' => [

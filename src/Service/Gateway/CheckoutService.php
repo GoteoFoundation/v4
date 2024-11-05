@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Gateway;
 
 use App\Controller\GatewaysController;
-use App\Entity\AccountingTransaction;
-use App\Entity\GatewayCharge;
-use App\Entity\GatewayCheckout;
-use App\Entity\GatewayCheckoutStatus;
+use App\Entity\Accounting\Transaction;
+use App\Entity\Gateway\Charge;
+use App\Entity\Gateway\Checkout;
+use App\Entity\Gateway\CheckoutStatus;
 use Symfony\Component\Routing\RouterInterface;
 
-class GatewayCheckoutService
+class CheckoutService
 {
     public const RESPONSE_TYPE_SUCCESS = 'success';
     public const RESPONSE_TYPE_FAILURE = 'failure';
@@ -24,7 +24,7 @@ class GatewayCheckoutService
      * @return string Absolute URL to the gateways redirection handler
      */
     public function generateRedirectUrl(
-        GatewayCheckout $checkout,
+        Checkout $checkout,
         string $type = self::RESPONSE_TYPE_SUCCESS,
         array $parameters = [],
     ): string {
@@ -45,7 +45,7 @@ class GatewayCheckoutService
      *
      * @return string A tracking code suitable for external gateway data matching
      */
-    public function generateTracking(GatewayCheckout $checkout, GatewayCharge $charge): string
+    public function generateTracking(Checkout $checkout, Charge $charge): string
     {
         return \sprintf(
             '%s-%s',
@@ -59,7 +59,7 @@ class GatewayCheckoutService
      *
      * @return string A tracking code suitable for external gateway data matching
      */
-    public function generateCheckoutTracking(GatewayCheckout $checkout): string
+    public function generateCheckoutTracking(Checkout $checkout): string
     {
         return \sprintf(
             'AO%d-CO%d',
@@ -73,7 +73,7 @@ class GatewayCheckoutService
      *
      * @return string A tracking code suitable for external gateway data matching
      */
-    public function generateChargeTracking(GatewayCharge $charge): string
+    public function generateChargeTracking(Charge $charge): string
     {
         return \sprintf(
             'CH%d-AT%d',
@@ -83,18 +83,18 @@ class GatewayCheckoutService
     }
 
     /**
-     * Updates a successful GatewayCheckout and generates the transactions for each charge.
+     * Updates a successful Checkout and generates the transactions for each charge.
      *
-     * @param GatewayCheckout $checkout The GatewayCheckout to be updated
+     * @param Checkout $checkout The Checkout to be updated
      *
-     * @return GatewayCheckout The updated GatewayCheckout with updated charges and generated transactions
+     * @return Checkout The updated Checkout with updated charges and generated transactions
      */
-    public function chargeCheckout(GatewayCheckout $checkout): GatewayCheckout
+    public function chargeCheckout(Checkout $checkout): Checkout
     {
-        $checkout->setStatus(GatewayCheckoutStatus::Charged);
+        $checkout->setStatus(CheckoutStatus::Charged);
 
         foreach ($checkout->getCharges() as $charge) {
-            $transaction = new AccountingTransaction();
+            $transaction = new Transaction();
             $transaction->setMoney($charge->getMoney());
             $transaction->setOrigin($checkout->getOrigin());
             $transaction->setTarget($charge->getTarget());

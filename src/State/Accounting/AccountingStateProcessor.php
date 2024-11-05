@@ -1,11 +1,11 @@
 <?php
 
-namespace App\State;
+namespace App\State\Accounting;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\AccountingApiResource;
-use App\Entity\Accounting;
+use App\Entity\Accounting\Accounting;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AccountingStateProcessor implements ProcessorInterface

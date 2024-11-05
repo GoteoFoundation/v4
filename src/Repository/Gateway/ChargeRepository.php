@@ -1,28 +1,28 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\Gateway;
 
-use App\Entity\GatewayCharge;
+use App\Entity\Gateway\Charge;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<GatewayCharge>
+ * @extends ServiceEntityRepository<Charge>
  *
- * @method GatewayCharge|null find($id, $lockMode = null, $lockVersion = null)
- * @method GatewayCharge|null findOneBy(array $criteria, array $orderBy = null)
- * @method GatewayCharge[]    findAll()
- * @method GatewayCharge[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Charge|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Charge|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Charge[]    findAll()
+ * @method Charge[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class GatewayChargeRepository extends ServiceEntityRepository
+class ChargeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, GatewayCharge::class);
+        parent::__construct($registry, Charge::class);
     }
 
     //    /**
-    //     * @return GatewayCharge[] Returns an array of GatewayCharge objects
+    //     * @return Charge[] Returns an array of Charge objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -36,7 +36,7 @@ class GatewayChargeRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?GatewayCharge
+    //    public function findOneBySomeField($value): ?Charge
     //    {
     //        return $this->createQueryBuilder('g')
     //            ->andWhere('g.exampleField = :val')

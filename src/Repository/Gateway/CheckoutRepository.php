@@ -1,29 +1,29 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\Gateway;
 
-use App\Entity\GatewayCheckout;
+use App\Entity\Gateway\Checkout;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<GatewayCheckout>
+ * @extends ServiceEntityRepository<Checkout>
  *
- * @method GatewayCheckout|null find($id, $lockMode = null, $lockVersion = null)
- * @method GatewayCheckout|null findOneBy(array $criteria, array $orderBy = null)
- * @method GatewayCheckout[]    findAll()
- * @method GatewayCheckout[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Checkout|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Checkout|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Checkout[]    findAll()
+ * @method Checkout[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class GatewayCheckoutRepository extends ServiceEntityRepository
+class CheckoutRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, GatewayCheckout::class);
+        parent::__construct($registry, Checkout::class);
     }
 
     /**
-     * @return GatewayCheckout|null
+     * @return Checkout|null
      */
     public function findOneByTracking(string $title, string $value): array
     {
@@ -39,7 +39,7 @@ class GatewayCheckoutRepository extends ServiceEntityRepository
     }
 
     //    /**
-    //     * @return GatewayCheckout[] Returns an array of GatewayCheckout objects
+    //     * @return Checkout[] Returns an array of Checkout objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -53,7 +53,7 @@ class GatewayCheckoutRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?GatewayCheckout
+    //    public function findOneBySomeField($value): ?Checkout
     //    {
     //        return $this->createQueryBuilder('g')
     //            ->andWhere('g.exampleField = :val')

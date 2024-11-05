@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Gateway;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
+use App\Entity\Accounting\Accounting;
 use App\Entity\Trait\TimestampableCreationEntity;
 use App\Entity\Trait\TimestampableUpdationEntity;
-use App\Repository\GatewayCheckoutRepository;
+use App\Repository\Gateway\CheckoutRepository;
 use App\State\GatewayCheckoutProcessor;
 use App\Validator\GatewayName;
 use App\Validator\SupportedChargeTypes;
@@ -20,16 +21,16 @@ use Symfony\Component\Validator\Constraints as Assert;
  * A GatewayCheckout bundles the data to perform a payment operation with a Gateway.\
  * \
  * Once the Gateway validates the payment as successful the GatewayCheckout will be updated
- * and respective AccountingTransactions will be generated for each GatewayCharge.
+ * and respective AccountingTransactions will be generated for each Charge.
  */
 #[Gedmo\Loggable()]
 #[API\GetCollection()]
 #[API\Post(processor: GatewayCheckoutProcessor::class)]
 #[API\Get()]
 #[API\ApiFilter(filterClass: SearchFilter::class, properties: ['origin' => 'exact', 'charges.target' => 'exact'])]
-#[ORM\Entity(repositoryClass: GatewayCheckoutRepository::class)]
+#[ORM\Entity(repositoryClass: CheckoutRepository::class)]
 #[ORM\Index(fields: ['migratedId'])]
-class GatewayCheckout
+class Checkout
 {
     use TimestampableCreationEntity;
     use TimestampableUpdationEntity;
@@ -54,18 +55,18 @@ class GatewayCheckout
     #[API\ApiProperty(writable: false)]
     #[API\ApiFilter(SearchFilter::class)]
     #[ORM\Column()]
-    private ?GatewayCheckoutStatus $status = null;
+    private ?CheckoutStatus $status = null;
 
     /**
      * The GatewayCharges to be charged at checkout with the gateway.
      *
-     * @var Collection<int, GatewayCharge>
+     * @var Collection<int, Charge>
      */
     #[API\ApiProperty(readableLink: true, writableLink: true)]
     #[Assert\NotBlank()]
     #[Assert\Count(min: 1)]
     #[SupportedChargeTypes()]
-    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: GatewayCharge::class, cascade: ['persist'])]
+    #[ORM\OneToMany(mappedBy: 'checkout', targetEntity: Charge::class, cascade: ['persist'])]
     private Collection $charges;
 
     /**
@@ -81,7 +82,7 @@ class GatewayCheckout
      * A list of URLs provided by the Gateway for this checkout.\
      * e.g: Fulfill payment, API resource address.
      *
-     * @var GatewayLink[]
+     * @var Link[]
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\Column]
@@ -91,7 +92,7 @@ class GatewayCheckout
      * A list of tracking codes provided by the Gateway for this checkout.\
      * e.g: Order ID, Payment Capture ID, Checkout Session Token.
      *
-     * @var GatewayTracking[]
+     * @var Tracking[]
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\Column]
@@ -119,7 +120,7 @@ class GatewayCheckout
 
     public function __construct()
     {
-        $this->status = GatewayCheckoutStatus::Pending;
+        $this->status = CheckoutStatus::Pending;
         $this->charges = new ArrayCollection();
     }
 
@@ -140,12 +141,12 @@ class GatewayCheckout
         return $this;
     }
 
-    public function getStatus(): ?GatewayCheckoutStatus
+    public function getStatus(): ?CheckoutStatus
     {
         return $this->status;
     }
 
-    public function setStatus(GatewayCheckoutStatus $status): static
+    public function setStatus(CheckoutStatus $status): static
     {
         $this->status = $status;
 
@@ -153,14 +154,14 @@ class GatewayCheckout
     }
 
     /**
-     * @return Collection<int, GatewayCharge>
+     * @return Collection<int, Charge>
      */
     public function getCharges(): Collection
     {
         return $this->charges;
     }
 
-    public function addCharge(GatewayCharge $charge): static
+    public function addCharge(Charge $charge): static
     {
         if (!$this->charges->contains($charge)) {
             $this->charges->add($charge);
@@ -170,7 +171,7 @@ class GatewayCheckout
         return $this;
     }
 
-    public function removeCharge(GatewayCharge $charge): static
+    public function removeCharge(Charge $charge): static
     {
         if ($this->charges->removeElement($charge)) {
             // set the owning side to null (unless already changed)
@@ -195,25 +196,25 @@ class GatewayCheckout
     }
 
     /**
-     * @return GatewayLink[]
+     * @return Link[]
      */
     public function getGatewayLinks(): array
     {
         return $this->gatewayLinks;
     }
 
-    public function addGatewayLink(GatewayLink $link): static
+    public function addGatewayLink(Link $link): static
     {
         $this->gatewayLinks = [...$this->gatewayLinks, $link];
 
         return $this;
     }
 
-    public function removeGatewayLink(GatewayLink $link): static
+    public function removeGatewayLink(Link $link): static
     {
         $this->gatewayLinks = \array_filter(
             $this->gatewayLinks,
-            function (GatewayLink $existingLink) use ($link) {
+            function (Link $existingLink) use ($link) {
                 return $existingLink->href !== $link->href;
             }
         );
@@ -222,25 +223,25 @@ class GatewayCheckout
     }
 
     /**
-     * @return GatewayTracking[]
+     * @return Tracking[]
      */
     public function getGatewayTrackings(): array
     {
         return $this->gatewayTrackings;
     }
 
-    public function addGatewayTracking(GatewayTracking $tracking): static
+    public function addGatewayTracking(Tracking $tracking): static
     {
         $this->gatewayTrackings = [...$this->gatewayTrackings, $tracking];
 
         return $this;
     }
 
-    public function removeGatewayTracking(GatewayTracking $tracking): static
+    public function removeGatewayTracking(Tracking $tracking): static
     {
         $this->gatewayTrackings = \array_filter(
             $this->gatewayTrackings,
-            function (GatewayTracking $existingTracking) use ($tracking) {
+            function (Tracking $existingTracking) use ($tracking) {
                 return $existingTracking->title !== $tracking->title
                     && $existingTracking->value !== $tracking->value;
             }

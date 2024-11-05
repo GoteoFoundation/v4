@@ -2,7 +2,7 @@
 
 namespace App\Entity\Interface;
 
-use App\Entity\Accounting;
+use App\Entity\Accounting\Accounting;
 
 interface AccountingOwnerInterface extends ApiResource
 {

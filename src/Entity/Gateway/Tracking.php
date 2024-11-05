@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Gateway;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class GatewayTracking
+class Tracking
 {
     /**
      * A descriptive title for the tracking number.

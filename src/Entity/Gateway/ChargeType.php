@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Gateway;
 
-enum GatewayChargeType: string
+enum ChargeType: string
 {
     /**
      * A one-time charge to the money payer.

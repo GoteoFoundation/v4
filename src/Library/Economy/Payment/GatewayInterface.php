@@ -2,19 +2,19 @@
 
 namespace App\Library\Economy\Payment;
 
-use App\Entity\GatewayCheckout;
+use App\Entity\Gateway\Checkout;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Gateway interfaces are in charge of connecting with payment gateways to send them the data in `GatewayCheckout` instances.\
+ * Gateway interfaces are in charge of connecting with payment gateways to send them the data in `Checkout` instances.\
  * \
  * The flow is:
- * 1. A client app creates a `GatewayCheckout` record
- * 2. `App\State\GatewayCheckoutProcessor` calls the `sendData` method of the respective interface for the new `GatewayCheckout`
- * 3. The interface connects with the gateway and sends the data for the `GatewayCheckout`
- * 4. The interface updates the `GatewayCheckout` with the checkout url and reference given by the gateway for the checkout session
+ * 1. A client app creates a `Checkout` record
+ * 2. `App\State\GatewayCheckoutProcessor` calls the `sendData` method of the respective interface for the new `Checkout`
+ * 3. The interface connects with the gateway and sends the data for the `Checkout`
+ * 4. The interface updates the `Checkout` with the checkout url and reference given by the gateway for the checkout session
  * 5. `App\State\GatewayCheckoutProcessor` returns the response data to the client app
  * 6. The client app redirects the user to the payment with the gateway
  * 7. The gateway processes the payment and redirects the user back to v4
@@ -29,18 +29,18 @@ interface GatewayInterface
     public static function getName(): string;
 
     /**
-     * @return \App\Entity\GatewayChargeType[] The charge types that can be processed by this Gateway
+     * @return \App\Entity\Gateway\ChargeType[] The charge types that can be processed by this Gateway
      */
     public static function getSupportedChargeTypes(): array;
 
     /**
      * Connects with the payment gateway and creates a checkout session so the gateway can process the payment.
      *
-     * @param GatewayCheckout $checkout The GatewayCheckout with the data for the payment to be charged
+     * @param Checkout $checkout The Checkout with the data for the payment to be charged
      *
-     * @return GatewayCheckout The GatewayCheckout updated with the data given by the gateway
+     * @return Checkout The Checkout updated with the data given by the gateway
      */
-    public function process(GatewayCheckout $checkout): GatewayCheckout;
+    public function process(Checkout $checkout): Checkout;
 
     /**
      * When a user is redirected by the gateway we must handle the redirection

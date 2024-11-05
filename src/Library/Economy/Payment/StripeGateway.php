@@ -3,14 +3,16 @@
 namespace App\Library\Economy\Payment;
 
 use ApiPlatform\Api\IriConverterInterface;
-use App\Entity\GatewayChargeType;
-use App\Entity\GatewayCheckout;
-use App\Entity\GatewayCheckoutStatus;
-use App\Entity\GatewayLink;
-use App\Entity\GatewayLinkType;
-use App\Entity\GatewayTracking;
-use App\Repository\GatewayCheckoutRepository;
-use App\Service\GatewayCheckoutService;
+use App\Entity\Gateway\ChargeType;
+use App\Entity\Gateway\Checkout;
+use App\Entity\Gateway\CheckoutStatus;
+use App\Entity\Gateway\Link;
+use App\Entity\Gateway\LinkType;
+use App\Entity\Gateway\Tracking;
+use App\Entity\User;
+use App\Repository\Gateway\CheckoutRepository;
+use App\Repository\UserRepository;
+use App\Service\Gateway\CheckoutService;
 use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\StripeClient;
@@ -31,8 +33,9 @@ class StripeGateway implements GatewayInterface
         private string $stripeApiKey,
         private string $stripeWebhookSecret,
         private RouterInterface $router,
-        private GatewayCheckoutService $checkoutService,
-        private GatewayCheckoutRepository $checkoutRepository,
+        private CheckoutService $checkoutService,
+        private CheckoutRepository $checkoutRepository,
+        private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
         private IriConverterInterface $iriConverter,
     ) {
@@ -47,15 +50,15 @@ class StripeGateway implements GatewayInterface
     public static function getSupportedChargeTypes(): array
     {
         return [
-            GatewayChargeType::Single,
-            GatewayChargeType::Recurring,
+            ChargeType::Single,
+            ChargeType::Recurring,
         ];
     }
 
-    public function process(GatewayCheckout $checkout): GatewayCheckout
+    public function process(Checkout $checkout): Checkout
     {
         $session = $this->stripe->checkout->sessions->create([
-            'customer_email' => $checkout->getOrigin()->getUser()->getEmail(),
+            'customer_email' => $this->getStripeCustomer($checkout),
             'mode' => $this->getStripeMode($checkout),
             'line_items' => $this->getStripeLineItems($checkout),
             // Because Symfony's Router encodes query parameters, the value {CHECKOUT_SESSION_ID}
@@ -65,16 +68,16 @@ class StripeGateway implements GatewayInterface
             'success_url' => sprintf('%s&session_id={CHECKOUT_SESSION_ID}', $this->checkoutService->generateRedirectUrl($checkout)),
         ]);
 
-        $link = new GatewayLink();
+        $link = new Link();
 
         $link->href = $session->url;
         $link->rel = 'approve';
         $link->method = Request::METHOD_GET;
-        $link->type = GatewayLinkType::Payment;
+        $link->type = LinkType::Payment;
 
         $checkout->addGatewayLink($link);
 
-        $tracking = new GatewayTracking();
+        $tracking = new Tracking();
         $tracking->title = self::TRACKING_TITLE_CHECKOUT;
         $tracking->value = $session->id;
 
@@ -91,14 +94,14 @@ class StripeGateway implements GatewayInterface
         $checkout = $this->checkoutRepository->find($request->query->get('checkoutId'));
 
         if ($checkout === null) {
-            throw new \Exception(sprintf("Stripe checkout '%s' exists but no GatewayCheckout with that reference was found.", $sessionId));
+            throw new \Exception(sprintf("Stripe checkout '%s' exists but no Checkout with that reference was found.", $sessionId));
         }
 
-        if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
+        if ($checkout->getStatus() === CheckoutStatus::Charged) {
             return $checkout;
         }
 
-        if ($request->query->get('type') !== GatewayCheckoutService::RESPONSE_TYPE_SUCCESS) {
+        if ($request->query->get('type') !== CheckoutService::RESPONSE_TYPE_SUCCESS) {
             return $checkout;
         }
 
@@ -132,10 +135,21 @@ class StripeGateway implements GatewayInterface
         }
     }
 
-    private function getStripeMode(GatewayCheckout $checkout): string
+    private function getStripeCustomer(Checkout $checkout): string
+    {
+        if ($checkout->getOrigin()->getOwnerClass() !== User::class) {
+            return '';
+        }
+
+        $user = $this->userRepository->find($checkout->getOrigin()->getOwnerId());
+
+        return $user->getEmail();
+    }
+
+    private function getStripeMode(Checkout $checkout): string
     {
         foreach ($checkout->getCharges() as $charge) {
-            if ($charge->getType() === GatewayChargeType::Recurring) {
+            if ($charge->getType() === ChargeType::Recurring) {
                 return StripeSession::MODE_SUBSCRIPTION;
             }
         }
@@ -143,7 +157,7 @@ class StripeGateway implements GatewayInterface
         return StripeSession::MODE_PAYMENT;
     }
 
-    private function getStripeLineItems(GatewayCheckout $checkout): array
+    private function getStripeLineItems(Checkout $checkout): array
     {
         $items = [];
 
@@ -157,7 +171,7 @@ class StripeGateway implements GatewayInterface
                 ],
             ];
 
-            if ($charge->getType() === GatewayChargeType::Recurring) {
+            if ($charge->getType() === ChargeType::Recurring) {
                 $price['recurring'] = ['interval' => 'month'];
             }
 

@@ -23,7 +23,7 @@ class SupportedChargeTypesValidator extends ConstraintValidator
             return;
         }
 
-        /** @var Collection<int, \App\Entity\GatewayCharge> */
+        /** @var Collection<int, \App\Entity\Gateway\Charge> */
         $charges = $value;
 
         $checkout = $charges->toArray()[0]->getCheckout();
