@@ -8,19 +8,19 @@ use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
-use App\ApiResource\AccountingApiResource;
-use App\Entity\Accounting\Accounting;
+use App\ApiResource\Accounting as ApiResource;
+use App\Entity\Accounting as Entity;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class AccountingStateProvider implements ProviderInterface
 {
     public function __construct(
-        #[Autowire(service: CollectionProvider::class)]
-        private ProviderInterface $collectionProvider,
+        private EntityManagerInterface $entityManager,
         #[Autowire(service: ItemProvider::class)]
         private ProviderInterface $itemProvider,
-        private EntityManagerInterface $entityManager,
+        #[Autowire(service: CollectionProvider::class)]
+        private ProviderInterface $collectionProvider,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
@@ -46,14 +46,22 @@ class AccountingStateProvider implements ProviderInterface
         return $this->toResource($accounting);
     }
 
-    private function toResource(?Accounting $accounting): ?AccountingApiResource
+    private function toResource(?Entity\Accounting $accounting): ?ApiResource\Accounting
     {
         if ($accounting === null) {
             return null;
         }
 
-        $owner = $this->entityManager->find($accounting->getOwnerClass(), $accounting->getOwnerId());
+        $owner = $this->entityManager->find(
+            $accounting->getOwnerClass(),
+            $accounting->getOwnerId()
+        );
 
-        return new AccountingApiResource($accounting, $owner);
+        $resource = new ApiResource\Accounting();
+        $resource->id = $accounting->getId();
+        $resource->currency = $accounting->getCurrency();
+        $resource->owner = $owner;
+
+        return $resource;
     }
 }

@@ -6,7 +6,6 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\Entity\Accounting as Entity;
 use App\Entity\Interface\AccountingOwnerInterface;
-use App\Entity\Interface\ApiResource;
 use App\State\Accounting\AccountingStateProcessor;
 use App\State\Accounting\AccountingStateProvider;
 
@@ -19,7 +18,7 @@ use App\State\Accounting\AccountingStateProvider;
  */
 #[API\ApiResource(
     shortName: 'Accounting',
-    stateOptions: new Options(entityClass: Accounting::class)
+    stateOptions: new Options(entityClass: Entity\Accounting::class)
 )]
 #[API\GetCollection(provider: AccountingStateProvider::class)]
 #[API\Get(provider: AccountingStateProvider::class)]
@@ -29,30 +28,9 @@ use App\State\Accounting\AccountingStateProvider;
 )]
 class Accounting
 {
-    public function __construct(
-        private readonly Entity\Accounting $accounting,
-        private readonly AccountingOwnerInterface $owner,
-    ) {}
+    public ?int $id = null;
 
-    public function getId(): ?int
-    {
-        return $this->accounting->getId();
-    }
+    public ?string $currency = null;
 
-    public function getCurrency(): ?string
-    {
-        return $this->accounting->getCurrency();
-    }
-
-    public function setCurrency(string $currency): static
-    {
-        $this->accounting->setCurrency($currency);
-
-        return $this;
-    }
-
-    public function getOwner(): ApiResource
-    {
-        return $this->owner;
-    }
+    public ?AccountingOwnerInterface $owner = null;
 }

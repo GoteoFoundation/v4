@@ -4,8 +4,8 @@ namespace App\State\Accounting;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\ApiResource\AccountingApiResource;
-use App\Entity\Accounting\Accounting;
+use App\ApiResource\Accounting as ApiResource;
+use App\Entity\Accounting as Entity;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AccountingStateProcessor implements ProcessorInterface
@@ -15,21 +15,21 @@ class AccountingStateProcessor implements ProcessorInterface
     ) {}
 
     /**
-     * @param AccountingApiResource $data
+     * @param ApiResource\Accounting $data
      *
-     * @return AccountingApiResource
+     * @return ApiResource\Accounting
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         /** @var Accounting */
-        $accounting = $this->entityManager->find(Accounting::class, $data->getId());
-        $accounting->setCurrency($data->getCurrency());
+        $accounting = $this->entityManager->find(Entity\Accounting::class, $data->id);
+        $accounting->setCurrency($data->currency);
 
         $this->entityManager->persist($accounting);
         $this->entityManager->flush();
 
         $owner = $this->entityManager->find($accounting->getOwnerClass(), $accounting->getOwnerId());
 
-        return new AccountingApiResource($accounting, $owner);
+        return new ApiResource\Accounting($accounting, $owner);
     }
 }
