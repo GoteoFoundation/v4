@@ -75,7 +75,7 @@ class PaypalGateway implements GatewayInterface
         $tracking->title = self::TRACKING_TITLE_ORDER;
         $tracking->value = $order['id'];
 
-        $checkout->addGatewayTracking($tracking);
+        $checkout->addTracking($tracking);
 
         foreach ($order['links'] as $linkData) {
             $linkType = \in_array($linkData['rel'], ['approve', 'payer-action'])
@@ -88,7 +88,7 @@ class PaypalGateway implements GatewayInterface
             $link->method = $linkData['method'];
             $link->type = $linkType;
 
-            $checkout->addGatewayLink($link);
+            $checkout->addLink($link);
         }
 
         return $checkout;
@@ -131,7 +131,7 @@ class PaypalGateway implements GatewayInterface
             $tracking->title = self::TRACKING_TITLE_TRANSACTION;
             $tracking->value = $purchaseUnit['payments']['captures'][0]['id'];
 
-            $checkout->addGatewayTracking($tracking);
+            $checkout->addTracking($tracking);
         }
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
@@ -181,7 +181,7 @@ class PaypalGateway implements GatewayInterface
             $tracking->title = self::TRACKING_TITLE_TRANSACTION;
             $tracking->value = $purchaseUnit['payments']['captures'][0]['id'];
 
-            $checkout->addGatewayTracking($tracking);
+            $checkout->addTracking($tracking);
         }
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);

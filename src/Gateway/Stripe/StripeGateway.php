@@ -76,13 +76,13 @@ class StripeGateway implements GatewayInterface
         $link->method = Request::METHOD_GET;
         $link->type = LinkType::Payment;
 
-        $checkout->addGatewayLink($link);
+        $checkout->addLink($link);
 
         $tracking = new Tracking();
         $tracking->title = self::TRACKING_TITLE_CHECKOUT;
         $tracking->value = $session->id;
 
-        $checkout->addGatewayTracking($tracking);
+        $checkout->addTracking($tracking);
 
         return $checkout;
     }

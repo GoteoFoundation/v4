@@ -89,7 +89,7 @@ class Checkout
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\Column]
-    private array $gatewayLinks = [];
+    private array $links = [];
 
     /**
      * A list of tracking codes provided by the Gateway for this checkout.\
@@ -99,7 +99,7 @@ class Checkout
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\Column]
-    private array $gatewayTrackings = [];
+    private array $trackings = [];
 
     /**
      * GatewayCheckout was migrated from an invest record in Goteo v3 platform.
@@ -114,12 +114,6 @@ class Checkout
     #[API\ApiProperty(writable: false)]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $migratedId = null;
-
-    /**
-     * A free-form collection of additional data associated with this checkout operation.
-     */
-    #[ORM\Column(nullable: true)]
-    private ?array $metadata = null;
 
     public function __construct()
     {
@@ -201,22 +195,22 @@ class Checkout
     /**
      * @return Link[]
      */
-    public function getGatewayLinks(): array
+    public function getLinks(): array
     {
-        return $this->gatewayLinks;
+        return $this->links;
     }
 
-    public function addGatewayLink(Link $link): static
+    public function addLink(Link $link): static
     {
-        $this->gatewayLinks = [...$this->gatewayLinks, $link];
+        $this->links = [...$this->links, $link];
 
         return $this;
     }
 
-    public function removeGatewayLink(Link $link): static
+    public function removeLink(Link $link): static
     {
-        $this->gatewayLinks = \array_filter(
-            $this->gatewayLinks,
+        $this->links = \array_filter(
+            $this->links,
             function (Link $existingLink) use ($link) {
                 return $existingLink->href !== $link->href;
             }
@@ -228,22 +222,22 @@ class Checkout
     /**
      * @return Tracking[]
      */
-    public function getGatewayTrackings(): array
+    public function getTrackings(): array
     {
-        return $this->gatewayTrackings;
+        return $this->trackings;
     }
 
-    public function addGatewayTracking(Tracking $tracking): static
+    public function addTracking(Tracking $tracking): static
     {
-        $this->gatewayTrackings = [...$this->gatewayTrackings, $tracking];
+        $this->trackings = [...$this->trackings, $tracking];
 
         return $this;
     }
 
-    public function removeGatewayTracking(Tracking $tracking): static
+    public function removeTracking(Tracking $tracking): static
     {
-        $this->gatewayTrackings = \array_filter(
-            $this->gatewayTrackings,
+        $this->trackings = \array_filter(
+            $this->trackings,
             function (Tracking $existingTracking) use ($tracking) {
                 return $existingTracking->title !== $tracking->title
                     && $existingTracking->value !== $tracking->value;
@@ -273,18 +267,6 @@ class Checkout
     public function setMigratedId(?string $migratedId): static
     {
         $this->migratedId = $migratedId;
-
-        return $this;
-    }
-
-    public function getMetadata(): ?array
-    {
-        return $this->metadata;
-    }
-
-    public function setMetadata(?array $metadata): static
-    {
-        $this->metadata = $metadata;
 
         return $this;
     }

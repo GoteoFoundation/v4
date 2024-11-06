@@ -11,7 +11,7 @@ use App\Gateway\CheckoutStatus;
 use App\Gateway\Gateway\CashGateway;
 use App\Gateway\Gateway\CecaGateway;
 use App\Gateway\Gateway\DropGateway;
-use App\Gateway\Gateway\PaypalGateway;
+use App\Gateway\Paypal\PaypalGateway;
 use App\Gateway\Stripe\StripeGateway;
 use App\Gateway\Tracking;
 use App\Gateway\Wallet\WalletGateway;
@@ -120,7 +120,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             $checkout->setGateway($this->getCheckoutGateway($record));
 
             foreach ($this->getCheckoutTrackings($record) as $tracking) {
-                $checkout->addGatewayTracking($tracking);
+                $checkout->addTracking($tracking);
             }
 
             $checkout->setMigrated(true);

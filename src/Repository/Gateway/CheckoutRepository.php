@@ -4,7 +4,6 @@ namespace App\Repository\Gateway;
 
 use App\Entity\Gateway\Checkout;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -25,17 +24,10 @@ class CheckoutRepository extends ServiceEntityRepository
     /**
      * @return Checkout|null
      */
-    public function findOneByTracking(string $title, string $value): array
+    public function findOneByTracking(string $title, string $value): ?array
     {
-        return $this->createQueryBuilder('g')
-            ->join('g.gatewayTrackings', 'gt', Join::WITH, 'gt.checkout = g.id')
-            ->andWhere('gt.value = :val')
-            ->andWhere('gt.title = :title')
-            ->setParameter('val', $value)
-            ->setParameter('title', $title)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        // TO-DO: Use a JSON lookup into the 'trackings' column to see if it contains title and value
+        return null;
     }
 
     //    /**
