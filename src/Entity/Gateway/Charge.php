@@ -2,7 +2,6 @@
 
 namespace App\Entity\Gateway;
 
-use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
@@ -17,7 +16,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * A GatewayCharge represents a monetary payment that can be done by an issuer at checkout with the Gateway.
  */
-#[API\Get()]
 #[ORM\Entity(repositoryClass: ChargeRepository::class)]
 class Charge
 {
@@ -26,7 +24,6 @@ class Charge
     #[ORM\Column]
     private ?int $id = null;
 
-    #[API\ApiProperty(readable: false, writable: false)]
     #[ORM\ManyToOne(inversedBy: 'charges')]
     private ?Checkout $checkout = null;
 
@@ -68,7 +65,6 @@ class Charge
     /**
      * @var Collection<int, Transaction>
      */
-    #[API\ApiProperty(readableLink: false, writable: false)]
     #[ORM\ManyToMany(targetEntity: Transaction::class, cascade: ['persist'])]
     private Collection $transactions;
 
