@@ -3,7 +3,6 @@
 namespace App\ApiResource\Gateway;
 
 use ApiPlatform\Metadata as API;
-use App\Gateway\GatewayInterface;
 use App\State\Gateway\GatewayStateProvider;
 
 /**
@@ -18,21 +17,11 @@ use App\State\Gateway\GatewayStateProvider;
 #[API\Get(provider: GatewayStateProvider::class)]
 class Gateway
 {
-    public function __construct(private readonly GatewayInterface $gateway) {}
-
     #[API\ApiProperty(identifier: true)]
-    public function getName(): string
-    {
-        return $this->gateway->getName();
-    }
+    public ?string $name = null;
 
     /**
-     * The GatewayCharge types that can be processed by this Gateway.
-     *
-     * @return \App\Gateway\ChargeType[]
+     * @var array<int, \App\Gateway\ChargeType>
      */
-    public function getSupported(): array
-    {
-        return $this->gateway->getSupportedChargeTypes();
-    }
+    public ?array $supports = null;
 }
