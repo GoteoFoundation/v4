@@ -6,8 +6,8 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
-use App\Entity\Trait\TimestampableCreationEntity;
-use App\Entity\Trait\TimestampableUpdationEntity;
+use App\Entity\Trait\TimestampedCreationEntity;
+use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Repository\ProjectRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -27,8 +27,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project implements AccountingOwnerInterface
 {
-    use TimestampableCreationEntity;
-    use TimestampableUpdationEntity;
+    use TimestampedCreationEntity;
+    use TimestampedUpdationEntity;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

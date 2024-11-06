@@ -6,8 +6,8 @@ use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\UserOwnedInterface;
-use App\Entity\Trait\TimestampableCreationEntity;
-use App\Entity\Trait\TimestampableUpdationEntity;
+use App\Entity\Trait\TimestampedCreationEntity;
+use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
 use App\Repository\UserRepository;
@@ -42,8 +42,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(fields: ['migratedId'])]
 class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
-    use TimestampableCreationEntity;
-    use TimestampableUpdationEntity;
+    use TimestampedCreationEntity;
+    use TimestampedUpdationEntity;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

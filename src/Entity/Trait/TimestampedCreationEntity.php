@@ -7,37 +7,37 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-trait TimestampableUpdationEntity
+trait TimestampedCreationEntity
 {
     /**
-     * Entity last update timestamp.
+     * Entity creation timestamp.
      *
      * @var \DateTime|null
      */
     #[API\ApiProperty(writable: false)]
-    #[Gedmo\Timestampable(on: 'update')]
+    #[Gedmo\Timestampable(on: 'create')]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    protected $dateUpdated;
+    protected $dateCreated;
 
     /**
-     * Sets dateUpdated.
+     * Sets dateCreated.
      *
      * @return $this
      */
-    public function setDateUpdated(\DateTime $dateUpdated)
+    public function setDateCreated(\DateTime $dateCreated)
     {
-        $this->dateUpdated = $dateUpdated;
+        $this->dateCreated = $dateCreated;
 
         return $this;
     }
 
     /**
-     * Returns dateUpdated.
+     * Returns dateCreated.
      *
      * @return \DateTime|null
      */
-    public function getDateUpdated()
+    public function getDateCreated()
     {
-        return $this->dateUpdated;
+        return $this->dateCreated;
     }
 }

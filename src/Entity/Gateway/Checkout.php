@@ -5,8 +5,8 @@ namespace App\Entity\Gateway;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
-use App\Entity\Trait\TimestampableCreationEntity;
-use App\Entity\Trait\TimestampableUpdationEntity;
+use App\Entity\Trait\TimestampedCreationEntity;
+use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
 use App\Gateway\Tracking;
@@ -35,8 +35,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(fields: ['migratedId'])]
 class Checkout
 {
-    use TimestampableCreationEntity;
-    use TimestampableUpdationEntity;
+    use TimestampedCreationEntity;
+    use TimestampedUpdationEntity;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
