@@ -5,6 +5,7 @@ namespace App\Entity\Gateway;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
+use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Gateway\CheckoutStatus;
@@ -35,6 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(fields: ['migratedId'])]
 class Checkout
 {
+    use MigratedEntity;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
 
@@ -100,20 +102,6 @@ class Checkout
     #[API\ApiProperty(writable: false)]
     #[ORM\Column]
     private array $trackings = [];
-
-    /**
-     * GatewayCheckout was migrated from an invest record in Goteo v3 platform.
-     */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\Column]
-    private ?bool $migrated = false;
-
-    /**
-     * The id of the original invest record in the Goteo v3 platform.
-     */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $migratedId = null;
 
     public function __construct()
     {
@@ -243,30 +231,6 @@ class Checkout
                     && $existingTracking->value !== $tracking->value;
             }
         );
-
-        return $this;
-    }
-
-    public function isMigrated(): ?bool
-    {
-        return $this->migrated;
-    }
-
-    public function setMigrated(bool $migrated): static
-    {
-        $this->migrated = $migrated;
-
-        return $this;
-    }
-
-    public function getMigratedId(): ?string
-    {
-        return $this->migratedId;
-    }
-
-    public function setMigratedId(?string $migratedId): static
-    {
-        $this->migratedId = $migratedId;
 
         return $this;
     }

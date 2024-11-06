@@ -6,6 +6,7 @@ use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\UserOwnedInterface;
+use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Filter\OrderedLikeFilter;
@@ -42,6 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(fields: ['migratedId'])]
 class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
+    use MigratedEntity;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
 
@@ -127,20 +129,6 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     private ?string $name = null;
 
     /**
-     * User was migrated from Goteo v3 platform.
-     */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\Column]
-    private ?bool $migrated = null;
-
-    /**
-     * The previous id of this User in the Goteo v3 platform.
-     */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $migratedId = null;
-
-    /**
      * The projects owned by this User.
      */
     #[API\ApiProperty(writable: false)]
@@ -154,7 +142,6 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     {
         $this->emailConfirmed = false;
         $this->active = false;
-        $this->migrated = false;
 
         $this->tokens = new ArrayCollection();
         $this->projects = new ArrayCollection();
@@ -361,30 +348,6 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     public function setName(?string $name): static
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    public function isMigrated(): ?bool
-    {
-        return $this->migrated;
-    }
-
-    public function setMigrated(bool $migrated): static
-    {
-        $this->migrated = $migrated;
-
-        return $this;
-    }
-
-    public function getMigratedId(): ?string
-    {
-        return $this->migratedId;
-    }
-
-    public function setMigratedId(?string $migratedId): static
-    {
-        $this->migratedId = $migratedId;
 
         return $this;
     }

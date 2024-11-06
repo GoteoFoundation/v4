@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Repository\ProjectRepository;
@@ -27,6 +28,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project implements AccountingOwnerInterface
 {
+    use MigratedEntity;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
 
@@ -64,25 +66,6 @@ class Project implements AccountingOwnerInterface
     #[API\ApiProperty(writable: true)]
     #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
     private ProjectStatus $status;
-
-    /**
-     * Project was migrated from Goteo v3 platform.
-     */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\Column]
-    private ?bool $migrated = null;
-
-    /**
-     * The previous id of this Project in the Goteo v3 platform.
-     */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $migratedId = null;
-
-    public function __construct()
-    {
-        $this->migrated = false;
-    }
 
     public function getId(): ?int
     {
@@ -133,30 +116,6 @@ class Project implements AccountingOwnerInterface
     public function setStatus(ProjectStatus $status): static
     {
         $this->status = $status;
-
-        return $this;
-    }
-
-    public function isMigrated(): ?bool
-    {
-        return $this->migrated;
-    }
-
-    public function setMigrated(bool $migrated): static
-    {
-        $this->migrated = $migrated;
-
-        return $this;
-    }
-
-    public function getMigratedId(): ?string
-    {
-        return $this->migratedId;
-    }
-
-    public function setMigratedId(?string $migratedId): static
-    {
-        $this->migratedId = $migratedId;
 
         return $this;
     }
