@@ -4,7 +4,7 @@ namespace App\Entity\Interface;
 
 use App\Entity\Accounting\Accounting;
 
-interface AccountingOwnerInterface extends ApiResource
+interface AccountingOwnerInterface
 {
     public function getId(): ?int;
 

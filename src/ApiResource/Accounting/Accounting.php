@@ -18,14 +18,13 @@ use App\State\Accounting\AccountingStateProvider;
  */
 #[API\ApiResource(
     shortName: 'Accounting',
-    stateOptions: new Options(entityClass: Entity\Accounting::class)
-)]
-#[API\GetCollection(provider: AccountingStateProvider::class)]
-#[API\Get(provider: AccountingStateProvider::class)]
-#[API\Patch(
+    stateOptions: new Options(entityClass: Entity\Accounting::class),
+    provider: AccountingStateProvider::class,
     processor: AccountingStateProcessor::class,
-    security: 'is_granted("ACCOUNTING_EDIT", object)'
 )]
+#[API\GetCollection()]
+#[API\Get()]
+#[API\Patch(security: 'is_granted("ACCOUNTING_EDIT", object)')]
 class Accounting
 {
     public ?int $id = null;
