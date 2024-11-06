@@ -2,16 +2,20 @@
 
 namespace App\State\Accounting;
 
+use ApiPlatform\Doctrine\Common\State\PersistProcessor;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Accounting as ApiResource;
 use App\Entity\Accounting as Entity;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Mapping\Accounting\AccountingMapper;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class AccountingStateProcessor implements ProcessorInterface
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
+        private AccountingMapper $accountingMapper,
+        #[Autowire(service: PersistProcessor::class)]
+        private ProcessorInterface $persistProcessor,
     ) {}
 
     /**
@@ -21,15 +25,11 @@ class AccountingStateProcessor implements ProcessorInterface
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        /** @var Accounting */
-        $accounting = $this->entityManager->find(Entity\Accounting::class, $data->id);
-        $accounting->setCurrency($data->currency);
+        /** @var Entity\Accounting */
+        $entity = $this->accountingMapper->toEntity($data);
 
-        $this->entityManager->persist($accounting);
-        $this->entityManager->flush();
+        $this->persistProcessor->process($entity, $operation, $uriVariables, $context);
 
-        $owner = $this->entityManager->find($accounting->getOwnerClass(), $accounting->getOwnerId());
-
-        return new ApiResource\Accounting($accounting, $owner);
+        return $this->accountingMapper->toResource($entity);
     }
 }

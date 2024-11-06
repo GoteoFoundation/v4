@@ -10,17 +10,17 @@ use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Accounting as ApiResource;
 use App\Entity\Accounting as Entity;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Mapping\Accounting\AccountingMapper;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class AccountingStateProvider implements ProviderInterface
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
         #[Autowire(service: ItemProvider::class)]
         private ProviderInterface $itemProvider,
         #[Autowire(service: CollectionProvider::class)]
         private ProviderInterface $collectionProvider,
+        private AccountingMapper $accountingMapper,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
@@ -52,16 +52,6 @@ class AccountingStateProvider implements ProviderInterface
             return null;
         }
 
-        $owner = $this->entityManager->find(
-            $accounting->getOwnerClass(),
-            $accounting->getOwnerId()
-        );
-
-        $resource = new ApiResource\Accounting();
-        $resource->id = $accounting->getId();
-        $resource->currency = $accounting->getCurrency();
-        $resource->owner = $owner;
-
-        return $resource;
+        return $this->accountingMapper->toResource($accounting);
     }
 }
