@@ -26,35 +26,37 @@ class Charge
     public ?int $id = null;
 
     /**
-     * The type represents the kind of payment that the Gateway must process.\
+     * How this item should be processed by the Gateway.\
      * \
-     * `single` is for one time payments.
-     * `recurring` is for subscription-based payments.
+     * `single` is for one time payments.\
+     * `recurring` is for payments repeated over time.
      */
     #[Assert\NotBlank()]
-    public ?ChargeType $type = ChargeType::Single;
+    public ChargeType $type = ChargeType::Single;
 
     /**
-     * A short, descriptive string for this charge item. May be displayed to the origin.
+     * A short, descriptive string for this charge item.\
+     * May be displayed to the payer.
      */
     #[Assert\NotBlank()]
-    public ?string $title = null;
+    public string $title;
 
     /**
-     * Detailed information about the charge item. May be displayed to the origin.
+     * Detailed information about the charge item.\
+     * May be displayed to the payer.
      */
     public ?string $description = null;
 
     /**
-     * The receiver of the successful payment.
+     * The Accounting receiving the money after a successful payment.
      */
     #[Assert\NotBlank()]
     public Accounting $target;
 
     /**
-     * The money to-be-paid at the gateway.
+     * The money to-be-paid for this item at the Gateway.
      *
-     * It is money before gateway fees and taxes, not accountable.
+     * It is money before fees and taxes, not accountable.
      */
     #[Assert\NotBlank()]
     public Money $money;
