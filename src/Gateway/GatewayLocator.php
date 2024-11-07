@@ -2,7 +2,6 @@
 
 namespace App\Gateway;
 
-use App\DependencyInjection\Compiler\GatewaysCompilerPass;
 use App\Entity\Gateway\Checkout;
 
 class GatewayLocator
@@ -19,7 +18,7 @@ class GatewayLocator
             $this->gatewaysByClass[$gateway::class] = $gateway;
         }
 
-        GatewaysCompilerPass::validateGatewayNames($this->gatewaysByClass);
+        self::validateGatewayNames($this->gatewaysByClass);
 
         foreach ($this->gatewaysByClass as $class => $gateway) {
             $this->gatewaysByName[$gateway::getName()] = $gateway;
@@ -40,16 +39,6 @@ class GatewayLocator
     public function getNames(): array
     {
         return \array_keys($this->gatewaysByName);
-    }
-
-    /**
-     * @return array<string> List of the available Gateway names
-     *
-     * @see \App\DependencyInjection\Compiler\GatewaysCompilerPass::compileGatewayNames()
-     */
-    public static function getNamesStatic(): array
-    {
-        return explode(PHP_EOL, \file_get_contents(GatewaysCompilerPass::getLockFile()));
     }
 
     /**
@@ -85,5 +74,33 @@ class GatewayLocator
         }
 
         return $this->getGateway($gateway);
+    }
+
+    /**
+     * Ensures the gateway names are unique for each gateway.
+     *
+     * @param array $gatewayClasses Fully-qualified Gateway class names
+     *
+     * @throws \Exception If there are two different Gateway classes that return the same name string
+     */
+    private static function validateGatewayNames(array $gatewayClasses): void
+    {
+        $gatewaysValidated = [];
+        foreach ($gatewayClasses as $gatewayClass) {
+            $gatewayName = $gatewayClass::getName();
+
+            if (\array_key_exists($gatewayName, $gatewaysValidated)) {
+                $exceptionMessage = sprintf(
+                    "Duplicate Gateway name '%s' from class %s, name is already in use by class %s",
+                    $gatewayName,
+                    $gatewayClass,
+                    $gatewaysValidated[$gatewayName]
+                );
+
+                throw new \Exception($exceptionMessage);
+            }
+
+            $gatewaysValidated[$gatewayName] = $gatewayClass;
+        }
     }
 }
