@@ -166,10 +166,10 @@ class StripeGateway implements GatewayInterface
             $price = [
                 'currency' => $charge->getMoney()->currency,
                 'unit_amount' => $charge->getMoney()->amount,
-                'product_data' => [
+                'product_data' => \array_filter([
                     'name' => $charge->getTitle(),
                     'statement_descriptor' => $charge->getDescription(),
-                ],
+                ], fn ($v) => $v !== null),
             ];
 
             if ($charge->getType() === ChargeType::Recurring) {
