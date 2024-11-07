@@ -3,6 +3,9 @@
 namespace App\Entity\Accounting;
 
 use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Project;
+use App\Entity\Tipjar;
+use App\Entity\User;
 use App\Repository\Accounting\AccountingRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -28,11 +31,17 @@ class Accounting
     #[ORM\Column(length: 3)]
     private ?string $currency = null;
 
-    #[ORM\Column]
-    private ?int $ownerId = null;
-
     #[ORM\Column(length: 255)]
-    private ?string $ownerClass = null;
+    private ?string $owner = null;
+
+    #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist'])]
+    private ?User $user = null;
+
+    #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist'])]
+    private ?Project $project = null;
+
+    #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist'])]
+    private ?Tipjar $tipjar = null;
 
     public function __construct()
     {
@@ -60,50 +69,95 @@ class Accounting
         return $this;
     }
 
-    public function getOwnerId(): ?int
+    public function getOwner(): AccountingOwnerInterface
     {
-        return $this->ownerId;
-    }
+        $owner = $this->owner;
 
-    private function setOwnerId(?int $ownerId): static
-    {
-        // ensure ownership does not change
-        if (
-            $this->ownerId !== null
-            && $this->ownerId !== $ownerId
-        ) {
-            throw new \Exception(self::OWNER_CHANGE_NOT_ALLOWED);
-        }
-
-        $this->ownerId = $ownerId;
-
-        return $this;
-    }
-
-    public function getOwnerClass(): ?string
-    {
-        return $this->ownerClass;
-    }
-
-    private function setOwnerClass(string $ownerClass): static
-    {
-        // ensure ownership does not change
-        if (
-            $this->ownerClass !== null
-            && $this->ownerClass !== $ownerClass
-        ) {
-            throw new \Exception(self::OWNER_CHANGE_NOT_ALLOWED);
-        }
-
-        $this->ownerClass = $ownerClass;
-
-        return $this;
+        return $this->$owner;
     }
 
     public function setOwner(AccountingOwnerInterface $owner): static
     {
-        $this->setOwnerId($owner->getId());
-        $this->setOwnerClass($owner::class);
+        if ($owner instanceof User) {
+            $this->owner = 'user';
+            return $this->setUser($owner);
+        }
+
+        if ($owner instanceof Project) {
+            $this->owner = 'project';
+            return $this->setProject($owner);
+        }
+
+        if ($owner instanceof Tipjar) {
+            $this->owner = 'tipjar';
+            return $this->setTipjar($owner);
+        }
+
+        throw new \Exception(sprintf('%s is not a recognized AccountingOwnerInterface', $owner::class));
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($user === null && $this->user !== null) {
+            $this->user->setAccounting(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($user !== null && $user->getAccounting() !== $this) {
+            $user->setAccounting($this);
+        }
+
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function getProject(): ?Project
+    {
+        return $this->project;
+    }
+
+    public function setProject(?Project $project): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($project === null && $this->project !== null) {
+            $this->project->setAccounting(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($project !== null && $project->getAccounting() !== $this) {
+            $project->setAccounting($this);
+        }
+
+        $this->project = $project;
+
+        return $this;
+    }
+
+    public function getTipjar(): ?Tipjar
+    {
+        return $this->tipjar;
+    }
+
+    public function setTipjar(?Tipjar $tipjar): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($tipjar === null && $this->tipjar !== null) {
+            $this->tipjar->setAccounting(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($tipjar !== null && $tipjar->getAccounting() !== $this) {
+            $tipjar->setAccounting($this);
+        }
+
+        $this->tipjar = $tipjar;
 
         return $this;
     }

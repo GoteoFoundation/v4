@@ -35,8 +35,16 @@ class Tipjar implements AccountingOwnerInterface
     private ?string $name = null;
 
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(cascade: ['persist'])]
+    #[ORM\OneToOne(inversedBy: 'tipjar', cascade: ['persist'])]
     private ?Accounting $accounting = null;
+
+    public function __construct()
+    {
+        $accounting = new Accounting();
+        $accounting->setOwner($this);
+
+        $this->accounting = $accounting;
+    }
 
     public function getId(): ?int
     {
@@ -60,7 +68,7 @@ class Tipjar implements AccountingOwnerInterface
         return $this->accounting;
     }
 
-    public function setAccounting(Accounting $accounting): static
+    public function setAccounting(?Accounting $accounting): static
     {
         $this->accounting = $accounting;
 

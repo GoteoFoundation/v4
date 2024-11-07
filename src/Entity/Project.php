@@ -48,7 +48,7 @@ class Project implements AccountingOwnerInterface
      * A Project's Accounting represents how much money the Project has raised from the community.
      */
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(cascade: ['persist'])]
+    #[ORM\OneToOne(inversedBy: 'project', cascade: ['persist'])]
     private ?Accounting $accounting = null;
 
     /**
@@ -66,6 +66,14 @@ class Project implements AccountingOwnerInterface
     #[API\ApiProperty(writable: true)]
     #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
     private ProjectStatus $status;
+
+    public function __construct()
+    {
+        $accounting = new Accounting();
+        $accounting->setOwner($this);
+
+        $this->accounting = $accounting;
+    }
 
     public function getId(): ?int
     {
@@ -89,7 +97,7 @@ class Project implements AccountingOwnerInterface
         return $this->accounting;
     }
 
-    public function setAccounting(Accounting $accounting): static
+    public function setAccounting(?Accounting $accounting): static
     {
         $this->accounting = $accounting;
 

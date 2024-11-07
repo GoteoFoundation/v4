@@ -99,7 +99,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     private ?bool $emailConfirmed = null;
 
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(cascade: ['persist'])]
+    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist'])]
     private ?Accounting $accounting = null;
 
     /**
@@ -140,6 +140,11 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
 
     public function __construct()
     {
+        $accounting = new Accounting();
+        $accounting->setOwner($this);
+
+        $this->accounting = $accounting;
+
         $this->emailConfirmed = false;
         $this->active = false;
 
@@ -279,7 +284,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
         return $this->accounting;
     }
 
-    public function setAccounting(Accounting $accounting): static
+    public function setAccounting(?Accounting $accounting): static
     {
         $this->accounting = $accounting;
 
