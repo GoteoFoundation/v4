@@ -6,14 +6,15 @@ use ApiPlatform\Metadata as API;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Gateway\Gateway;
-use App\Gateway\GatewayInterface;
 use App\Gateway\GatewayLocator;
+use App\Mapping\Gateway\GatewayMapper;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class GatewayStateProvider implements ProviderInterface
 {
     public function __construct(
         private GatewayLocator $gateways,
+        private GatewayMapper $gatewayMapper,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
@@ -26,20 +27,11 @@ class GatewayStateProvider implements ProviderInterface
         }
     }
 
-    private function toResource(GatewayInterface $gateway): Gateway
-    {
-        $resource = new Gateway();
-        $resource->name = $gateway::getName();
-        $resource->supports = $gateway::getSupportedChargeTypes();
-
-        return $resource;
-    }
-
     private function getGateways(): array
     {
         $gateways = [];
         foreach ($this->gateways->getGateways() as $gateway) {
-            $gateways[] = $this->toResource($gateway);
+            $gateways[] = $this->gatewayMapper->toResource($gateway);
         }
 
         return $gateways;
@@ -50,7 +42,7 @@ class GatewayStateProvider implements ProviderInterface
         try {
             $gateway = $this->gateways->getGateway($name);
 
-            return $this->toResource($gateway);
+            return $this->gatewayMapper->toResource($gateway);
         } catch (\Exception $e) {
             throw new NotFoundHttpException('Not Found');
         }

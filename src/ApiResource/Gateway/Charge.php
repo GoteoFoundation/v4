@@ -53,7 +53,7 @@ class Charge
 
     /**
      * The money to-be-paid at the gateway.
-     * 
+     *
      * It is money before gateway fees and taxes, not accountable.
      */
     #[Assert\NotBlank()]

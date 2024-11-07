@@ -11,7 +11,7 @@ class AccountingMapper
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private AccountingRepository $accountingRepository
+        private AccountingRepository $accountingRepository,
     ) {}
 
     public function toResource(Entity\Accounting $entity): Resource\Accounting
