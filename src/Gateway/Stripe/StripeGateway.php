@@ -12,7 +12,6 @@ use App\Gateway\Link;
 use App\Gateway\LinkType;
 use App\Gateway\Tracking;
 use App\Repository\Gateway\CheckoutRepository;
-use App\Repository\UserRepository;
 use App\Service\Gateway\CheckoutService;
 use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Checkout\Session as StripeSession;
@@ -22,7 +21,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
 
 class StripeGateway implements GatewayInterface
 {
@@ -33,10 +31,8 @@ class StripeGateway implements GatewayInterface
     public function __construct(
         private string $stripeApiKey,
         private string $stripeWebhookSecret,
-        private RouterInterface $router,
         private CheckoutService $checkoutService,
         private CheckoutRepository $checkoutRepository,
-        private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
         private IriConverterInterface $iriConverter,
     ) {
@@ -138,13 +134,12 @@ class StripeGateway implements GatewayInterface
 
     private function getStripeCustomer(Checkout $checkout): string
     {
-        if ($checkout->getOrigin()->getOwnerClass() !== User::class) {
+        $owner = $checkout->getOrigin()->getOwner();
+        if (!$owner instanceof User) {
             return '';
         }
 
-        $user = $this->userRepository->find($checkout->getOrigin()->getOwnerId());
-
-        return $user->getEmail();
+        return $owner->getEmail();
     }
 
     private function getStripeMode(Checkout $checkout): string
@@ -169,7 +164,7 @@ class StripeGateway implements GatewayInterface
                 'product_data' => \array_filter([
                     'name' => $charge->getTitle(),
                     'statement_descriptor' => $charge->getDescription(),
-                ], fn ($v) => $v !== null),
+                ], fn($v) => $v !== null),
             ];
 
             if ($charge->getType() === ChargeType::Recurring) {
