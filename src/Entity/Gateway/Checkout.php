@@ -10,7 +10,6 @@ use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
 use App\Gateway\Tracking;
 use App\Repository\Gateway\CheckoutRepository;
-use App\Validator\GatewayName;
 use App\Validator\SupportedChargeTypes;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -67,7 +66,6 @@ class Checkout
     /**
      * The name of the Gateway implementation to checkout with.
      */
-    #[GatewayName]
     #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
     private ?string $gateway = null;
