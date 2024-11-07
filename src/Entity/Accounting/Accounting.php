@@ -80,16 +80,19 @@ class Accounting
     {
         if ($owner instanceof User) {
             $this->owner = 'user';
+
             return $this->setUser($owner);
         }
 
         if ($owner instanceof Project) {
             $this->owner = 'project';
+
             return $this->setProject($owner);
         }
 
         if ($owner instanceof Tipjar) {
             $this->owner = 'tipjar';
+
             return $this->setTipjar($owner);
         }
 
