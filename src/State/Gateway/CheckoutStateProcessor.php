@@ -2,32 +2,36 @@
 
 namespace App\State\Gateway;
 
+use ApiPlatform\Doctrine\Common\State\PersistProcessor;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\GatewayCheckout;
+use App\ApiResource\Gateway as Resource;
 use App\Gateway\GatewayLocator;
+use App\Mapping\Gateway\CheckoutMapper;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class CheckoutStateProcessor implements ProcessorInterface
 {
     public function __construct(
-        #[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]
+        private CheckoutMapper $checkoutMapper,
+        #[Autowire(service: PersistProcessor::class)]
         private ProcessorInterface $innerProcessor,
         private GatewayLocator $gatewayLocator,
     ) {}
 
     /**
-     * @param GatewayCheckout $data
+     * @param Resource\Checkout $data
      *
-     * @return GatewayCheckout
+     * @return Resource\Checkout
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        $checkout = $this->innerProcessor->process($data, $operation, $uriVariables, $context);
+        $entity = $this->checkoutMapper->toEntity($data);
+        $entity = $this->innerProcessor->process($entity, $operation, $uriVariables, $context);
 
-        $gateway = $this->gatewayLocator->getGatewayOf($checkout);
-        $checkout = $gateway->process($checkout);
+        $entity = $this->gatewayLocator->getGateway($data->gateway->name)->process($entity);
+        $entity = $this->innerProcessor->process($entity, $operation, $uriVariables, $context);
 
-        return $this->innerProcessor->process($checkout, $operation, $uriVariables, $context);
+        return $this->checkoutMapper->toResource($entity);
     }
 }

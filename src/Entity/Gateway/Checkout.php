@@ -2,8 +2,6 @@
 
 namespace App\Entity\Gateway;
 
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
@@ -12,7 +10,6 @@ use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
 use App\Gateway\Tracking;
 use App\Repository\Gateway\CheckoutRepository;
-use App\State\Gateway\CheckoutStateProcessor;
 use App\Validator\GatewayName;
 use App\Validator\SupportedChargeTypes;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -28,10 +25,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * and respective AccountingTransactions will be generated for each Charge.
  */
 #[Gedmo\Loggable()]
-#[API\GetCollection()]
-#[API\Post(processor: CheckoutStateProcessor::class)]
-#[API\Get()]
-#[API\ApiFilter(filterClass: SearchFilter::class, properties: ['origin' => 'exact', 'charges.target' => 'exact'])]
 #[ORM\Entity(repositoryClass: CheckoutRepository::class)]
 #[ORM\Index(fields: ['migratedId'])]
 class Checkout
@@ -57,8 +50,6 @@ class Checkout
      * The status of the checkout with the Gateway.
      */
     #[Gedmo\Versioned]
-    #[API\ApiProperty(writable: false)]
-    #[API\ApiFilter(SearchFilter::class)]
     #[ORM\Column()]
     private ?CheckoutStatus $status = null;
 
@@ -67,7 +58,6 @@ class Checkout
      *
      * @var Collection<int, Charge>
      */
-    #[API\ApiProperty(readableLink: true, writableLink: true)]
     #[Assert\NotBlank()]
     #[Assert\Count(min: 1)]
     #[SupportedChargeTypes()]
@@ -79,7 +69,6 @@ class Checkout
      */
     #[GatewayName]
     #[Assert\NotBlank()]
-    #[API\ApiFilter(SearchFilter::class)]
     #[ORM\Column(length: 255)]
     private ?string $gateway = null;
 
@@ -89,7 +78,6 @@ class Checkout
      *
      * @var Link[]
      */
-    #[API\ApiProperty(writable: false)]
     #[ORM\Column]
     private array $links = [];
 
@@ -99,7 +87,6 @@ class Checkout
      *
      * @var Tracking[]
      */
-    #[API\ApiProperty(writable: false)]
     #[ORM\Column]
     private array $trackings = [];
 
@@ -146,6 +133,21 @@ class Checkout
         return $this->charges;
     }
 
+    /**
+     * @param Collection<int, Charge> $charges
+     */
+    public function setCharges(Collection $charges): static
+    {
+        $this->charges = new ArrayCollection();
+
+        foreach ($charges as $charge) {
+            $this->charges->add($charge);
+            $charge->setCheckout($this);
+        }
+
+        return $this;
+    }
+
     public function addCharge(Charge $charge): static
     {
         if (!$this->charges->contains($charge)) {
@@ -188,6 +190,16 @@ class Checkout
         return $this->links;
     }
 
+    /**
+     * @param Link[] $links
+     */
+    public function setLinks(array $links): static
+    {
+        $this->links = $links;
+
+        return $this;
+    }
+
     public function addLink(Link $link): static
     {
         $this->links = [...$this->links, $link];
@@ -213,6 +225,16 @@ class Checkout
     public function getTrackings(): array
     {
         return $this->trackings;
+    }
+
+    /**
+     * @param Tracking[] $trackings
+     */
+    public function setTrackings(array $trackings): static
+    {
+        $this->trackings = $trackings;
+
+        return $this;
     }
 
     public function addTracking(Tracking $tracking): static
