@@ -31,7 +31,7 @@ final class WalletTransactionsListener
     ) {
         $target = $transaction->getTarget();
 
-        if ($target->getOwnerClass() === User::class) {
+        if ($target->getOwner() instanceof User) {
             $this->wallet->save($transaction);
         }
     }

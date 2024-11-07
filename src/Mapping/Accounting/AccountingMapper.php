@@ -16,10 +16,7 @@ class AccountingMapper
 
     public function toResource(Entity\Accounting $entity): Resource\Accounting
     {
-        $owner = $this->entityManager->find(
-            $entity->getOwnerClass(),
-            $entity->getOwnerId()
-        );
+        $owner = $entity->getOwner();
 
         $resource = new Resource\Accounting();
         $resource->id = $entity->getId();
