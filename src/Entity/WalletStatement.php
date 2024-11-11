@@ -47,22 +47,22 @@ class WalletStatement
 
     /**
      * A collection of Financements for outgoing Statements that were made using money from this Statement.
-     * 
+     *
      * Only not empty for incoming Statements.
-     * 
+     *
      * @var Collection<int, WalletFinancement>
      */
-    #[ORM\OneToMany(mappedBy: 'origin', targetEntity: WalletFinancement::class)]
+    #[ORM\OneToMany(mappedBy: 'origin', targetEntity: WalletFinancement::class, cascade: ['persist'])]
     private Collection $financesTo;
 
     /**
      * A collection of Financements from incoming Statements that provided money for this Statement.
-     * 
+     *
      * Only not empty for outgoing Statements.
-     * 
+     *
      * @var Collection<int, WalletFinancement>
      */
-    #[ORM\OneToMany(mappedBy: 'target', targetEntity: WalletFinancement::class)]
+    #[ORM\OneToMany(mappedBy: 'target', targetEntity: WalletFinancement::class, cascade: ['persist'])]
     private Collection $financedBy;
 
     public function __construct()
@@ -91,6 +91,11 @@ class WalletStatement
     public function getDirection(): ?StatementDirection
     {
         return $this->direction;
+    }
+
+    public function hasDirection(StatementDirection $direction): bool
+    {
+        return $this->direction === $direction;
     }
 
     public function setDirection(StatementDirection $direction): static

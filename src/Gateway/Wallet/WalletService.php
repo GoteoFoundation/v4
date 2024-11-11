@@ -5,6 +5,7 @@ namespace App\Gateway\Wallet;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
+use App\Entity\WalletFinancement;
 use App\Entity\WalletStatement;
 use App\Library\Economy\MoneyService;
 use App\Repository\WalletStatementRepository;
@@ -33,16 +34,13 @@ class WalletService
         $statements = $this->getStatements($accounting);
 
         foreach ($statements as $statement) {
-            $transacted = $this->money->toBrick($statement->getTransaction()->getMoney());
+            $balance = $this->money->toBrick($statement->getBalance());
 
-            switch ($statement->getDirection()) {
-                case StatementDirection::Incoming:
-                    $total = $total->plus($transacted);
-                    break;
-                case StatementDirection::Outgoing:
-                    $total = $total->minus($transacted);
-                    break;
+            if (!$statement->hasDirection(StatementDirection::Incoming)) {
+                continue;
             }
+
+            $total = $total->plus($balance);
         }
 
         return $this->money->toMoney($total);
@@ -86,12 +84,17 @@ class WalletService
         $outgoing->setTransaction($transaction);
         $outgoing->setDirection(StatementDirection::Outgoing);
 
-        $incomings = $this->getStatements($origin);
-        foreach ($incomings as $incoming) {
+        $statements = $this->getStatements($origin);
+        foreach ($statements as $statement) {
             if ($spendGoal->amount === 0) {
                 break;
             }
 
+            if (!$statement->hasDirection(StatementDirection::Incoming)) {
+                continue;
+            }
+
+            $incoming = $statement;
             $balance = $incoming->getBalance();
 
             if ($balance->amount === 0) {
@@ -104,19 +107,23 @@ class WalletService
                 $balanceSpent = $balance;
             }
 
-            $spendGoal = $this->money->substract($balanceSpent, $spendGoal);
-            $spentTotal = $this->money->add($balanceSpent, $spentTotal);
+            $financement = new WalletFinancement();
+            $financement->setMoney($balanceSpent);
 
-            $balance = $this->money->substract($balanceSpent, $balance);
-            $incoming->setBalance($balance);
+            $incoming->setBalance($this->money->substract($balanceSpent, $balance));
+            $incoming->addFinancesTo($financement);
 
-            $outgoing->setBalance($spentTotal);
-            $outgoing->addFinancedBy($incoming);
+            $outgoing->setBalance($this->money->add($balanceSpent, $spentTotal));
+            $outgoing->addFinancedBy($financement);
 
             $this->entityManager->persist($incoming);
             $this->entityManager->persist($outgoing);
-            $this->entityManager->flush();
+
+            $spendGoal = $this->money->substract($balanceSpent, $spendGoal);
+            $spentTotal = $this->money->add($balanceSpent, $spentTotal);
         }
+
+        $this->entityManager->flush();
 
         return $outgoing;
     }
