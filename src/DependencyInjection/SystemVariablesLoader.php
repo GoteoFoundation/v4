@@ -15,8 +15,7 @@ final class SystemVariablesLoader implements EnvVarLoaderInterface
 {
     public function __construct(
         private SystemVariableRepository $systemVarRepository,
-    ) {
-    }
+    ) {}
 
     public function loadEnvVars(): array
     {

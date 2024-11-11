@@ -2,7 +2,6 @@
 
 namespace App\Library\Benzina\Pump;
 
-use App\Entity\Accounting;
 use App\Entity\User;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
 use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;
@@ -52,8 +51,7 @@ class UsersPump extends AbstractPump implements PumpInterface
 
     public function __construct(
         private EntityManagerInterface $entityManager,
-    ) {
-    }
+    ) {}
 
     public function supports(mixed $batch): bool
     {
@@ -69,8 +67,12 @@ class UsersPump extends AbstractPump implements PumpInterface
         $batch = $this->skipPumped($batch, 'id', User::class, 'migratedId');
 
         foreach ($batch as $key => $record) {
+            $created = new \DateTime($record['created']);
+            if ($created < new \DateTime('2000-01-01')) {
+                $created = new \DateTime($record['modified']);
+            }
+
             $user = new User();
-            $user->setAccounting(new Accounting());
             $user->setUsername($this->getUsername($record));
             $user->setPassword($record['password'] ?? '');
             $user->setEmail($record['email']);
@@ -79,12 +81,10 @@ class UsersPump extends AbstractPump implements PumpInterface
             $user->setActive(false);
             $user->setMigrated(true);
             $user->setMigratedId($record['id']);
-
-            $accounting = new Accounting();
-            $accounting->setUser($user);
+            $user->setDateCreated($created);
+            $user->setDateUpdated(new \DateTime());
 
             $this->entityManager->persist($user);
-            $this->entityManager->persist($accounting);
         }
 
         $this->entityManager->flush();

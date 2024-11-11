@@ -9,9 +9,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 
 class AccessTokenHandler implements AccessTokenHandlerInterface
 {
-    public function __construct(private UserTokenRepository $userTokenRepository)
-    {
-    }
+    public function __construct(private UserTokenRepository $userTokenRepository) {}
 
     public function getUserBadgeFrom(#[\SensitiveParameter] string $accessToken): UserBadge
     {

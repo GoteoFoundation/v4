@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Library\Economy\Payment\GatewayLocator;
+use App\Gateway\GatewayLocator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,8 +19,7 @@ class GatewaysController extends AbstractController
 
     public function __construct(
         private GatewayLocator $gatewayLocator,
-    ) {
-    }
+    ) {}
 
     #[Route('/gateway_redirects', name: self::REDIRECT)]
     public function handleRedirect(Request $request): Response

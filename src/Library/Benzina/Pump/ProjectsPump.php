@@ -2,7 +2,7 @@
 
 namespace App\Library\Benzina\Pump;
 
-use App\Entity\Accounting;
+use App\Entity\Accounting\Accounting;
 use App\Entity\Project;
 use App\Entity\ProjectStatus;
 use App\Entity\User;
@@ -97,8 +97,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
     public function __construct(
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
-    ) {
-    }
+    ) {}
 
     public function supports(mixed $batch): bool
     {
@@ -133,11 +132,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
             $project->setDateCreated(new \DateTime($record['created']));
             $project->setDateUpdated(new \DateTime());
 
-            $accounting = $this->getAccounting($record);
-            $accounting->setProject($project);
-
             $this->entityManager->persist($project);
-            $this->entityManager->persist($accounting);
         }
 
         $this->entityManager->flush();
