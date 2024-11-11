@@ -169,12 +169,24 @@ class WalletServiceTest extends KernelTestCase
         $this->assertCount(0, $statement->getFinancesTo());
         $this->assertCount(1, $statement->getFinancedBy());
 
+        $financement = $statements[0]->getFinancesTo()[0];
+        $this->assertEquals(20, $financement->getMoney()->amount);
+        $this->assertEquals('EUR', $financement->getMoney()->currency);
+        $this->assertSame($financement, $statement->getFinancedBy()[0]);
+        $this->assertEquals($financement->getId(), $statement->getFinancedBy()[0]->getId());
+
         $statement = $statements[2];
         $this->assertEquals(30, $statement->getBalance()->amount);
         $this->assertEquals(StatementDirection::Outgoing->value, $statement->getDirection()->value);
         $this->assertEquals('EUR', $balance->currency);
         $this->assertCount(0, $statement->getFinancesTo());
         $this->assertCount(1, $statement->getFinancedBy());
+
+        $financement = $statements[0]->getFinancesTo()[1];
+        $this->assertEquals(30, $financement->getMoney()->amount);
+        $this->assertEquals('EUR', $financement->getMoney()->currency);
+        $this->assertSame($financement, $statement->getFinancedBy()[0]);
+        $this->assertEquals($financement->getId(), $statement->getFinancedBy()[0]->getId());
     }
 
     public function testBalanceIsFIFO()
