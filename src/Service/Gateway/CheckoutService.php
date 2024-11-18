@@ -32,7 +32,7 @@ class CheckoutService
             GatewaysController::REDIRECT,
             [
                 'type' => $type,
-                'gateway' => $checkout->getGateway(),
+                'gateway' => $checkout->getGatewayName(),
                 'checkoutId' => $checkout->getId(),
                 ...$parameters,
             ],

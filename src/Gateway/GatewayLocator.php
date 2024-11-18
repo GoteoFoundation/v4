@@ -68,7 +68,7 @@ class GatewayLocator
      */
     public function getGatewayOf(Checkout $checkout): GatewayInterface
     {
-        $gateway = $checkout->getGateway();
+        $gateway = $checkout->getGatewayName();
         if (!$gateway) {
             throw new \Exception('The given GatewayCheckout does not specify a Gateway');
         }

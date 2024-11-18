@@ -117,7 +117,7 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             $checkout = new Checkout();
             $checkout->setOrigin($user->getAccounting());
             $checkout->setStatus($this->getCheckoutStatus($record));
-            $checkout->setGateway($this->getCheckoutGateway($record));
+            $checkout->setGatewayName($this->getCheckoutGateway($record));
 
             foreach ($this->getCheckoutTrackings($record) as $tracking) {
                 $checkout->addTracking($tracking);

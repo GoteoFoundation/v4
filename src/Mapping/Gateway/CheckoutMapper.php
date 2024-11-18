@@ -24,7 +24,7 @@ class CheckoutMapper
         $resource = new Resource\Checkout();
         $resource->id = $entity->getId();
 
-        $gateway = $this->gatewayLocator->getGateway($entity->getGateway());
+        $gateway = $this->gatewayLocator->getGatewayOf($entity);
         $resource->gateway = $this->gatewayMapper->toResource($gateway);
 
         $resource->origin = $this->accountingMapper->toResource($entity->getOrigin());
@@ -51,7 +51,7 @@ class CheckoutMapper
             $entity = $this->checkoutRepository->find($resource->id);
         }
 
-        $entity->setGateway($resource->gateway->name);
+        $entity->setGatewayName($resource->gateway->name);
         $entity->setOrigin($this->accountingMapper->toEntity($resource->origin));
 
         $charges = [];
