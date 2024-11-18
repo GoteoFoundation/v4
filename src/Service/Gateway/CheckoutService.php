@@ -6,7 +6,7 @@ use App\Controller\GatewaysController;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
-use App\Entity\Gateway\CheckoutStatus;
+use App\Gateway\CheckoutStatus;
 use Symfony\Component\Routing\RouterInterface;
 
 class CheckoutService
