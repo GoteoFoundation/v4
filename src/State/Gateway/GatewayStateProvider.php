@@ -30,7 +30,7 @@ class GatewayStateProvider implements ProviderInterface
     private function getGateways(): array
     {
         $gateways = [];
-        foreach ($this->gateways->getGateways() as $gateway) {
+        foreach ($this->gateways->getAll() as $gateway) {
             $gateways[] = $this->gatewayMapper->toResource($gateway);
         }
 
@@ -40,7 +40,7 @@ class GatewayStateProvider implements ProviderInterface
     private function getGateway(string $name): Gateway
     {
         try {
-            $gateway = $this->gateways->getGateway($name);
+            $gateway = $this->gateways->get($name);
 
             return $this->gatewayMapper->toResource($gateway);
         } catch (\Exception $e) {

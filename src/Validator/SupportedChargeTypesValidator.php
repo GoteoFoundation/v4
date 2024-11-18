@@ -27,7 +27,7 @@ class SupportedChargeTypesValidator extends ConstraintValidator
         $charges = $value;
 
         $checkout = $charges->toArray()[0]->getCheckout();
-        $gateway = $this->gatewayLocator->getGatewayOf($checkout);
+        $gateway = $this->gatewayLocator->getByCheckout($checkout);
 
         foreach ($charges as $charge) {
             if (!\in_array(

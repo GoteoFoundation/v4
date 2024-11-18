@@ -29,7 +29,7 @@ class CheckoutStateProcessor implements ProcessorInterface
         $entity = $this->checkoutMapper->toEntity($data);
         $entity = $this->innerProcessor->process($entity, $operation, $uriVariables, $context);
 
-        $entity = $this->gatewayLocator->getGateway($data->gateway->name)->process($entity);
+        $entity = $this->gatewayLocator->get($data->gateway->name)->process($entity);
         $entity = $this->innerProcessor->process($entity, $operation, $uriVariables, $context);
 
         return $this->checkoutMapper->toResource($entity);
