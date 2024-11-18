@@ -9,6 +9,8 @@ use App\Entity\WalletStatement;
 use App\Gateway\ChargeType;
 use App\Gateway\GatewayInterface;
 use App\Library\Economy\MoneyService;
+use App\Service\Gateway\CheckoutService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,15 +32,16 @@ class WalletGateway implements GatewayInterface
     public function __construct(
         private WalletService $wallet,
         private MoneyService $money,
+        private CheckoutService $checkoutService,
+        private EntityManagerInterface $entityManager,
     ) {}
 
     public function process(Checkout $checkout): Checkout
     {
         $origin = $checkout->getOrigin();
         $available = $this->wallet->getBalance($origin);
-        $chargeTotal = $this->getChargeTotal($checkout);
 
-        if ($this->money->isLess($available, $chargeTotal)) {
+        if ($this->money->isLess($available, $this->getChargeTotal($checkout))) {
             throw new \Exception("Can't spend more than what you have!");
         }
 
@@ -55,6 +58,11 @@ class WalletGateway implements GatewayInterface
 
             $outgoing = $this->wallet->spend($transaction);
         }
+
+        $checkout = $this->checkoutService->chargeCheckout($checkout);
+
+        $this->entityManager->persist($checkout);
+        $this->entityManager->flush();
 
         return $checkout;
     }
