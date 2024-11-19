@@ -31,14 +31,10 @@ class WalletService
     public function getBalance(Accounting $accounting): Money
     {
         $total = Brick\Money::ofMinor(0, $accounting->getCurrency());
-        $statements = $this->getStatements($accounting);
+        $statements = $this->statementRepository->findByTarget($accounting);
 
         foreach ($statements as $statement) {
             $balance = $this->money->toBrick($statement->getBalance());
-
-            if (!$statement->hasDirection(StatementDirection::Incoming)) {
-                continue;
-            }
 
             $total = $total->plus($balance);
         }
