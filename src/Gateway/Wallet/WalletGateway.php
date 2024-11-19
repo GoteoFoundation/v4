@@ -52,17 +52,13 @@ class WalletGateway implements GatewayInterface
             $transaction->setOrigin($origin);
             $transaction->setTarget($charge->getTarget());
 
-            $outgoing = new WalletStatement();
-            $outgoing->setTransaction($transaction);
-            $outgoing->setDirection(StatementDirection::Outgoing);
+            $expenditure = $this->wallet->spend($transaction);
 
-            $outgoing = $this->wallet->spend($transaction);
+            $this->entityManager->persist($expenditure);
+            $this->entityManager->flush();
         }
 
         $checkout = $this->checkoutService->chargeCheckout($checkout);
-
-        $this->entityManager->persist($checkout);
-        $this->entityManager->flush();
 
         return $checkout;
     }

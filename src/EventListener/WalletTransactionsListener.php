@@ -21,7 +21,7 @@ final class WalletTransactionsListener
     ) {}
 
     /**
-     * Generates a WalletStatement for User-received Transactions.
+     * Generates an income statement for User-received Transactions.
      */
     public function processTransaction(
         Transaction $transaction,
@@ -31,13 +31,13 @@ final class WalletTransactionsListener
             return;
         }
 
-        $statement = $this->wallet->save($transaction);
+        $income = $this->wallet->save($transaction);
 
-        if ($statement->getId() !== null) {
+        if ($income->getId() !== null) {
             return;
         }
 
-        $event->getObjectManager()->persist($statement);
+        $event->getObjectManager()->persist($income);
         $event->getObjectManager()->flush();
     }
 }
