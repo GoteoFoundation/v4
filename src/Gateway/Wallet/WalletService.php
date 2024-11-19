@@ -16,7 +16,7 @@ class WalletService
 {
     public function __construct(
         private MoneyService $money,
-        private WalletStatementRepository $walletStatementRepository,
+        private WalletStatementRepository $statementRepository,
         private EntityManagerInterface $entityManager,
     ) {}
 
@@ -25,7 +25,7 @@ class WalletService
      */
     public function getStatements(Accounting $accounting): array
     {
-        return $this->walletStatementRepository->findByAccounting($accounting);
+        return $this->statementRepository->findByAccounting($accounting);
     }
 
     public function getBalance(Accounting $accounting): Money
@@ -47,21 +47,24 @@ class WalletService
     }
 
     /**
-     * Puts the money of a Transaction into the target wallet.
+     * Obtain an `incoming` WalletStatement for the Transaction.
      *
      * @param Transaction $transaction The Transaction targetting a wallet
      *
-     * @return WalletStatement An incoming statement for the target wallet
+     * @return WalletStatement An incoming statement for the transaction
      */
     public function save(Transaction $transaction): WalletStatement
     {
+        $statement = $this->statementRepository->findByTransaction($transaction);
+
+        if ($statement) {
+            return $statement;
+        }
+
         $statement = new WalletStatement();
         $statement->setTransaction($transaction);
         $statement->setDirection(StatementDirection::Incoming);
         $statement->setBalance($transaction->getMoney());
-
-        $this->entityManager->persist($statement);
-        $this->entityManager->flush();
 
         return $statement;
     }
@@ -117,13 +120,10 @@ class WalletService
             $outgoing->addFinancedBy($financement);
 
             $this->entityManager->persist($incoming);
-            $this->entityManager->persist($outgoing);
 
             $spendGoal = $this->money->substract($balanceSpent, $spendGoal);
             $spentTotal = $this->money->add($balanceSpent, $spentTotal);
         }
-
-        $this->entityManager->flush();
 
         return $outgoing;
     }

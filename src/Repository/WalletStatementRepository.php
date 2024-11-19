@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Accounting\Accounting;
+use App\Entity\Accounting\Transaction;
 use App\Entity\WalletStatement;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
@@ -61,6 +62,20 @@ class WalletStatementRepository extends ServiceEntityRepository
             ->orderBy('w.id', 'ASC')
             ->getQuery()
             ->getResult()
+        ;
+    }
+
+    public function findByTransaction(Transaction $transaction): ?WalletStatement
+    {
+        if ($transaction->getId() === null) {
+            return null;
+        }
+
+        return $this->createQueryBuilder('w')
+            ->andWhere('w.transaction = :val')
+            ->setParameter('val', $transaction)
+            ->getQuery()
+            ->getOneOrNullResult()
         ;
     }
 
