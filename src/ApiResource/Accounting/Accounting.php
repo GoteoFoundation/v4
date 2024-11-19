@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\Entity\Accounting as Entity;
 use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Money;
 use App\State\Accounting\AccountingStateProcessor;
 use App\State\Accounting\AccountingStateProvider;
 
@@ -32,4 +33,6 @@ class Accounting
     public ?string $currency = null;
 
     public ?AccountingOwnerInterface $owner = null;
+
+    public ?Money $balance = null;
 }
