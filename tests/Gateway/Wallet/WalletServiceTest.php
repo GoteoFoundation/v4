@@ -51,7 +51,7 @@ class WalletServiceTest extends KernelTestCase
         return $tipjar;
     }
 
-    public function testTransactionsAddFunds()
+    public function testSaveAddFunds()
     {
         $tipjar = $this->getTipjar()->getAccounting();
         $user = $this->getUser()->getAccounting();
@@ -70,12 +70,53 @@ class WalletServiceTest extends KernelTestCase
         $incoming->setOrigin($tipjar);
         $incoming->setTarget($user);
 
-        /*
-         * $this->walletService->save($incoming);
-         * called automatically on Transaction persist.
-         *
-         * @see \App\EventListener\WalletTransactionsListener
-         */
+        $income = $this->walletService->save($incoming);
+
+        $this->assertEquals(100, $income->getBalance()->amount);
+        $this->assertEquals(StatementDirection::Incoming->value, $income->getDirection()->value);
+        $this->assertEquals('EUR', $balance->currency);
+        $this->assertCount(0, $income->getFinancesTo());
+        $this->assertCount(0, $income->getFinancedBy());
+
+        $this->entityManager->persist($income);
+        $this->entityManager->flush();
+
+        $balance = $this->walletService->getBalance($user);
+
+        $this->assertEquals(100, $balance->amount);
+        $this->assertEquals('EUR', $balance->currency);
+
+        $statements = $this->walletService->getStatements($user);
+
+        $this->assertCount(1, $statements);
+
+        $statement = $statements[0];
+        $this->assertEquals(100, $statement->getBalance()->amount);
+        $this->assertEquals(StatementDirection::Incoming->value, $statement->getDirection()->value);
+        $this->assertEquals('EUR', $balance->currency);
+        $this->assertCount(0, $statement->getFinancesTo());
+        $this->assertCount(0, $statement->getFinancedBy());
+    }
+
+    public function testTransactionsListenerAddFunds()
+    {
+        $tipjar = $this->getTipjar()->getAccounting();
+        $user = $this->getUser()->getAccounting();
+
+        $statements = $this->walletService->getStatements($user);
+
+        $this->assertCount(0, $statements);
+
+        $balance = $this->walletService->getBalance($user);
+
+        $this->assertEquals(0, $balance->amount);
+        $this->assertEquals($user->getCurrency(), $balance->currency);
+
+        $incoming = new Transaction();
+        $incoming->setMoney(new Money(100, 'EUR'));
+        $incoming->setOrigin($tipjar);
+        $incoming->setTarget($user);
+
         $this->entityManager->persist($incoming);
         $this->entityManager->flush();
 
@@ -96,7 +137,7 @@ class WalletServiceTest extends KernelTestCase
         $this->assertCount(0, $statement->getFinancedBy());
     }
 
-    public function testTransactionsGetFinanced()
+    public function testSpendFinancesExpenses()
     {
         $tipjar = $this->getTipjar()->getAccounting();
         $user = $this->getUser()->getAccounting();
@@ -114,7 +155,10 @@ class WalletServiceTest extends KernelTestCase
         $outgoing->setOrigin($user);
         $outgoing->setTarget($tipjar);
 
-        $this->walletService->spend($outgoing);
+        $expenditure = $this->walletService->spend($outgoing);
+
+        $this->entityManager->persist($expenditure);
+        $this->entityManager->flush();
 
         $balance = $this->walletService->getBalance($user);
 
@@ -144,7 +188,10 @@ class WalletServiceTest extends KernelTestCase
         $outgoing->setOrigin($user);
         $outgoing->setTarget($tipjar);
 
-        $this->walletService->spend($outgoing);
+        $expenditure = $this->walletService->spend($outgoing);
+
+        $this->entityManager->persist($expenditure);
+        $this->entityManager->flush();
 
         $balance = $this->walletService->getBalance($user);
 
@@ -215,7 +262,10 @@ class WalletServiceTest extends KernelTestCase
         $outgoing->setOrigin($user);
         $outgoing->setTarget($tipjar);
 
-        $this->walletService->spend($outgoing);
+        $expenditure = $this->walletService->spend($outgoing);
+
+        $this->entityManager->persist($expenditure);
+        $this->entityManager->flush();
 
         $incoming = new Transaction();
         $incoming->setMoney(new Money(13, 'EUR'));
