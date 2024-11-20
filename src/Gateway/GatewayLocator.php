@@ -4,6 +4,7 @@ namespace App\Gateway;
 
 use App\Entity\Gateway\Checkout;
 use App\Gateway\Exception\DuplicateGatewayException;
+use App\Gateway\Exception\MissingGatewayException;
 
 class GatewayLocator
 {
@@ -42,7 +43,7 @@ class GatewayLocator
     public function get(string $name): GatewayInterface
     {
         if (!\array_key_exists($name, $this->gatewaysByName)) {
-            throw new \Exception("Could not match '$name' to the name of any available Gateway");
+            throw new MissingGatewayException($name);
         }
 
         return $this->gatewaysByName[$name];
@@ -53,12 +54,7 @@ class GatewayLocator
      */
     public function getByCheckout(Checkout $checkout): GatewayInterface
     {
-        $gateway = $checkout->getGatewayName();
-        if (!$gateway) {
-            throw new \Exception('The given Gateway Checkout does not specify a Gateway');
-        }
-
-        return $this->get($gateway);
+        return $this->get($checkout->getGatewayName());
     }
 
     /**
