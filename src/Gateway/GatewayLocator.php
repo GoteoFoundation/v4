@@ -3,6 +3,7 @@
 namespace App\Gateway;
 
 use App\Entity\Gateway\Checkout;
+use App\Gateway\Exception\DuplicateGatewayException;
 
 class GatewayLocator
 {
@@ -26,7 +27,7 @@ class GatewayLocator
     }
 
     /**
-     * @return GatewayInterface[]
+     * @return <string, GatewayInterface>
      */
     public function getAll(): array
     {
@@ -41,7 +42,7 @@ class GatewayLocator
     public function get(string $name): GatewayInterface
     {
         if (!\array_key_exists($name, $this->gatewaysByName)) {
-            throw new \Exception("Could not match '$name' to the name of any available Gateway implementation");
+            throw new \Exception("Could not match '$name' to the name of any available Gateway");
         }
 
         return $this->gatewaysByName[$name];
@@ -54,7 +55,7 @@ class GatewayLocator
     {
         $gateway = $checkout->getGatewayName();
         if (!$gateway) {
-            throw new \Exception('The given GatewayCheckout does not specify a Gateway');
+            throw new \Exception('The given Gateway Checkout does not specify a Gateway');
         }
 
         return $this->get($gateway);
@@ -74,14 +75,11 @@ class GatewayLocator
             $gatewayName = $gatewayClass::getName();
 
             if (\array_key_exists($gatewayName, $gatewaysValidated)) {
-                $exceptionMessage = sprintf(
-                    "Duplicate Gateway name '%s' from class %s, name is already in use by class %s",
+                throw new DuplicateGatewayException(
                     $gatewayName,
-                    $gatewayClass,
-                    $gatewaysValidated[$gatewayName]
+                    $gatewayClass::class,
+                    $gatewaysValidated[$gatewayName]::class
                 );
-
-                throw new \Exception($exceptionMessage);
             }
 
             $gatewaysValidated[$gatewayName] = $gatewayClass;
