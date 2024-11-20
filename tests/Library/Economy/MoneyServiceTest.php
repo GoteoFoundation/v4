@@ -28,16 +28,14 @@ class MoneyServiceTest extends KernelTestCase
 
     public function testComparesLess()
     {
-        $a = new Money(300, 'EUR');
-        $b = new Money(200, 'EUR');
+        $more = new Money(300, 'EUR');
+        $less = new Money(200, 'EUR');
 
-        $this->assertTrue($this->moneyService->isLess($b, $a));
-        $this->assertFalse($this->moneyService->isLess($a, $b));
-
-        $c = new Money(100, 'JPY');
+        $this->assertTrue($this->moneyService->isLess($less, $more));
+        $this->assertFalse($this->moneyService->isLess($more, $less));
 
         // We are cooked if this fails and I'm not talking about code
-        $this->assertTrue($this->moneyService->isLess($c, $a));
+        $this->assertTrue($this->moneyService->isLess(new Money(100, 'JPY'), $more));
     }
 
     public function testComparesMore()
@@ -57,5 +55,48 @@ class MoneyServiceTest extends KernelTestCase
 
         $this->assertFalse($this->moneyService->isMoreOrSame($d, $c));
         $this->assertFalse($this->moneyService->isMoreOrSame($d, $a));
+    }
+
+    public function testAddition()
+    {
+        $a = new Money(100, 'EUR');
+        $b = new Money(110, 'EUR');
+
+        $c = $this->moneyService->add($a, $b);
+
+        $this->assertEquals(100, $a->amount);
+        $this->assertEquals(110, $b->amount);
+        $this->assertEquals(210, $c->amount);
+
+        $d = new Money(100, 'USD');
+        $e = $this->moneyService->add($a, $d);
+
+        $this->assertEquals($d->amount, $a->amount);
+        $this->assertEquals($d->currency, $e->currency);
+
+        $this->assertNotEquals($d->amount, $e->amount);
+        $this->assertTrue($this->moneyService->isMoreOrSame($e, $d));
+        $this->assertTrue($this->moneyService->isMoreOrSame($e, $a));
+    }
+
+    public function testSubstraction()
+    {
+        $a = new Money(101, 'EUR');
+        $b = new Money(210, 'EUR');
+
+        $c = $this->moneyService->substract($a, $b);
+
+        $this->assertEquals(101, $a->amount);
+        $this->assertEquals(210, $b->amount);
+        $this->assertEquals(109, $c->amount);
+
+        $d = new Money(500, 'USD');
+        $e = $this->moneyService->substract($a, $d);
+
+        $this->assertEquals($d->currency, $e->currency);
+
+        $this->assertNotEquals($d->amount, $e->amount);
+        $this->assertTrue($this->moneyService->isLess($e, $d));
+        $this->assertTrue($this->moneyService->isMoreOrSame($e, $a));
     }
 }
