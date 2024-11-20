@@ -15,7 +15,7 @@ class SupportedChargeTypesValidator extends ConstraintValidator
 
     /**
      * @param Collection<int, \App\Entity\Gateway\Charge> $value
-     * @param SupportedChargeTypes $constraint
+     * @param SupportedChargeTypes                        $constraint
      */
     public function validate(mixed $value, Constraint $constraint): void
     {
