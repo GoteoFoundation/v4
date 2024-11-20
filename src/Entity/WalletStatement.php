@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Transaction;
 use App\Gateway\Wallet\StatementDirection;
 use App\Repository\WalletStatementRepository;
@@ -18,7 +17,6 @@ use Doctrine\ORM\Mapping as ORM;
  * a. Targets an User's Accounting, for which an incoming Statement will be created and which will hold the money until it is spent.\
  * b. Originates from an User's Accounting via the Wallet Gateway, which will create an outgoing Statement with money financed from previous incoming statements.
  */
-#[API\ApiResource()]
 #[ORM\Entity(repositoryClass: WalletStatementRepository::class)]
 class WalletStatement
 {
@@ -27,7 +25,7 @@ class WalletStatement
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Transaction $transaction = null;
 

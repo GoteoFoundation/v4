@@ -25,7 +25,7 @@ class WalletFinancement
     /**
      * An incoming Statement that originally saved the money in this Financement.
      */
-    #[ORM\ManyToOne(inversedBy: 'financesto')]
+    #[ORM\ManyToOne(inversedBy: 'financesTo')]
     #[ORM\JoinColumn(nullable: false)]
     private ?WalletStatement $origin = null;
 

@@ -10,6 +10,7 @@ use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
 use App\Gateway\Tracking;
 use App\State\Gateway\CheckoutStateProcessor;
+use App\State\Gateway\CheckoutStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,7 +19,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\ApiResource(
     shortName: 'GatewayCheckout',
     stateOptions: new Options(entityClass: Entity\Checkout::class),
-    processor: CheckoutStateProcessor::class
+    provider: CheckoutStateProvider::class,
+    processor: CheckoutStateProcessor::class,
 )]
 #[API\GetCollection()]
 #[API\Post()]

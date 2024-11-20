@@ -6,7 +6,6 @@ use App\Entity\Accounting\Transaction;
 use App\Entity\User;
 use App\Gateway\Wallet\WalletService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Events;
 
@@ -18,21 +17,27 @@ use Doctrine\ORM\Events;
 final class WalletTransactionsListener
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
         private WalletService $wallet,
     ) {}
 
     /**
-     * Generates a WalletStatement for User-received Transactions.
+     * Generates an income statement for User-received Transactions.
      */
     public function processTransaction(
         Transaction $transaction,
         PostPersistEventArgs $event,
     ) {
-        $target = $transaction->getTarget();
-
-        if ($target->getOwner() instanceof User) {
-            $this->wallet->save($transaction);
+        if (!$transaction->getTarget()->getOwner() instanceof User) {
+            return;
         }
+
+        $income = $this->wallet->save($transaction);
+
+        if ($income->getId() !== null) {
+            return;
+        }
+
+        $event->getObjectManager()->persist($income);
+        $event->getObjectManager()->flush();
     }
 }

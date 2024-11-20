@@ -69,7 +69,7 @@ class Accounting
         return $this;
     }
 
-    public function getOwner(): AccountingOwnerInterface
+    public function getOwner(): ?AccountingOwnerInterface
     {
         $owner = $this->owner;
 

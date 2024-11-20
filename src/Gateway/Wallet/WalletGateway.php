@@ -5,10 +5,11 @@ namespace App\Gateway\Wallet;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Money;
-use App\Entity\WalletStatement;
 use App\Gateway\ChargeType;
 use App\Gateway\GatewayInterface;
 use App\Library\Economy\MoneyService;
+use App\Service\Gateway\CheckoutService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,15 +31,16 @@ class WalletGateway implements GatewayInterface
     public function __construct(
         private WalletService $wallet,
         private MoneyService $money,
+        private CheckoutService $checkoutService,
+        private EntityManagerInterface $entityManager,
     ) {}
 
     public function process(Checkout $checkout): Checkout
     {
         $origin = $checkout->getOrigin();
         $available = $this->wallet->getBalance($origin);
-        $chargeTotal = $this->getChargeTotal($checkout);
 
-        if ($this->money->isLess($available, $chargeTotal)) {
+        if ($this->money->isLess($available, $this->getChargeTotal($checkout))) {
             throw new \Exception("Can't spend more than what you have!");
         }
 
@@ -49,12 +51,13 @@ class WalletGateway implements GatewayInterface
             $transaction->setOrigin($origin);
             $transaction->setTarget($charge->getTarget());
 
-            $outgoing = new WalletStatement();
-            $outgoing->setTransaction($transaction);
-            $outgoing->setDirection(StatementDirection::Outgoing);
+            $expenditure = $this->wallet->spend($transaction);
 
-            $outgoing = $this->wallet->spend($transaction);
+            $this->entityManager->persist($expenditure);
+            $this->entityManager->flush();
         }
+
+        $checkout = $this->checkoutService->chargeCheckout($checkout);
 
         return $checkout;
     }

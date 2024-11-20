@@ -2,6 +2,7 @@
 
 namespace App\Repository\Accounting;
 
+use App\Entity\Accounting\Accounting;
 use App\Entity\Accounting\Transaction;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -19,6 +20,49 @@ class TransactionRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Transaction::class);
+    }
+
+    /**
+     * @return Transaction[] Transactions originated from or targeting the Accounting
+     */
+    public function findByAccounting(Accounting $accounting): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.origin = :val')
+            ->orWhere('t.target = :val')
+            ->setParameter('val', $accounting)
+            ->orderBy('t.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * @return Transaction[] Transactions originated from the Accounting
+     */
+    public function findByOrigin(Accounting $origin): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.origin = :val')
+            ->setParameter('val', $origin)
+            ->orderBy('t.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * @return Transaction[] Transactions targetting the Accounting
+     */
+    public function findByTarget(Accounting $origin): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.target = :val')
+            ->setParameter('val', $origin)
+            ->orderBy('t.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
     }
 
     //    /**

@@ -3,6 +3,8 @@
 namespace App\Gateway;
 
 use App\Entity\Gateway\Checkout;
+use App\Gateway\Exception\DuplicateGatewayException;
+use App\Gateway\Exception\MissingGatewayException;
 
 class GatewayLocator
 {
@@ -26,25 +28,9 @@ class GatewayLocator
     }
 
     /**
-     * @return array<string> List of the fully-qualified class names of the available interfaces
+     * @return <string, GatewayInterface>
      */
-    public function getClasses(): array
-    {
-        return \array_keys($this->gatewaysByClass);
-    }
-
-    /**
-     * @return array<string> List of names of the available interfaces
-     */
-    public function getNames(): array
-    {
-        return \array_keys($this->gatewaysByName);
-    }
-
-    /**
-     * @return GatewayInterface[]
-     */
-    public function getGateways(): array
+    public function getAll(): array
     {
         return $this->gatewaysByName;
     }
@@ -52,12 +38,12 @@ class GatewayLocator
     /**
      * @param string $name Name of the Gateway interface implementation
      *
-     * @throws \Exception When the $name does not match to that of an implemented Gateway
+     * @throws \Exception When the `$name` does not match to that of an implemented Gateway
      */
-    public function getGateway(string $name): GatewayInterface
+    public function get(string $name): GatewayInterface
     {
         if (!\array_key_exists($name, $this->gatewaysByName)) {
-            throw new \Exception("No such Gateway with the name $name");
+            throw new MissingGatewayException($name);
         }
 
         return $this->gatewaysByName[$name];
@@ -66,14 +52,9 @@ class GatewayLocator
     /**
      * @throws \Exception When the $checkout::gateway does not match to that of an implemented Gateway
      */
-    public function getGatewayOf(Checkout $checkout): GatewayInterface
+    public function getForCheckout(Checkout $checkout): GatewayInterface
     {
-        $gateway = $checkout->getGateway();
-        if (!$gateway) {
-            throw new \Exception('The given GatewayCheckout does not specify a Gateway');
-        }
-
-        return $this->getGateway($gateway);
+        return $this->get($checkout->getGatewayName());
     }
 
     /**
@@ -90,14 +71,11 @@ class GatewayLocator
             $gatewayName = $gatewayClass::getName();
 
             if (\array_key_exists($gatewayName, $gatewaysValidated)) {
-                $exceptionMessage = sprintf(
-                    "Duplicate Gateway name '%s' from class %s, name is already in use by class %s",
+                throw new DuplicateGatewayException(
                     $gatewayName,
-                    $gatewayClass,
-                    $gatewaysValidated[$gatewayName]
+                    $gatewayClass::class,
+                    $gatewaysValidated[$gatewayName]::class
                 );
-
-                throw new \Exception($exceptionMessage);
             }
 
             $gatewaysValidated[$gatewayName] = $gatewayClass;

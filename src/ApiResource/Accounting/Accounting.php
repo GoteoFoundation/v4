@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\Entity\Accounting as Entity;
 use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Money;
 use App\State\Accounting\AccountingStateProcessor;
 use App\State\Accounting\AccountingStateProvider;
 
@@ -17,7 +18,6 @@ use App\State\Accounting\AccountingStateProvider;
  * perform corroboration of funds and store the Transactions into the system.
  */
 #[API\ApiResource(
-    shortName: 'Accounting',
     stateOptions: new Options(entityClass: Entity\Accounting::class),
     provider: AccountingStateProvider::class,
     processor: AccountingStateProcessor::class,
@@ -32,4 +32,6 @@ class Accounting
     public ?string $currency = null;
 
     public ?AccountingOwnerInterface $owner = null;
+
+    public ?Money $balance = null;
 }

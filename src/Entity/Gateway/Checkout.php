@@ -68,7 +68,7 @@ class Checkout
      */
     #[Assert\NotBlank()]
     #[ORM\Column(length: 255)]
-    private ?string $gateway = null;
+    private ?string $gatewayName = null;
 
     /**
      * A list of URLs provided by the Gateway for this checkout.\
@@ -168,14 +168,14 @@ class Checkout
         return $this;
     }
 
-    public function getGateway(): ?string
+    public function getGatewayName(): ?string
     {
-        return $this->gateway;
+        return $this->gatewayName;
     }
 
-    public function setGateway(string $gateway): static
+    public function setGatewayName(string $gatewayName): static
     {
-        $this->gateway = $gateway;
+        $this->gatewayName = $gatewayName;
 
         return $this;
     }

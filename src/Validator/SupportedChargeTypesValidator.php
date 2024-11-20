@@ -13,6 +13,10 @@ class SupportedChargeTypesValidator extends ConstraintValidator
         private GatewayLocator $gatewayLocator,
     ) {}
 
+    /**
+     * @param Collection<int, \App\Entity\Gateway\Charge> $value
+     * @param SupportedChargeTypes                        $constraint
+     */
     public function validate(mixed $value, Constraint $constraint): void
     {
         if ($value === null || $value === '') {
@@ -23,17 +27,12 @@ class SupportedChargeTypesValidator extends ConstraintValidator
             return;
         }
 
-        /** @var Collection<int, \App\Entity\Gateway\Charge> */
-        $charges = $value;
+        $checkout = $value->toArray()[0]->getCheckout();
+        $gateway = $this->gatewayLocator->getForCheckout($checkout);
+        $supportedTypes = $gateway->getSupportedChargeTypes();
 
-        $checkout = $charges->toArray()[0]->getCheckout();
-        $gateway = $this->gatewayLocator->getGatewayOf($checkout);
-
-        foreach ($charges as $charge) {
-            if (!\in_array(
-                $charge->getType(),
-                $gateway->getSupportedChargeTypes()
-            )) {
+        foreach ($value as $charge) {
+            if (!\in_array($charge->getType(), $supportedTypes)) {
                 $this->context->buildViolation($constraint->message)
                     ->setParameter('{{ value }}', $charge->getType()->value)
                     ->setParameter('{{ gateway }}', $gateway->getName())
