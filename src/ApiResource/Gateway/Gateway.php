@@ -12,7 +12,7 @@ use App\State\Gateway\GatewayStateProvider;
  * These implementations make use of external or internal services to gather the funds that are inside a Transaction,
  * perform corroboration of funds and store the Transactions into the system.
  */
-#[API\ApiResource(shortName: 'Gateway')]
+#[API\ApiResource()]
 #[API\GetCollection(provider: GatewayStateProvider::class)]
 #[API\Get(provider: GatewayStateProvider::class)]
 class Gateway

@@ -5,7 +5,6 @@ namespace App\Gateway\Wallet;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Gateway\Checkout;
 use App\Entity\Money;
-use App\Entity\WalletStatement;
 use App\Gateway\ChargeType;
 use App\Gateway\GatewayInterface;
 use App\Library\Economy\MoneyService;

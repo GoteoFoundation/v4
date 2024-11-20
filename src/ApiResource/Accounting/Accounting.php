@@ -18,7 +18,6 @@ use App\State\Accounting\AccountingStateProvider;
  * perform corroboration of funds and store the Transactions into the system.
  */
 #[API\ApiResource(
-    shortName: 'Accounting',
     stateOptions: new Options(entityClass: Entity\Accounting::class),
     provider: AccountingStateProvider::class,
     processor: AccountingStateProcessor::class,
