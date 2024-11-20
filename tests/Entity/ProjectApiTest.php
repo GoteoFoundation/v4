@@ -55,8 +55,8 @@ class ProjectApiTest extends ApiTestCase
             [
                 'title' => 'Test Project',
                 'accounting' => [],
-                'status' => ProjectStatus::Editing->value
-            ]
+                'status' => ProjectStatus::Editing->value,
+            ],
         ]]);
     }
 
@@ -70,7 +70,7 @@ class ProjectApiTest extends ApiTestCase
             [
                 'json' => [
                     'title' => 'ProjectApiTest Project',
-                ]
+                ],
             ]
         );
 
