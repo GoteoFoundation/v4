@@ -52,7 +52,7 @@ class GatewayLocator
     /**
      * @throws \Exception When the $checkout::gateway does not match to that of an implemented Gateway
      */
-    public function getByCheckout(Checkout $checkout): GatewayInterface
+    public function getForCheckout(Checkout $checkout): GatewayInterface
     {
         return $this->get($checkout->getGatewayName());
     }
