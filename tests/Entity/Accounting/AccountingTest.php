@@ -38,8 +38,13 @@ class AccountingTest extends KernelTestCase
             ->getAccounting();
 
         $this->assertNotNull($accountingA->getId());
+
+        $this->assertSame($tipjarA, $accountingA->getOwner());
+        $this->assertSame($tipjarA, $accountingA->getTipjar());
         $this->assertEquals($tipjarA->getId(), $accountingA->getOwner()->getId());
-        $this->assertEquals(Tipjar::class, $accountingA->getOwner()::class);
+
+        $this->assertEquals(null, $accountingA->getUser());
+        $this->assertEquals(null, $accountingA->getProject());
 
         $tipjarB = new Tipjar();
         $tipjarB->setName('TEST_TIPJAR_B');
@@ -56,7 +61,16 @@ class AccountingTest extends KernelTestCase
             ->getAccounting();
 
         $this->assertNotNull($accountingB->getId());
+
+        $this->assertSame($tipjarB, $accountingB->getOwner());
+        $this->assertNotSame($tipjarA, $accountingB->getOwner());
+        $this->assertSame($tipjarB, $accountingB->getTipjar());
+        $this->assertNotSame($tipjarA, $accountingB->getTipjar());
+
         $this->assertEquals($tipjarB->getId(), $accountingB->getOwner()->getId());
-        $this->assertEquals(Tipjar::class, $accountingB->getOwner()::class);
+        $this->assertNotEquals($tipjarA->getId(), $accountingB->getOwner()->getId());
+
+        $this->assertEquals(null, $accountingB->getUser());
+        $this->assertEquals(null, $accountingB->getProject());
     }
 }
