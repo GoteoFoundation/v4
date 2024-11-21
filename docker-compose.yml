@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   php:
     build:
@@ -11,10 +9,6 @@ services:
       - .:/app
       - ./docker/php/conf.d/apc.ini:/usr/local/etc/php/conf.d/apc.ini:ro
       - ./docker/php/conf.d/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
-    env_file: ".env.local"
-    ports:
-      - "9000:9000"
-      - "9003:9003"
 
   nginx:
     image: nginx:alpine

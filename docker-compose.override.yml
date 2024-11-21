@@ -6,3 +6,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     user: "${UID:-1000}:${GID:-1000}"
+    ports:
+      - "9000:9000"
+      - "9003:9003"
