@@ -2,34 +2,42 @@
 
 namespace App\Library\Benzina\Pump;
 
-use App\Entity\Accounting;
-use App\Entity\AccountingTransaction;
-use App\Entity\GatewayCharge;
-use App\Entity\GatewayChargeType;
-use App\Entity\GatewayCheckout;
-use App\Entity\GatewayCheckoutStatus;
+use App\Entity\Gateway\Charge;
+use App\Entity\Gateway\Checkout;
 use App\Entity\Money;
 use App\Entity\Tipjar;
+use App\Gateway\ChargeType;
+use App\Gateway\CheckoutStatus;
+use App\Gateway\Gateway\CashGateway;
+use App\Gateway\Gateway\CecaGateway;
+use App\Gateway\Gateway\DropGateway;
+use App\Gateway\Paypal\PaypalGateway;
+use App\Gateway\Stripe\StripeGateway;
+use App\Gateway\Tracking;
+use App\Gateway\Wallet\WalletGateway;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
-use App\Library\Benzina\Pump\Trait\ProgressivePumpTrait;
-use App\Library\Economy\Payment\CashGateway;
-use App\Library\Economy\Payment\CecaGateway;
-use App\Library\Economy\Payment\DropGateway;
-use App\Library\Economy\Payment\PaypalGateway;
-use App\Library\Economy\Payment\StripeGateway;
-use App\Library\Economy\Payment\WalletGateway;
+use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;
 use App\Repository\ProjectRepository;
 use App\Repository\TipjarRepository;
 use App\Repository\UserRepository;
+use App\Service\Gateway\CheckoutService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CheckoutsPump extends AbstractPump implements PumpInterface
 {
     use ArrayPumpTrait;
-    use ProgressivePumpTrait;
+    use DoctrinePumpTrait;
+
+    public const TRACKING_TITLE_V3 = 'v3 Invest ID';
+    public const TRACKING_TITLE_PAYMENT = 'v3 Invest Payment';
+    public const TRACKING_TITLE_TRANSACTION = 'v3 Invest Transaction';
+    public const TRACKING_TITLE_PREAPPROVAL = 'v3 Invest Preapproval';
+
+    public const CHARGE_TITLE_PROJECT = 'Pago en Goteo v3 - Donación a proyecto';
+    public const CHARGE_TITLE_POOL = 'Pago en Goteo v3 - Carga de monedero';
+    public const CHARGE_TITLE_TIP = 'Pago en Goteo v3 - Propina a la plataforma';
 
     private const PLATFORM_TIPJAR_NAME = 'platform';
-    private const CHECKOUT_URL_DEFAULT = 'https://www.goteo.org/invest';
 
     private const MAX_INT = 2147483647;
 
@@ -69,34 +77,30 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         private UserRepository $userRepository,
         private ProjectRepository $projectRepository,
         private TipjarRepository $tipjarRepository,
-        private EntityManagerInterface $entityManager
-    ) {
-    }
+        private EntityManagerInterface $entityManager,
+        private CheckoutService $checkoutService,
+    ) {}
 
-    public function supports(mixed $data): bool
+    public function supports(mixed $batch): bool
     {
-        if (!\is_array($data) || !\array_key_exists(0, $data)) {
+        if (!\is_array($batch) || !\array_key_exists(0, $batch)) {
             return false;
         }
 
-        return $this->hasAllKeys($data[0], self::INVEST_KEYS);
+        return $this->hasAllKeys($batch[0], self::INVEST_KEYS);
     }
 
-    public function process(mixed $data): void
+    public function pump(mixed $batch): void
     {
-        $users = $this->getUsers($data);
-        $projects = $this->getProjects($data);
+        $batch = $this->skipPumped($batch, 'id', Checkout::class, 'migratedId');
 
         $tipjar = $this->getPlatformTipjar();
 
-        $pumped = $this->getPumped(GatewayCheckout::class, $data, ['migratedReference' => 'id']);
+        $users = $this->getPumpedUsers($batch);
+        $projects = $this->getPumpedProjects($batch);
 
-        foreach ($data as $key => $record) {
-            if ($this->isPumped($record, $pumped, ['migratedReference' => 'id'])) {
-                continue;
-            }
-
-            if (!\array_key_exists($record['project'], $projects)) {
+        foreach ($batch as $key => $record) {
+            if (!$record['user'] || empty($record['user'])) {
                 continue;
             }
 
@@ -109,54 +113,52 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
             }
 
             $user = $users[$record['user']];
-            $project = $projects[$record['project']];
 
-            $checkout = new GatewayCheckout();
+            $checkout = new Checkout();
             $checkout->setOrigin($user->getAccounting());
             $checkout->setStatus($this->getCheckoutStatus($record));
-            $checkout->setGateway($this->getCheckoutGateway($record));
-            $checkout->setGatewayReference($this->getCheckoutReference($record));
-            $checkout->setCheckoutUrl(self::CHECKOUT_URL_DEFAULT);
+            $checkout->setGatewayName($this->getCheckoutGateway($record));
+
+            foreach ($this->getCheckoutTrackings($record) as $tracking) {
+                $checkout->addTracking($tracking);
+            }
+
             $checkout->setMigrated(true);
-            $checkout->setMigratedReference($record['id']);
-            $checkout->setMetadata([
-                'payment' => $record['payment'],
-                'transaction' => $record['transaction'],
-                'preapproval' => $record['preapproval'],
-            ]);
+            $checkout->setMigratedId($record['id']);
 
             $checkout->setDateCreated(new \DateTime($record['invested']));
+            $checkout->setDateUpdated(new \DateTime());
 
-            $charge = new GatewayCharge();
+            $charge = new Charge();
             $charge->setType($this->getChargeType($record));
             $charge->setMoney($this->getChargeMoney($record['amount'], $record['currency']));
-            $charge->setTarget($project->getAccounting());
+
+            if (empty($record['project'])) {
+                $charge->setTitle(self::CHARGE_TITLE_POOL);
+                $charge->setTarget($user->getAccounting());
+            }
+
+            if (!empty($record['project'])) {
+                $project = $projects[$record['project']];
+
+                $charge->setTitle(self::CHARGE_TITLE_PROJECT);
+                $charge->setTarget($project->getAccounting());
+            }
+
+            $checkout->addCharge($charge);
 
             if ($record['donate_amount'] > 0) {
-                $tip = new GatewayCharge();
-                $tip->setType(GatewayChargeType::Single);
+                $tip = new Charge();
+                $tip->setType(ChargeType::Single);
+                $tip->setTitle(self::CHARGE_TITLE_TIP);
                 $tip->setMoney($this->getChargeMoney($record['donate_amount'], $record['currency']));
                 $tip->setTarget($tipjar->getAccounting());
 
-                $this->entityManager->persist($tip);
                 $checkout->addCharge($tip);
             }
 
-            $this->entityManager->persist($charge);
-            $checkout->addCharge($charge);
-
-            if ($checkout->getStatus() === GatewayCheckoutStatus::Charged) {
-                foreach ($checkout->getCharges() as $charge) {
-                    $transaction = new AccountingTransaction();
-                    $transaction->setMoney($charge->getMoney());
-                    $transaction->setOrigin($checkout->getOrigin());
-                    $transaction->setTarget($charge->getTarget());
-
-                    $charge->setTransaction($transaction);
-
-                    $this->entityManager->persist($transaction);
-                    $this->entityManager->persist($charge);
-                }
+            if ($checkout->getStatus() === CheckoutStatus::Charged) {
+                $checkout = $this->checkoutService->chargeCheckout($checkout);
             }
 
             $this->entityManager->persist($checkout);
@@ -166,32 +168,38 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         $this->entityManager->clear();
     }
 
-    private function getUsers(array $data): array
+    /**
+     * @return array<string, \App\Entity\User>
+     */
+    private function getPumpedUsers(array $batch): array
     {
-        $users = $this->userRepository->findBy(['migratedReference' => \array_map(function ($data) {
-            return $data['user'];
-        }, $data)]);
+        $users = $this->userRepository->findBy(['migratedId' => \array_map(function ($batch) {
+            return $batch['user'];
+        }, $batch)]);
 
-        $usersByMigratedReference = [];
+        $usersByMigratedId = [];
         foreach ($users as $user) {
-            $usersByMigratedReference[$user->getMigratedReference()] = $user;
+            $usersByMigratedId[$user->getMigratedId()] = $user;
         }
 
-        return $usersByMigratedReference;
+        return $usersByMigratedId;
     }
 
-    private function getProjects(array $data): array
+    /**
+     * @return array<string, \App\Entity\Project>
+     */
+    private function getPumpedProjects(array $batch): array
     {
-        $projects = $this->projectRepository->findBy(['migratedReference' => \array_map(function ($data) {
-            return $data['project'];
-        }, $data)]);
+        $projects = $this->projectRepository->findBy(['migratedId' => \array_map(function ($batch) {
+            return $batch['project'];
+        }, $batch)]);
 
-        $projectsByMigratedReference = [];
+        $projectsByMigratedId = [];
         foreach ($projects as $project) {
-            $projectsByMigratedReference[$project->getMigratedReference()] = $project;
+            $projectsByMigratedId[$project->getMigratedId()] = $project;
         }
 
-        return $projectsByMigratedReference;
+        return $projectsByMigratedId;
     }
 
     private function getPlatformTipjar(): Tipjar
@@ -205,23 +213,19 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         $tipjar = new Tipjar();
         $tipjar->setName(self::PLATFORM_TIPJAR_NAME);
 
-        $accounting = new Accounting();
-        $accounting->setTipjar($tipjar);
-
         $this->entityManager->persist($tipjar);
-        $this->entityManager->persist($accounting);
         $this->entityManager->flush();
 
         return $tipjar;
     }
 
-    private function getChargeType(array $record): GatewayChargeType
+    private function getChargeType(array $record): ChargeType
     {
         if (\in_array($record['method'], ['stripe_subscription'])) {
-            return GatewayChargeType::Recurring;
+            return ChargeType::Recurring;
         }
 
-        return GatewayChargeType::Single;
+        return ChargeType::Single;
     }
 
     private function getChargeMoney(int $amount, string $currency): Money
@@ -235,13 +239,13 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         return new Money($amount, $currency);
     }
 
-    private function getCheckoutStatus(array $record): GatewayCheckoutStatus
+    private function getCheckoutStatus(array $record): CheckoutStatus
     {
         if ($record['status'] < 1) {
-            return GatewayCheckoutStatus::Pending;
+            return CheckoutStatus::Pending;
         }
 
-        return GatewayCheckoutStatus::Charged;
+        return CheckoutStatus::Charged;
     }
 
     private function getCheckoutGateway(array $record): string
@@ -264,20 +268,41 @@ class CheckoutsPump extends AbstractPump implements PumpInterface
         }
     }
 
-    private function getCheckoutReference(array $record): string
+    /**
+     * @return Tracking[]
+     */
+    private function getCheckoutTrackings(array $record): array
     {
+        $v3Tracking = new Tracking();
+        $v3Tracking->title = self::TRACKING_TITLE_V3;
+        $v3Tracking->value = $record['id'];
+
+        $trackings = [$v3Tracking];
+
         if (!empty($record['payment'])) {
-            return $record['payment'];
+            $payment = new Tracking();
+            $payment->title = self::TRACKING_TITLE_PAYMENT;
+            $payment->value = $record['payment'];
+
+            $trackings[] = $payment;
         }
 
         if (!empty($record['transaction'])) {
-            return $record['transaction'];
+            $transaction = new Tracking();
+            $transaction->title = self::TRACKING_TITLE_TRANSACTION;
+            $transaction->value = $record['transaction'];
+
+            $trackings[] = $transaction;
         }
 
         if (!empty($record['preapproval'])) {
-            return $record['preapproval'];
+            $preapproval = new Tracking();
+            $preapproval->title = self::TRACKING_TITLE_PREAPPROVAL;
+            $preapproval->value = $record['preapproval'];
+
+            $trackings[] = $preapproval;
         }
 
-        return '';
+        return $trackings;
     }
 }

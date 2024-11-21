@@ -4,8 +4,11 @@ namespace App\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
-use App\Entity\Trait\TimestampableCreationEntity;
-use App\Entity\Trait\TimestampableUpdationEntity;
+use App\Entity\Accounting\Accounting;
+use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Trait\MigratedEntity;
+use App\Entity\Trait\TimestampedCreationEntity;
+use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Repository\ProjectRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -23,10 +26,11 @@ use Doctrine\ORM\Mapping as ORM;
     'owner' => 'exact',
 ])]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
-class Project
+class Project implements AccountingOwnerInterface
 {
-    use TimestampableCreationEntity;
-    use TimestampableUpdationEntity;
+    use MigratedEntity;
+    use TimestampedCreationEntity;
+    use TimestampedUpdationEntity;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -44,8 +48,7 @@ class Project
      * A Project's Accounting represents how much money the Project has raised from the community.
      */
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(inversedBy: 'project', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(inversedBy: 'project', cascade: ['persist'])]
     private ?Accounting $accounting = null;
 
     /**
@@ -64,23 +67,12 @@ class Project
     #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
     private ProjectStatus $status;
 
-    /**
-     * Project was migrated from Goteo v3 platform.
-     */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\Column]
-    private ?bool $migrated = null;
-
-    /**
-     * The previous id of this Project in the Goteo v3 platform.
-     */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $migratedReference = null;
-
     public function __construct()
     {
-        $this->migrated = false;
+        $accounting = new Accounting();
+        $accounting->setOwner($this);
+
+        $this->accounting = $accounting;
     }
 
     public function getId(): ?int
@@ -105,7 +97,7 @@ class Project
         return $this->accounting;
     }
 
-    public function setAccounting(Accounting $accounting): static
+    public function setAccounting(?Accounting $accounting): static
     {
         $this->accounting = $accounting;
 
@@ -132,30 +124,6 @@ class Project
     public function setStatus(ProjectStatus $status): static
     {
         $this->status = $status;
-
-        return $this;
-    }
-
-    public function isMigrated(): ?bool
-    {
-        return $this->migrated;
-    }
-
-    public function setMigrated(bool $migrated): static
-    {
-        $this->migrated = $migrated;
-
-        return $this;
-    }
-
-    public function getMigratedReference(): ?string
-    {
-        return $this->migratedReference;
-    }
-
-    public function setMigratedReference(?string $migratedReference): static
-    {
-        $this->migratedReference = $migratedReference;
 
         return $this;
     }

@@ -3,12 +3,15 @@
 namespace App\Command;
 
 use App\Library\Benzina\Benzina;
+use App\Library\Benzina\Pump\PumpInterface;
 use App\Library\Benzina\Stream\PdoStream;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -19,7 +22,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class BenzinaPumpCommand extends Command
 {
     public function __construct(
-        private Benzina $benzina
+        private Benzina $benzina,
     ) {
         parent::__construct();
     }
@@ -27,6 +30,14 @@ class BenzinaPumpCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('table', InputArgument::REQUIRED);
+
+        $this->addOption(
+            'database',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'The address of the database to read from',
+            'mysql://goteo:goteo@mariadb:3306/benzina'
+        );
 
         $this->addOption(
             'batch-size',
@@ -37,18 +48,11 @@ class BenzinaPumpCommand extends Command
         );
 
         $this->addOption(
-            'no-progress',
+            'skip-pumped',
             null,
-            InputOption::VALUE_NONE,
-            'For progressive pumps, disables the override of already pumped progress'
-        );
-
-        $this->addOption(
-            'database',
-            null,
-            InputOption::VALUE_OPTIONAL,
-            'The address of the database to read from',
-            'mysql://goteo:goteo@mariadb:3306/benzina'
+            InputOption::VALUE_NEGATABLE,
+            'Skips feeding already pumped records in a batch',
+            true
         );
 
         $this->addUsage('app:benzina:pump --no-debug user');
@@ -65,61 +69,99 @@ EOF
         );
     }
 
+    /**
+     * @param ConsoleOutputInterface $output
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
+        $batchSize = $input->getOption('batch-size');
 
         $stream = new PdoStream(
             $input->getOption('database'),
             $input->getArgument('table'),
-            $input->getOption('batch-size')
+            $batchSize
         );
         $streamSize = $stream->size();
+        $streamBatches = $streamSize / $batchSize;
+        $streamSection = new SymfonyStyle($input, $output->section());
 
         if ($streamSize < 1) {
-            $io->writeln('No data found at the given source. Skipping execution.');
+            $streamSection->writeln('No data found at the given source. Skipping execution.');
 
             return Command::SUCCESS;
         }
 
-        $pumps = $this->benzina->getPumps($stream);
-        $pumpsCount = count($pumps);
+        $streamSection->writeln(sprintf('Streaming %d records (%d batches).', $streamSize, $streamBatches));
+
+        $pumps = $this->benzina->getPumpsFor($stream);
+        $pumpsCount = \count($pumps);
+        $pumpsSection = new SymfonyStyle($input, $output->section());
 
         if ($pumpsCount < 1) {
-            $io->writeln('No pumps available for the data. Skipping execution.');
+            $pumpsSection->writeln('No pumps support the streamed sample. Skipping execution.');
 
             return Command::SUCCESS;
         }
 
-        $io->writeln(sprintf('Found %d pumps.', $pumpsCount));
-        $io->listing(\array_map(function ($pump) {
+        $pumpsSection->writeln(sprintf('Streaming to %d pumps.', $pumpsCount));
+        $pumpsSection->listing(\array_map(function (PumpInterface $pump) {
             return $pump::class;
         }, $pumps));
 
-        $io->writeln(sprintf('Processing %d records.', $streamSize));
-        $progress = $io->createProgressBar();
-        $progress->start($streamSize);
+        $streamedBatchesSection = $output->section();
+        $streamedBatchesSection->writeln("\tStreamed batches:");
+        $streamedBatches = new ProgressBar($streamedBatchesSection);
+        $streamedBatches->start($streamBatches);
+
+        $streamedRecordsSection = $output->section();
+        $streamedRecordsSection->writeln("\tStreamed records:");
+        $streamedRecords = new ProgressBar($streamedRecordsSection);
+        $streamedRecords->start($streamSize);
+
+        $memUsageSection = $output->section();
+        $memUsageSection->writeln("\tMemory usage:");
+        $memUsage = new ProgressBar($memUsageSection);
+        $memUsage->start($this->getMemoryLimit());
 
         while (!$stream->eof()) {
-            $data = $stream->read();
+            \memory_reset_peak_usage();
 
-            foreach ($pumps as $pump) {
-                $pump->configure([
-                    'progress' => !$input->getOption('no-progress'),
+            $batch = $stream->read();
+
+            $streamBatches = $streamBatches - 1;
+            $streamedBatches->advance();
+
+            foreach ($pumps as $key => $pump) {
+                $pump->setConfig([
+                    'skip-pumped' => $input->getOption('skip-pumped'),
                 ]);
 
-                $pump->process($data);
+                $pump->pump($batch);
+
+                $memUsage->setProgress(\memory_get_peak_usage(false));
             }
 
-            $progress->setProgress($stream->tell());
+            $streamed = $stream->tell();
+            $streamedRecords->setProgress($streamed);
         }
 
-        $stream->close();
-        $progress->finish();
-
-        $io->writeln("\n");
-        $io->success('Data processed successfully!');
+        $endSection = new SymfonyStyle($input, $output->section());
+        $endSection->success('Data processed successfully!');
 
         return Command::SUCCESS;
+    }
+
+    private function getMemoryLimit(): int
+    {
+        $limit = \ini_get('memory_limit');
+        if (preg_match('/^(\d+)(.)$/', $limit, $matches)) {
+            if ($matches[2] == 'M') {
+                $limit = $matches[1] * 1024 * 1024; // nnnM -> nnn MB
+            } elseif ($matches[2] == 'K') {
+                $limit = $matches[1] * 1024; // nnnK -> nnn KB
+            }
+        }
+
+        return $limit;
     }
 }

@@ -20,9 +20,8 @@ class UserTokenLoginProcessor implements ProcessorInterface
         private AuthService $authService,
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
-        private UserPasswordHasherInterface $userPasswordHasher
-    ) {
-    }
+        private UserPasswordHasherInterface $userPasswordHasher,
+    ) {}
 
     /**
      * @param UserTokenLoginDto $data

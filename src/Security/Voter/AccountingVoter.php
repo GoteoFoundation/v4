@@ -14,7 +14,7 @@ class AccountingVoter extends Voter
     protected function supports(string $attribute, mixed $subject): bool
     {
         return in_array($attribute, [self::EDIT])
-            && $subject instanceof \App\Entity\Accounting;
+            && $subject instanceof \App\Entity\Accounting\Accounting;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool

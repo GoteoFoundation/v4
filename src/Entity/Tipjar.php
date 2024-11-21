@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
+use App\Entity\Accounting\Accounting;
+use App\Entity\Interface\AccountingOwnerInterface;
 use App\Repository\TipjarRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -19,7 +21,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[API\Delete()]
 #[API\Patch()]
 #[ORM\Entity(repositoryClass: TipjarRepository::class)]
-class Tipjar
+class Tipjar implements AccountingOwnerInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -33,9 +35,16 @@ class Tipjar
     private ?string $name = null;
 
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(inversedBy: 'tipjar', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(inversedBy: 'tipjar', cascade: ['persist'])]
     private ?Accounting $accounting = null;
+
+    public function __construct()
+    {
+        $accounting = new Accounting();
+        $accounting->setOwner($this);
+
+        $this->accounting = $accounting;
+    }
 
     public function getId(): ?int
     {
@@ -59,7 +68,7 @@ class Tipjar
         return $this->accounting;
     }
 
-    public function setAccounting(Accounting $accounting): static
+    public function setAccounting(?Accounting $accounting): static
     {
         $this->accounting = $accounting;
 

@@ -3,9 +3,12 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
+use App\Entity\Accounting\Accounting;
+use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\UserOwnedInterface;
-use App\Entity\Trait\TimestampableCreationEntity;
-use App\Entity\Trait\TimestampableUpdationEntity;
+use App\Entity\Trait\MigratedEntity;
+use App\Entity\Trait\TimestampedCreationEntity;
+use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
 use App\Repository\UserRepository;
@@ -37,10 +40,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
 #[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface
+#[ORM\Index(fields: ['migratedId'])]
+class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
-    use TimestampableCreationEntity;
-    use TimestampableUpdationEntity;
+    use MigratedEntity;
+    use TimestampedCreationEntity;
+    use TimestampedUpdationEntity;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -94,8 +99,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     private ?bool $emailConfirmed = null;
 
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist'])]
     private ?Accounting $accounting = null;
 
     /**
@@ -125,29 +129,24 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     private ?string $name = null;
 
     /**
-     * User was migrated from Goteo v3 platform.
-     */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\Column]
-    private ?bool $migrated = null;
-
-    /**
-     * The previous id of this User in the Goteo v3 platform.
-     */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $migratedReference = null;
-
-    /**
      * The projects owned by this User.
      */
     #[API\ApiProperty(writable: false)]
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class)]
     private Collection $projects;
 
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?UserPersonal $personalData = null;
+
     public function __construct()
     {
-        $this->migrated = false;
+        $accounting = new Accounting();
+        $accounting->setOwner($this);
+
+        $this->accounting = $accounting;
+
+        $this->emailConfirmed = false;
+        $this->active = false;
 
         $this->tokens = new ArrayCollection();
         $this->projects = new ArrayCollection();
@@ -285,7 +284,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
         return $this->accounting;
     }
 
-    public function setAccounting(Accounting $accounting): static
+    public function setAccounting(?Accounting $accounting): static
     {
         $this->accounting = $accounting;
 
@@ -358,30 +357,6 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
         return $this;
     }
 
-    public function isMigrated(): ?bool
-    {
-        return $this->migrated;
-    }
-
-    public function setMigrated(bool $migrated): static
-    {
-        $this->migrated = $migrated;
-
-        return $this;
-    }
-
-    public function getMigratedReference(): ?string
-    {
-        return $this->migratedReference;
-    }
-
-    public function setMigratedReference(?string $migratedReference): static
-    {
-        $this->migratedReference = $migratedReference;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Project>
      */
@@ -408,6 +383,23 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
                 $project->setOwner(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPersonalData(): ?UserPersonal
+    {
+        return $this->personalData;
+    }
+
+    public function setPersonalData(UserPersonal $personalData): static
+    {
+        // set the owning side of the relation if necessary
+        if ($personalData->getUser() !== $this) {
+            $personalData->setUser($this);
+        }
+
+        $this->personalData = $personalData;
 
         return $this;
     }

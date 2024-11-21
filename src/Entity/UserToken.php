@@ -5,7 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata as API;
 use App\Dto\UserTokenLoginDto;
 use App\Entity\Interface\UserOwnedInterface;
-use App\Entity\Trait\TimestampableCreationEntity;
+use App\Entity\Trait\TimestampedCreationEntity;
 use App\Repository\UserTokenRepository;
 use App\State\UserTokenLoginProcessor;
 use Doctrine\ORM\Mapping as ORM;
@@ -25,7 +25,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: UserTokenRepository::class)]
 class UserToken implements UserOwnedInterface
 {
-    use TimestampableCreationEntity;
+    use TimestampedCreationEntity;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

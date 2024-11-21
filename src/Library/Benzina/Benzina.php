@@ -11,7 +11,7 @@ class Benzina
     private array $availablePumps = [];
 
     public function __construct(
-        iterable $instanceof
+        iterable $instanceof,
     ) {
         $this->availablePumps = \iterator_to_array($instanceof);
     }
@@ -23,7 +23,7 @@ class Benzina
      *
      * @return PumpInterface[]
      */
-    public function getPumps(StreamInterface $stream, int $sampleSize = 1): array
+    public function getPumpsFor(StreamInterface $stream, int $sampleSize = 1): array
     {
         $sample = $stream->read($sampleSize);
         $stream->rewind();

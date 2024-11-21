@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Library\Economy\Payment\GatewayLocator;
+use App\Gateway\GatewayLocator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,13 +19,12 @@ class GatewaysController extends AbstractController
 
     public function __construct(
         private GatewayLocator $gatewayLocator,
-    ) {
-    }
+    ) {}
 
     #[Route('/gateway_redirects', name: self::REDIRECT)]
     public function handleRedirect(Request $request): Response
     {
-        $gateway = $this->gatewayLocator->getGateway($request->query->get('gateway'));
+        $gateway = $this->gatewayLocator->get($request->query->get('gateway'));
 
         return $gateway->handleRedirect($request);
     }
@@ -33,7 +32,7 @@ class GatewaysController extends AbstractController
     #[Route('/gateway_webhooks', name: self::WEBHOOKS)]
     public function handleWebhook(Request $request): Response
     {
-        $gateway = $this->gatewayLocator->getGateway($request->query->get('gateway'));
+        $gateway = $this->gatewayLocator->get($request->query->get('gateway'));
 
         return $gateway->handleWebhook($request);
     }

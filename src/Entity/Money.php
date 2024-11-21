@@ -33,7 +33,7 @@ class Money
 
     public function __construct(
         int $amount,
-        string $currency
+        string $currency,
     ) {
         $this->amount = $amount;
         $this->currency = $currency;

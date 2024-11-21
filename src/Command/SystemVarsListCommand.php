@@ -16,14 +16,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class SystemVarsListCommand extends Command
 {
     public function __construct(
-        private SystemVariableRepository $systemVarRepository
+        private SystemVariableRepository $systemVarRepository,
     ) {
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-    }
+    protected function configure(): void {}
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {

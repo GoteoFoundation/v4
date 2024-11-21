@@ -5,7 +5,7 @@ namespace App\ApiResource;
 use ApiPlatform\Metadata as API;
 use App\Filter\ResourceVersionResourceFilter;
 use App\Filter\ResourceVersionResourceIdFilter;
-use App\Service\ApiResourceNormalizer;
+use App\Service\ApiService;
 use App\State\ResourceVersionStateProvider;
 use Gedmo\Loggable\Entity\LogEntry;
 
@@ -23,9 +23,8 @@ class Version
 {
     public function __construct(
         private readonly LogEntry $log,
-        private readonly object $entity
-    ) {
-    }
+        private readonly object $entity,
+    ) {}
 
     /**
      * The ID of the version record.
@@ -56,7 +55,7 @@ class Version
      */
     public function getResource(): string
     {
-        return ApiResourceNormalizer::toResource($this->log->getObjectClass());
+        return ApiService::toResource($this->log->getObjectClass());
     }
 
     /**

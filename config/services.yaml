@@ -12,12 +12,12 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
     _instanceof:
+        App\Gateway\GatewayInterface:
+            tags: ['app.gateway.gateway']
         App\Library\Benzina\Pump\PumpInterface:
             tags: ['app.lib.benzina.pump.pump']
         App\Library\Economy\Currency\ExchangeInterface:
             tags: ['app.lib.economy.currency.exchange']
-        App\Library\Economy\Payment\GatewayInterface:
-            tags: ['app.lib.economy.payment.gateway']
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -37,6 +37,22 @@ services:
         arguments:
             - '@App\OpenApi\OpenApiFactory.inner'
 
+    App\Gateway\GatewayLocator:
+        arguments:
+            - !tagged 'app.gateway.gateway'
+
+    App\Gateway\Paypal\PaypalService:
+        arguments:
+            - '%env(PAYPAL_API_ADDRESS)%'
+            - '%env(PAYPAL_CLIENT_ID)%'
+            - '%env(PAYPAL_CLIENT_SECRET)%'
+            - '%env(PAYPAL_WEBHOOK_ID)%'
+
+    App\Gateway\Stripe\StripeGateway:
+        arguments:
+            - '%env(STRIPE_API_KEY)%'
+            - '%env(STRIPE_WEBHOOK_SECRET)%'
+
     App\Service\Auth\AuthService:
         arguments:
             - '%env(APP_SECRET)%'
@@ -48,15 +64,6 @@ services:
     App\Library\Economy\Currency\ExchangeLocator:
         arguments:
             - !tagged 'app.lib.economy.currency.exchange'
-
-    App\Library\Economy\Payment\GatewayLocator:
-        arguments:
-            - !tagged 'app.lib.economy.payment.gateway'
-
-    App\Library\Economy\Payment\StripeGateway:
-        arguments:
-            - '%env(STRIPE_API_KEY)%'
-            - '%env(STRIPE_WEBHOOK_SECRET)%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
