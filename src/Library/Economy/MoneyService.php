@@ -78,7 +78,7 @@ class MoneyService
             return self::toBrick($money);
         }
 
-        $exchange = $this->exchangeLocator->getExchangeFor($fromCurrency, $toCurrency);
+        $exchange = $this->exchangeLocator->get($fromCurrency, $toCurrency);
 
         return self::toBrick($exchange->convert(self::toBrick($money), $toCurrency));
     }

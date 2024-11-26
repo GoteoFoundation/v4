@@ -7,7 +7,7 @@ use Brick\Money\Exception\CurrencyConversionException;
 class ExchangeLocator
 {
     /**
-     * @var ExchangeInterface[]
+     * @var array<string, ExchangeInterface>
      */
     private array $exchanges;
 
@@ -33,9 +33,9 @@ class ExchangeLocator
     }
 
     /**
-     * @return ExchangeInterface[]
+     * @return array<string, ExchangeInterface>
      */
-    public function getExchanges(): array
+    public function getAll(): array
     {
         return $this->exchanges;
     }
@@ -45,10 +45,10 @@ class ExchangeLocator
      *
      * @throws \Exception When the $name does not match to that of an implemented Exchange
      */
-    public function getExchange(string $name): ExchangeInterface
+    public function getByName(string $name): ExchangeInterface
     {
         if (!\array_key_exists($name, $this->exchanges)) {
-            throw new \Exception("No such Exchange with the name $name");
+            throw new \Exception("No such Exchange with the name '$name'");
         }
 
         return $this->exchanges[$name];
@@ -60,7 +60,7 @@ class ExchangeLocator
      *
      * @throws CurrencyConversionException If the exchange rate is not available
      */
-    public function getExchangeFor(string $source, string $target): ExchangeInterface
+    public function get(string $source, string $target): ExchangeInterface
     {
         foreach ($this->exchanges as $exchange) {
             try {
