@@ -2,13 +2,13 @@
 
 namespace App\Library\Economy\Currency;
 
-use App\Entity\Money as EntityMoney;
+use App\Entity\Money;
+use App\Library\Economy\MoneyService;
 use Brick\Math\RoundingMode;
 use Brick\Money\CurrencyConverter;
 use Brick\Money\ExchangeRateProvider;
 use Brick\Money\ExchangeRateProvider\BaseCurrencyProvider;
 use Brick\Money\ExchangeRateProvider\ConfigurableProvider;
-use Brick\Money\MoneyContainer;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -20,6 +20,9 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 class EuropeanCentralBankExchange implements ExchangeInterface
 {
+    public const NAME = 'european_central_bank';
+    public const WEIGHT = 100;
+
     public const ISO_4217 = 'EUR';
 
     /**
@@ -53,88 +56,31 @@ class EuropeanCentralBankExchange implements ExchangeInterface
             $provider->setExchangeRate(self::ISO_4217, $rate['currency'], $rate['rate']);
         }
 
-        $this->date = $this->getDataUpdatedDate($data['@attributes']['time']);
+        $this->date = $this->parseECBTime($data['@attributes']['time']);
         $this->provider = new BaseCurrencyProvider($provider, self::ISO_4217);
         $this->converter = new CurrencyConverter($this->provider);
     }
 
-    private function getDataLatest(): array
-    {
-        $data = \simplexml_load_file(self::ECB_DATA);
-        if (!$data) {
-            throw new \Exception('Could not retrieve XML data');
-        }
-
-        return \json_decode(\json_encode($data), true)['Cube']['Cube'];
-    }
-
-    private function getDataCached(): array
-    {
-        $data = $this->cache->get($this->getName(), function (ItemInterface $item): array {
-            $item->expiresAfter(self::ECB_DATA_TTL);
-
-            return $this->getDataLatest();
-        });
-
-        if (!$data) {
-            throw new \Exception('Could not retrieve cached data');
-        }
-
-        return $data;
-    }
-
-    private function getDataUpdatedDate(string $time): \DateTimeInterface
-    {
-        return \DateTime::createFromFormat(
-            \DateTimeInterface::RFC3339,
-            sprintf('%sT16:00:00+01:00', $time),
-            new \DateTimeZone(self::ECB_TIMEZONE)
-        );
-    }
-
-    public function getData(): array
-    {
-        try {
-            $cachedData = $this->getDataCached();
-
-            $currentDate = new \DateTime('now', new \DateTimeZone(self::ECB_TIMEZONE));
-            $currentDayAt16 = (new \DateTime('now', new \DateTimeZone(self::ECB_TIMEZONE)))->setTime(16, 0);
-            $cachedDate = $this->getDataUpdatedDate($cachedData['@attributes']['time']);
-
-            if (
-                $currentDate > $currentDayAt16
-                && $cachedDate < $currentDayAt16
-            ) {
-                $this->cache->delete($this->getName());
-                $cachedData = $this->getDataCached();
-            }
-
-            return $cachedData;
-        } catch (\Exception $e) {
-            return $this->getDataLatest();
-        }
-    }
-
     public function getName(): string
     {
-        return 'european_central_bank';
+        return self::NAME;
     }
 
     public function getWeight(): int
     {
-        return 100;
+        return self::WEIGHT;
     }
 
-    public function convert(MoneyContainer $money, string $toCurrency): EntityMoney
+    public function convert(Money $money, string $toCurrency): Money
     {
         $converted = $this->converter->convert(
-            $money,
+            MoneyService::toBrick($money),
             $toCurrency,
             null,
             RoundingMode::HALF_EVEN
         );
 
-        return new EntityMoney(
+        return new Money(
             $converted->getMinorAmount()->toInt(),
             $converted->getCurrency()->getCurrencyCode()
         );
@@ -150,5 +96,62 @@ class EuropeanCentralBankExchange implements ExchangeInterface
         $this->provider->getExchangeRate($fromCurrency, $toCurrency);
 
         return $this->date;
+    }
+
+    public function getData(): array
+    {
+        try {
+            $cachedData = $this->getDataCached();
+            $cachedDate = $this->parseECBTime($cachedData['@attributes']['time']);
+
+            $currentDate = new \DateTime('now', new \DateTimeZone(self::ECB_TIMEZONE));
+            $currentDayAt16 = (new \DateTime('now', new \DateTimeZone(self::ECB_TIMEZONE)))->setTime(16, 0);
+
+            if (
+                $currentDate > $currentDayAt16
+                && $cachedDate < $currentDayAt16
+            ) {
+                $this->cache->delete(self::NAME);
+                $cachedData = $this->getDataCached();
+            }
+
+            return $cachedData;
+        } catch (\Exception $e) {
+            return $this->getDataLatest();
+        }
+    }
+
+    private function parseECBTime(string $time): \DateTimeInterface
+    {
+        return \DateTime::createFromFormat(
+            \DateTimeInterface::RFC3339,
+            \sprintf('%sT16:00:00+01:00', $time),
+            new \DateTimeZone(self::ECB_TIMEZONE)
+        );
+    }
+
+    private function getDataLatest(): array
+    {
+        $data = \simplexml_load_file(self::ECB_DATA);
+        if (!$data) {
+            throw new \Exception('Could not retrieve XML data');
+        }
+
+        return \json_decode(\json_encode($data), true)['Cube']['Cube'];
+    }
+
+    private function getDataCached(): array
+    {
+        $data = $this->cache->get(self::NAME, function (ItemInterface $item): array {
+            $item->expiresAfter(self::ECB_DATA_TTL);
+
+            return $this->getDataLatest();
+        });
+
+        if (!$data) {
+            throw new \Exception('Could not retrieve cached data');
+        }
+
+        return $data;
     }
 }
