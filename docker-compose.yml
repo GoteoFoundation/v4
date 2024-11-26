@@ -1,6 +1,9 @@
 services:
   php:
-    build: docker/php
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: dev
     container_name: goteo-v4-php
     volumes:
       - .:/app
@@ -14,7 +17,9 @@ services:
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "${APP_HTTP_PORT:-8090}:80"
-      - "${APP_HTTPS_PORT:-8091}:433"
+      - "${APP_HTTPS_PORT:-8091}:443"
+    depends_on:
+      - php
 
   mariadb:
     image: mariadb:10.11.2

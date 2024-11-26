@@ -1,29 +1,51 @@
-FROM php:8.3-fpm
+FROM php:8.3-fpm-alpine AS base
 
-# System dependencies
-RUN apt-get update && apt install -y curl git
+RUN apk --no-cache add \
+    curl \
+    git \
+    linux-headers \
+    icu-dev \
+    zip \
+    libzip-dev \
+    unzip
 
-# PHP extensions
+RUN docker-php-ext-install \
+    pdo \
+    pdo_mysql
 
-## OPcache
+RUN docker-php-ext-install \
+    intl \
+    zip
+
+COPY --from=composer:lts /usr/bin/composer /usr/local/bin/composer
+
+
+FROM base AS dev
+
 RUN docker-php-ext-install opcache
 
-## XDebug
+RUN apk --no-cache add $PHPIZE_DEPS
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
 
-## PDO & mysql
-RUN docker-php-ext-install pdo pdo_mysql
+COPY . /app
+RUN chown -R www-data:www-data /app
 
-# Zip
-RUN apt-get install -y libzip-dev zip unzip \
-    && docker-php-ext-install zip
-
-# Intl
-RUN apt-get install -y libicu-dev \
-    && docker-php-ext-install intl
-
-# Composer
-COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
-
+USER www-data
 WORKDIR /app
+
+RUN composer install --prefer-dist --no-scripts
+
+FROM base AS prod
+
+COPY . /app
+RUN chown -R www-data:www-data /app
+
+USER www-data
+WORKDIR /app
+
+RUN composer install --prefer-dist --no-scripts --no-dev --optimize-autoloader
+
+EXPOSE 9000
+
+CMD ["php-fpm"]
