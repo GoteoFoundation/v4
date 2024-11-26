@@ -4,8 +4,8 @@ namespace App\ApiResource\Accounting;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
+use App\ApiResource\EmbeddedResource;
 use App\Entity\Accounting as Entity;
-use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Money;
 use App\State\Accounting\AccountingStateProcessor;
 use App\State\Accounting\AccountingStateProvider;
@@ -27,11 +27,11 @@ use App\State\Accounting\AccountingStateProvider;
 #[API\Patch(security: 'is_granted("ACCOUNTING_EDIT", object)')]
 class Accounting
 {
-    public ?int $id = null;
+    public int $id;
 
-    public ?string $currency = null;
+    public string $currency;
 
-    public ?AccountingOwnerInterface $owner = null;
+    public EmbeddedResource $owner;
 
-    public ?Money $balance = null;
+    public Money $balance;
 }

@@ -2,7 +2,9 @@
 
 namespace App\Mapping\Accounting;
 
+use ApiPlatform\Api\IriConverterInterface;
 use App\ApiResource\Accounting as Resource;
+use App\ApiResource\EmbeddedResource;
 use App\Entity\Accounting as Entity;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Money;
@@ -16,6 +18,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class AccountingMapper
 {
     public function __construct(
+        private IriConverterInterface $iriConverter,
         private EntityManagerInterface $entityManager,
         private AccountingRepository $accountingRepository,
         private TransactionRepository $transactionRepository,
@@ -30,7 +33,12 @@ class AccountingMapper
         $resource = new Resource\Accounting();
         $resource->id = $entity->getId();
         $resource->currency = $entity->getCurrency();
-        $resource->owner = $owner;
+
+        $resource->owner = new EmbeddedResource();
+        $resource->owner->id = $owner->getId();
+        $resource->owner->iri = $this->iriConverter->getIriFromResource($owner);
+        $resource->owner->resource = $owner;
+
         $resource->balance = $this->getBalance($owner);
 
         return $resource;
@@ -45,7 +53,10 @@ class AccountingMapper
         }
 
         $entity->setCurrency($resource->currency);
-        $entity->setOwner($resource->owner);
+
+        /** @var AccountingOwnerInterface */
+        $owner = $resource->owner->resource;
+        $entity->setOwner($owner);
 
         return $entity;
     }
