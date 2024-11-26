@@ -16,8 +16,8 @@ class EmbeddedResource
 
     /**
      * Actual object data of the embedded resource.
-     * 
+     *
      * @var array<string, mixed>
      */
-    public object $resource;
+    public mixed $resource;
 }
