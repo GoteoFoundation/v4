@@ -3,7 +3,7 @@
 namespace App\Entity\Accounting;
 
 use App\Entity\Interface\AccountingOwnerInterface;
-use App\Entity\Project;
+use App\Entity\Project\Project;
 use App\Entity\Tipjar;
 use App\Entity\User;
 use App\Repository\Accounting\AccountingRepository;
