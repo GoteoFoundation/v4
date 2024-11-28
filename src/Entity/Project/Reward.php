@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Project;
 
-use App\Repository\ProjectRewardRepository;
+use App\Entity\Money;
+use App\Repository\Project\RewardRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * A ProjectReward is something the Project owner wishes to give in exchange for contributions to their Project.
  */
-#[ORM\Entity(repositoryClass: ProjectRewardRepository::class)]
-class ProjectReward
+#[ORM\Entity(repositoryClass: RewardRepository::class)]
+class Reward
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

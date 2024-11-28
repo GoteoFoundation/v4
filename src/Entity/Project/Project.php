@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Project;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
-use App\Repository\ProjectRepository;
+use App\Entity\User;
+use App\Repository\Project\ProjectRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -52,9 +53,9 @@ class Project implements AccountingOwnerInterface
     private ProjectStatus $status;
 
     /**
-     * @var Collection<int, ProjectReward>
+     * @var Collection<int, Reward>
      */
-    #[ORM\OneToMany(mappedBy: 'project', targetEntity: ProjectReward::class)]
+    #[ORM\OneToMany(mappedBy: 'project', targetEntity: Reward::class)]
     private Collection $rewards;
 
     public function __construct()
@@ -120,14 +121,14 @@ class Project implements AccountingOwnerInterface
     }
 
     /**
-     * @return Collection<int, ProjectReward>
+     * @return Collection<int, Reward>
      */
     public function getRewards(): Collection
     {
         return $this->rewards;
     }
 
-    public function addReward(ProjectReward $reward): static
+    public function addReward(Reward $reward): static
     {
         if (!$this->rewards->contains($reward)) {
             $this->rewards->add($reward);
@@ -137,7 +138,7 @@ class Project implements AccountingOwnerInterface
         return $this;
     }
 
-    public function removeReward(ProjectReward $reward): static
+    public function removeReward(Reward $reward): static
     {
         if ($this->rewards->removeElement($reward)) {
             // set the owning side to null (unless already changed)

@@ -1,23 +1,23 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\Project;
 
-use App\Entity\ProjectReward;
+use App\Entity\Project\Reward;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<ProjectReward>
+ * @extends ServiceEntityRepository<Reward>
  */
-class ProjectRewardRepository extends ServiceEntityRepository
+class RewardRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, ProjectReward::class);
+        parent::__construct($registry, Reward::class);
     }
 
     //    /**
-    //     * @return ProjectReward[] Returns an array of ProjectReward objects
+    //     * @return Reward[] Returns an array of Reward objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class ProjectRewardRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?ProjectReward
+    //    public function findOneBySomeField($value): ?Reward
     //    {
     //        return $this->createQueryBuilder('p')
     //            ->andWhere('p.exampleField = :val')

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Project;
 
 /**
  * Projects have a start and an end, and in the meantime they go through different phases represented under this status.
