@@ -60,10 +60,7 @@ class Project implements AccountingOwnerInterface
 
     public function __construct()
     {
-        $accounting = new Accounting();
-        $accounting->setOwner($this);
-
-        $this->accounting = $accounting;
+        $this->accounting = Accounting::of($this);
         $this->rewards = new ArrayCollection();
     }
 

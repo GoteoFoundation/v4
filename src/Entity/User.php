@@ -141,10 +141,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
 
     public function __construct()
     {
-        $accounting = new Accounting();
-        $accounting->setOwner($this);
-
-        $this->accounting = $accounting;
+        $this->accounting = Accounting::of($this);
 
         $this->emailConfirmed = false;
         $this->active = false;

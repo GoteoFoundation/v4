@@ -43,6 +43,17 @@ class Accounting
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist'])]
     private ?Tipjar $tipjar = null;
 
+    /**
+     * Create a new Accounting entity instance for the given owner.
+     */
+    public static function of(AccountingOwnerInterface $owner): Accounting
+    {
+        $accounting = new Accounting();
+        $accounting->setOwner($owner);
+
+        return $accounting;
+    }
+
     public function __construct()
     {
         /*
