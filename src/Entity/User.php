@@ -13,6 +13,7 @@ use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
 use App\Repository\UserRepository;
+use AutoMapper\Attribute\MapTo;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Users represent people who interact with the platform.\
  * \
  * Users are the usual issuers of funding, however an User's Accounting can still be a Transaction recipient.
- * This allows to keep an User's "wallet", witholding their non-raised fundings into their Accounting.
+ * This allows to keep an User's "wallet", withholding their non-raised fundings into their Accounting.
  */
 #[Gedmo\Loggable()]
 #[API\GetCollection()]
@@ -155,6 +156,13 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
         return $this->id;
     }
 
+    public function setId(int $id): static
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
     public function getUsername(): ?string
     {
         return $this->username;
@@ -232,6 +240,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
         return $this;
     }
 
+    #[MapTo(ignore: true)]
     public function getPlainPassword(): ?string
     {
         return $this->plainPassword;
@@ -385,6 +394,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
         return $this;
     }
 
+    #[MapTo(if: 'getPersonalData')]
     public function getPersonalData(): ?UserPersonal
     {
         return $this->personalData;

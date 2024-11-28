@@ -45,6 +45,6 @@ class Project
      * The current status of this Project.\
      * Admin-only property.
      */
-    #[API\ApiProperty(security: 'is_granted("ROLE_ADMIN")')]
+    #[API\ApiProperty(securityPostDenormalize: 'is_granted("ROLE_ADMIN")')]
     public ProjectStatus $status = ProjectStatus::InEditing;
 }

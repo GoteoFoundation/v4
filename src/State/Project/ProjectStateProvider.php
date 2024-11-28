@@ -27,10 +27,7 @@ class ProjectStateProvider implements ProviderInterface
 
             $resources = [];
             foreach ($collection as $entity) {
-                $project = $this->autoMapper->map($entity, Resource\Project::class);
-
-                var_dump($project);
-                exit;
+                $resources[] = $this->autoMapper->map($entity, Resource\Project::class);
             }
 
             return new TraversablePaginator(
