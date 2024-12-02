@@ -26,6 +26,6 @@ jobs:
         env:
           DATABASE_URL: mysql://root:goteo@127.0.0.1:${{ job.services.mariadb.ports['3306'] }}/goteo
         with:
-          php_version: 8.3
+          php_version: '8.3'
           php_extensions: pdo_mysql
           configuration:  phpunit.xml.dist
