@@ -196,6 +196,11 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
         return $this->getUserIdentifier() === $user->getUserIdentifier();
     }
 
+    public function setOwner(User $user): static
+    {
+        return $this;
+    }
+
     /**
      * @see UserInterface
      *

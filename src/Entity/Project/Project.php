@@ -4,6 +4,7 @@ namespace App\Entity\Project;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
@@ -14,7 +15,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
-class Project implements AccountingOwnerInterface
+class Project implements UserOwnedInterface, AccountingOwnerInterface
 {
     use MigratedEntity;
     use TimestampedCreationEntity;
@@ -69,6 +70,13 @@ class Project implements AccountingOwnerInterface
         return $this->id;
     }
 
+    public function setId(int $id): static
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
     public function getTitle(): ?string
     {
         return $this->title;
@@ -96,6 +104,11 @@ class Project implements AccountingOwnerInterface
     public function getOwner(): ?User
     {
         return $this->owner;
+    }
+
+    public function isOwnedBy(User $user): bool
+    {
+        return $user->getId() === $this->owner->getId();
     }
 
     public function setOwner(?User $owner): static
