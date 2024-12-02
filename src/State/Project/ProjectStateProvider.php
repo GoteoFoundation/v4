@@ -17,7 +17,7 @@ class ProjectStateProvider implements ProviderInterface
     public function __construct(
         private AutoMapperInterface $autoMapper,
         #[Autowire(service: CollectionProvider::class)]
-        private ProviderInterface $collectionProvider
+        private ProviderInterface $collectionProvider,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null

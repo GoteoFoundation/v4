@@ -4,13 +4,13 @@ namespace App\State;
 
 use ApiPlatform\Doctrine\Common\State\PersistProcessor;
 use ApiPlatform\Doctrine\Common\State\RemoveProcessor;
-use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\ProcessorInterface;
-use AutoMapper\AutoMapperInterface;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata\DeleteOperationInterface;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\UserOwnedInterface;
+use AutoMapper\AutoMapperInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -69,7 +69,7 @@ class ApiResourceStateProcessor implements ProcessorInterface
         }
 
         return [
-            'ignored_attributes' => $ignoredAttributes
+            'ignored_attributes' => $ignoredAttributes,
         ];
     }
 }
