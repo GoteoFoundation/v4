@@ -25,6 +25,9 @@ class ApiResourceStateProcessor implements ProcessorInterface
         private Security $security,
     ) {}
 
+    /**
+     * @return mixed
+     */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         /** @var Options */
