@@ -4,6 +4,8 @@ namespace App\Entity\Project;
 
 use App\Entity\Money;
 use App\Repository\Project\RewardRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -51,6 +53,17 @@ class Reward
      */
     #[ORM\Column]
     private ?int $unitsAvailable = null;
+
+    /**
+     * @var Collection<int, RewardClaim>
+     */
+    #[ORM\OneToMany(mappedBy: 'reward', targetEntity: RewardClaim::class)]
+    private Collection $claims;
+
+    public function __construct()
+    {
+        $this->claims = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -137,6 +150,36 @@ class Reward
     public function setUnitsAvailable(int $unitsAvailable): static
     {
         $this->unitsAvailable = $unitsAvailable;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RewardClaim>
+     */
+    public function getClaims(): Collection
+    {
+        return $this->claims;
+    }
+
+    public function addClaim(RewardClaim $claim): static
+    {
+        if (!$this->claims->contains($claim)) {
+            $this->claims->add($claim);
+            $claim->setReward($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClaim(RewardClaim $claim): static
+    {
+        if ($this->claims->removeElement($claim)) {
+            // set the owning side to null (unless already changed)
+            if ($claim->getReward() === $this) {
+                $claim->setReward(null);
+            }
+        }
 
         return $this;
     }
