@@ -4,13 +4,9 @@ namespace App\Mapping\Accounting;
 
 use App\ApiResource\Accounting as Resource;
 use App\Entity\Accounting as Entity;
-use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Money;
-use App\Entity\User;
-use App\Gateway\Wallet\WalletService;
-use App\Library\Economy\MoneyService;
 use App\Repository\Accounting\AccountingRepository;
-use App\Repository\Accounting\TransactionRepository;
+use App\Service\AccountingService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AccountingMapper
@@ -18,9 +14,7 @@ class AccountingMapper
     public function __construct(
         private EntityManagerInterface $entityManager,
         private AccountingRepository $accountingRepository,
-        private TransactionRepository $transactionRepository,
-        private WalletService $wallet,
-        private MoneyService $money,
+        private AccountingService $accountingService,
     ) {}
 
     public function toResource(Entity\Accounting $entity): Resource\Accounting
@@ -31,7 +25,7 @@ class AccountingMapper
         $resource->id = $entity->getId();
         $resource->currency = $entity->getCurrency();
         $resource->owner = $owner;
-        $resource->balance = $this->getBalance($owner);
+        $resource->balance = $this->getBalance($entity);
 
         return $resource;
     }
@@ -50,27 +44,8 @@ class AccountingMapper
         return $entity;
     }
 
-    private function getBalance(AccountingOwnerInterface $owner): Money
+    private function getBalance(Entity\Accounting $accounting): Money
     {
-        if ($owner instanceof User) {
-            return $this->wallet->getBalance($owner->getAccounting());
-        }
-
-        $accounting = $owner->getAccounting();
-
-        $balance = new Money(0, $accounting->getCurrency());
-        $transactions = $this->transactionRepository->findByAccounting($accounting);
-
-        foreach ($transactions as $transaction) {
-            if ($transaction->getTarget() === $accounting) {
-                $balance = $this->money->add($transaction->getMoney(), $balance);
-            }
-
-            if ($transaction->getOrigin() === $accounting) {
-                $balance = $this->money->substract($transaction->getMoney(), $balance);
-            }
-        }
-
-        return $balance;
+        return $this->accountingService->calcBalance($accounting);
     }
 }
