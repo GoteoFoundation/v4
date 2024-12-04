@@ -10,7 +10,7 @@ use App\Entity\Project as Entity;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\User;
 use App\State\ApiResourceStateProcessor;
-use App\State\Project\ProjectStateProvider;
+use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[API\ApiResource(
     stateOptions: new Options(entityClass: Entity\Project::class),
-    provider: ProjectStateProvider::class,
+    provider: ApiResourceStateProvider::class,
     processor: ApiResourceStateProcessor::class
 )]
 #[API\GetCollection()]
