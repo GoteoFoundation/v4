@@ -13,6 +13,7 @@ use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
 use App\Repository\UserRepository;
+use App\State\UserStateProcessor;
 use AutoMapper\Attribute\MapTo;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -31,6 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * This allows to keep an User's "wallet", withholding their non-raised fundings into their Accounting.
  */
 #[Gedmo\Loggable()]
+#[API\ApiResource(processor: UserStateProcessor::class)]
 #[API\GetCollection()]
 #[API\Post(validationContext: ['groups' => ['default', 'postValidation']])]
 #[API\Get()]
