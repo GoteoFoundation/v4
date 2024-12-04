@@ -8,6 +8,7 @@ use App\Entity\Money;
 use App\Entity\Project as Entity;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -39,7 +40,8 @@ class Reward
     /**
      * Detailed information about this reward.
      */
-    public string $description;
+    #[MapTo(if: 'source.description != null')]
+    public ?string $description = null;
 
     /**
      * The minimal monetary sum to be able to claim this reward.
@@ -50,18 +52,22 @@ class Reward
     /**
      * Rewards might be finite, i.e: has a limited amount of existing unitsTotal.
      */
-    #[Assert\NotBlank()]
+    #[Assert\NotNull()]
+    #[Assert\Type('bool')]
     public bool $hasUnits;
 
     /**
      * For finite rewards, the total amount of existing unitsTotal.
      */
-    #[Assert\NotBlank()]
-    public int $unitsTotal;
+    #[Assert\When(
+        'this.hasUnits == true',
+        constraints: [new Assert\Positive()]
+    )]
+    public int $unitsTotal = 0;
 
     /**
      * For finite rewards, the currently available amount of unitsTotal that can be claimed.
      */
     #[API\ApiProperty(writable: false)]
-    public int $unitsAvailable;
+    public int $unitsAvailable = 0;
 }
