@@ -48,6 +48,10 @@ class ApiResourceStateProvider implements ProviderInterface
             return null;
         }
 
+        if ($item instanceof $resourceClass) {
+            return $item;
+        }
+
         return $this->autoMapper->map($item, $resourceClass);
     }
 }
