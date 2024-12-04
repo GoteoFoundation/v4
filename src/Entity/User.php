@@ -45,7 +45,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Index(fields: ['migratedId'])]
-class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
     use MigratedEntity;
     use TimestampedCreationEntity;
@@ -186,21 +186,6 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     public function getUserIdentifier(): string
     {
         return (string) $this->username;
-    }
-
-    public function getOwner(): ?User
-    {
-        return $this;
-    }
-
-    public function isOwnedBy(User $user): bool
-    {
-        return $this->getUserIdentifier() === $user->getUserIdentifier();
-    }
-
-    public function setOwner(User $user): static
-    {
-        return $this;
     }
 
     /**
