@@ -42,7 +42,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface
     /**
      * The User who created this Project.
      */
-    #[ORM\ManyToOne(inversedBy: 'projects')]
+    #[ORM\ManyToOne(inversedBy: 'projects', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $owner = null;
 

@@ -134,7 +134,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
      * The projects owned by this User.
      */
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class)]
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class, cascade: ['persist'])]
     private Collection $projects;
 
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]

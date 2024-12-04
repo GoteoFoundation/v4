@@ -20,7 +20,7 @@ class Reward
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'rewards')]
+    #[ORM\ManyToOne(inversedBy: 'rewards', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Project $project = null;
 
