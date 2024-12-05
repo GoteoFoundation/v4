@@ -25,10 +25,7 @@ class ApiResourceStateProcessor implements ProcessorInterface
         private Security $security,
     ) {}
 
-    /**
-     * @return mixed
-     */
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): object
     {
         /** @var Options */
         $stateOptions = $operation->getStateOptions();
