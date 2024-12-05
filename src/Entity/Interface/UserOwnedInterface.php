@@ -2,7 +2,7 @@
 
 namespace App\Entity\Interface;
 
-use App\Entity\User;
+use App\Entity\User\User;
 
 interface UserOwnedInterface
 {

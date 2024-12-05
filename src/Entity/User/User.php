@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\User;
 
 use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
@@ -12,7 +12,7 @@ use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
-use App\Repository\UserRepository;
+use App\Repository\User\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;

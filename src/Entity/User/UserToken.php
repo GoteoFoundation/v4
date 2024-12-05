@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\User;
 
 use ApiPlatform\Metadata as API;
 use App\Dto\UserTokenLoginDto;
 use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\Trait\TimestampedCreationEntity;
-use App\Repository\UserTokenRepository;
+use App\Repository\User\UserTokenRepository;
 use App\State\UserTokenLoginProcessor;
 use Doctrine\ORM\Mapping as ORM;
 
