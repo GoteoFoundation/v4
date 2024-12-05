@@ -5,7 +5,7 @@ namespace App\Entity\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Project\Project;
 use App\Entity\Tipjar;
-use App\Entity\User;
+use App\Entity\User\User;
 use App\Repository\Accounting\AccountingRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -79,21 +79,24 @@ class Accounting
     public function setOwner(AccountingOwnerInterface $owner): static
     {
         if ($owner instanceof User) {
+            $this->user = $owner;
             $this->owner = 'user';
 
-            return $this->setUser($owner);
+            return $this;
         }
 
         if ($owner instanceof Project) {
+            $this->project = $owner;
             $this->owner = 'project';
 
-            return $this->setProject($owner);
+            return $this;
         }
 
         if ($owner instanceof Tipjar) {
+            $this->tipjar = $owner;
             $this->owner = 'tipjar';
 
-            return $this->setTipjar($owner);
+            return $this;
         }
 
         throw new \Exception(sprintf('%s is not a recognized AccountingOwnerInterface', $owner::class));
@@ -116,9 +119,7 @@ class Accounting
             $user->setAccounting($this);
         }
 
-        $this->user = $user;
-
-        return $this;
+        return $this->setOwner($user);
     }
 
     public function getProject(): ?Project
@@ -138,9 +139,7 @@ class Accounting
             $project->setAccounting($this);
         }
 
-        $this->project = $project;
-
-        return $this;
+        return $this->setOwner($project);
     }
 
     public function getTipjar(): ?Tipjar
@@ -160,8 +159,6 @@ class Accounting
             $tipjar->setAccounting($this);
         }
 
-        $this->tipjar = $tipjar;
-
-        return $this;
+        return $this->setOwner($tipjar);
     }
 }
