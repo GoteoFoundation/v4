@@ -3,7 +3,7 @@
 namespace App\Entity\Accounting;
 
 use App\Entity\Interface\AccountingOwnerInterface;
-use App\Entity\Project;
+use App\Entity\Project\Project;
 use App\Entity\Tipjar;
 use App\Entity\User;
 use App\Repository\Accounting\AccountingRepository;
@@ -42,6 +42,17 @@ class Accounting
 
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist'])]
     private ?Tipjar $tipjar = null;
+
+    /**
+     * Create a new Accounting entity instance for the given owner.
+     */
+    public static function of(AccountingOwnerInterface $owner): Accounting
+    {
+        $accounting = new Accounting();
+        $accounting->setOwner($owner);
+
+        return $accounting;
+    }
 
     public function __construct()
     {

@@ -5,13 +5,15 @@ namespace App\Entity;
 use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
-use App\Entity\Interface\UserOwnedInterface;
+use App\Entity\Project\Project;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
 use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
 use App\Repository\UserRepository;
+use App\State\UserStateProcessor;
+use AutoMapper\Attribute\MapTo;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,9 +28,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Users represent people who interact with the platform.\
  * \
  * Users are the usual issuers of funding, however an User's Accounting can still be a Transaction recipient.
- * This allows to keep an User's "wallet", witholding their non-raised fundings into their Accounting.
+ * This allows to keep an User's "wallet", withholding their non-raised fundings into their Accounting.
  */
 #[Gedmo\Loggable()]
+#[API\ApiResource(processor: UserStateProcessor::class)]
 #[API\GetCollection()]
 #[API\Post(validationContext: ['groups' => ['default', 'postValidation']])]
 #[API\Get()]
@@ -41,7 +44,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Index(fields: ['migratedId'])]
-class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
     use MigratedEntity;
     use TimestampedCreationEntity;
@@ -132,7 +135,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
      * The projects owned by this User.
      */
     #[API\ApiProperty(writable: false)]
-    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class)]
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class, cascade: ['persist'])]
     private Collection $projects;
 
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
@@ -140,10 +143,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
 
     public function __construct()
     {
-        $accounting = new Accounting();
-        $accounting->setOwner($this);
-
-        $this->accounting = $accounting;
+        $this->accounting = Accounting::of($this);
 
         $this->emailConfirmed = false;
         $this->active = false;
@@ -155,6 +155,13 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId(int $id): static
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     public function getUsername(): ?string
@@ -178,16 +185,6 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
     public function getUserIdentifier(): string
     {
         return (string) $this->username;
-    }
-
-    public function getOwner(): ?User
-    {
-        return $this;
-    }
-
-    public function isOwnedBy(User $user): bool
-    {
-        return $this->getUserIdentifier() === $user->getUserIdentifier();
     }
 
     /**
@@ -234,6 +231,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
         return $this;
     }
 
+    #[MapTo(ignore: true)]
     public function getPlainPassword(): ?string
     {
         return $this->plainPassword;
@@ -387,6 +385,7 @@ class User implements UserInterface, UserOwnedInterface, PasswordAuthenticatedUs
         return $this;
     }
 
+    #[MapTo(if: 'getPersonalData')]
     public function getPersonalData(): ?UserPersonal
     {
         return $this->personalData;

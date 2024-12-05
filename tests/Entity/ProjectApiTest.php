@@ -3,8 +3,8 @@
 namespace App\Tests\Entity;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
-use App\Entity\Project;
-use App\Entity\ProjectStatus;
+use App\Entity\Project\Project;
+use App\Entity\Project\ProjectStatus;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,7 +41,7 @@ class ProjectApiTest extends ApiTestCase
         $project = new Project();
         $project->setTitle('Test Project');
         $project->setOwner($owner);
-        $project->setStatus(ProjectStatus::Editing);
+        $project->setStatus(ProjectStatus::InEditing);
 
         $this->entityManager->persist($owner);
         $this->entityManager->persist($project);
@@ -54,8 +54,8 @@ class ProjectApiTest extends ApiTestCase
         $this->assertJsonContains(['hydra:member' => [
             [
                 'title' => 'Test Project',
-                'accounting' => [],
-                'status' => ProjectStatus::Editing->value,
+                'status' => ProjectStatus::InEditing->value,
+                'rewards' => [],
             ],
         ]]);
     }
