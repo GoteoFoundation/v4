@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Project;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata as API;
@@ -9,7 +9,8 @@ use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
-use App\Repository\ProjectRepository;
+use App\Entity\User;
+use App\Repository\Project\ProjectRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
