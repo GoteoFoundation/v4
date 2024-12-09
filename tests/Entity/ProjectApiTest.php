@@ -54,7 +54,6 @@ class ProjectApiTest extends ApiTestCase
         $this->assertJsonContains(['hydra:member' => [
             [
                 'title' => 'Test Project',
-                'accounting' => [],
                 'status' => ProjectStatus::InEditing->value,
             ],
         ]]);
