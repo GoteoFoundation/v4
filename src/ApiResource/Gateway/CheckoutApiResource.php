@@ -11,6 +11,7 @@ use App\Gateway\Link;
 use App\Gateway\Tracking;
 use App\State\ApiResourceStateProvider;
 use App\State\Gateway\CheckoutStateProcessor;
+use AutoMapper\Attribute\MapFrom;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -72,5 +73,17 @@ class CheckoutApiResource
      * @var Tracking[]
      */
     #[API\ApiProperty(writable: false)]
+    #[MapFrom(transformer: [self::class, 'parseTrackings'])]
     public array $trackings = [];
+
+    public static function parseTrackings(array $values)
+    {
+        return \array_map(function ($value) {
+            $tracking = new Tracking();
+            $tracking->title = $value['title'];
+            $tracking->value = $value['value'];
+
+            return $tracking;
+        }, $values);
+    }
 }
