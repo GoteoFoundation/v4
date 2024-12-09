@@ -2,17 +2,18 @@
 
 namespace App\State;
 
+use ApiPlatform\Doctrine\Common\State\PersistProcessor;
 use ApiPlatform\Metadata as API;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\User;
-use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-#[AsDecorator('api_platform.doctrine.orm.state.persist_processor')]
 class UserStateProcessor implements ProcessorInterface
 {
     public function __construct(
-        private ProcessorInterface $innerProcessor,
+        #[Autowire(service: PersistProcessor::class)]
+        private ProcessorInterface $persistProcessor,
         private UserPasswordHasherInterface $userPasswordHasher,
     ) {}
 
@@ -27,6 +28,6 @@ class UserStateProcessor implements ProcessorInterface
             );
         }
 
-        return $this->innerProcessor->process($data, $operation, $uriVariables, $context);
+        return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }
 }

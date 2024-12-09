@@ -17,7 +17,7 @@ use App\Gateway\Tracking;
 use App\Gateway\Wallet\WalletGateway;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
 use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;
-use App\Repository\ProjectRepository;
+use App\Repository\Project\ProjectRepository;
 use App\Repository\TipjarRepository;
 use App\Repository\UserRepository;
 use App\Service\Gateway\CheckoutService;
