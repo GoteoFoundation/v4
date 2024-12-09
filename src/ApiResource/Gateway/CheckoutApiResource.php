@@ -4,13 +4,13 @@ namespace App\ApiResource\Gateway;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\ApiResource\Accounting\Accounting;
-use App\Entity\Gateway as Entity;
+use App\ApiResource\Accounting\AccountingApiResource;
+use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
 use App\Gateway\Tracking;
+use App\State\ApiResourceStateProvider;
 use App\State\Gateway\CheckoutStateProcessor;
-use App\State\Gateway\CheckoutStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,17 +18,17 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[API\ApiResource(
     shortName: 'GatewayCheckout',
-    stateOptions: new Options(entityClass: Entity\Checkout::class),
-    provider: CheckoutStateProvider::class,
+    stateOptions: new Options(entityClass: Checkout::class),
+    provider: ApiResourceStateProvider::class,
     processor: CheckoutStateProcessor::class,
 )]
 #[API\GetCollection()]
 #[API\Post()]
 #[API\Get()]
-class Checkout
+class CheckoutApiResource
 {
     #[API\ApiProperty(writable: false, identifier: true)]
-    public ?int $id = null;
+    public int $id;
 
     /**
      * The desired Gateway to checkout with.
@@ -40,12 +40,12 @@ class Checkout
      * The Accounting paying for the charges.
      */
     #[Assert\NotBlank()]
-    public Accounting $origin;
+    public AccountingApiResource $origin;
 
     /**
      * A list of the payment items to be charged to the origin.
      *
-     * @var Charge[]
+     * @var ChargeApiResource[]
      */
     #[API\ApiProperty(readableLink: true, writableLink: true)]
     #[Assert\NotBlank()]
