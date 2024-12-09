@@ -10,7 +10,7 @@ class AutoMapper implements AutoMapperInterface
     private AutoMapperInterface $innerMapper;
 
     public function __construct(
-        iterable $mapProviders
+        iterable $mapProviders,
     ) {
         $this->innerMapper = InnerMapper::create(
             providers: $mapProviders

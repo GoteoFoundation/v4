@@ -37,7 +37,7 @@ class AccountingApiResource
     public string $currency;
 
     /**
-     * The resource owning this Accounting.\
+     * The resource owning this Accounting.\.
      */
     public mixed $owner;
 
