@@ -119,7 +119,13 @@ class Accounting
             $user->setAccounting($this);
         }
 
-        return $this->setOwner($user);
+        if ($user !== null) {
+            return $this->setOwner($user);
+        }
+
+        $this->user = $user;
+
+        return $this;
     }
 
     public function getProject(): ?Project
@@ -139,7 +145,13 @@ class Accounting
             $project->setAccounting($this);
         }
 
-        return $this->setOwner($project);
+        if ($project !== null) {
+            return $this->setOwner($project);
+        }
+
+        $this->project = $project;
+
+        return $this;
     }
 
     public function getTipjar(): ?Tipjar
@@ -159,6 +171,12 @@ class Accounting
             $tipjar->setAccounting($this);
         }
 
-        return $this->setOwner($tipjar);
+        if ($tipjar !== null) {
+            return $this->setOwner($tipjar);
+        }
+
+        $this->tipjar = $tipjar;
+
+        return $this;
     }
 }
