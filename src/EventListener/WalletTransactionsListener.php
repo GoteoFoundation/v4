@@ -3,7 +3,7 @@
 namespace App\EventListener;
 
 use App\Entity\Accounting\Transaction;
-use App\Entity\User;
+use App\Entity\User\User;
 use App\Gateway\Wallet\WalletService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PostPersistEventArgs;

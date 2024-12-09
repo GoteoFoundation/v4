@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\User;
 
 use Ambta\DoctrineEncryptBundle\Configuration\Encrypted;
 use ApiPlatform\Metadata\ApiResource;
-use App\Repository\UserPersonalRepository;
+use App\Repository\User\UserPersonalRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

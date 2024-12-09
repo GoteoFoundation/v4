@@ -2,7 +2,7 @@
 
 namespace App\Tests\Library\Benzina\Pump;
 
-use App\Entity\User;
+use App\Entity\User\User;
 use App\Library\Benzina\Pump\UsersPump;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

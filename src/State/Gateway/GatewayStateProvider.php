@@ -5,16 +5,15 @@ namespace App\State\Gateway;
 use ApiPlatform\Metadata as API;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\ApiResource\Gateway\Gateway;
+use App\ApiResource\Gateway\GatewayApiResource;
+use App\Gateway\GatewayInterface;
 use App\Gateway\GatewayLocator;
-use App\Mapping\Gateway\GatewayMapper;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class GatewayStateProvider implements ProviderInterface
 {
     public function __construct(
         private GatewayLocator $gateways,
-        private GatewayMapper $gatewayMapper,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
@@ -31,20 +30,29 @@ class GatewayStateProvider implements ProviderInterface
     {
         $gateways = [];
         foreach ($this->gateways->getAll() as $gateway) {
-            $gateways[] = $this->gatewayMapper->toResource($gateway);
+            $gateways[] = $this->toResource($gateway);
         }
 
         return $gateways;
     }
 
-    private function getGateway(string $name): Gateway
+    private function getGateway(string $name): GatewayApiResource
     {
         try {
             $gateway = $this->gateways->get($name);
 
-            return $this->gatewayMapper->toResource($gateway);
+            return $this->toResource($gateway);
         } catch (\Exception $e) {
             throw new NotFoundHttpException('Not Found');
         }
+    }
+
+    private function toResource(GatewayInterface $gateway): GatewayApiResource
+    {
+        $resource = new GatewayApiResource();
+        $resource->name = $gateway::getName();
+        $resource->supports = $gateway::getSupportedChargeTypes();
+
+        return $resource;
     }
 }
