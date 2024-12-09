@@ -37,11 +37,9 @@ class AccountingApiResource
     public string $currency;
 
     /**
-     * Accountings can be owned by different resources.\
-     * Full-body owner data is not directly embedded,
-     * instead a middle object with context about the owner is given.
+     * The resource owning this Accounting.\
      */
-    public AccountingOwner $owner;
+    public mixed $owner;
 
     /**
      * The money currently held by the Accounting.
