@@ -8,6 +8,7 @@ use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
+use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -15,7 +16,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[API\ApiResource(
     shortName: 'Project',
-    stateOptions: new Options(entityClass: Project::class)
+    stateOptions: new Options(entityClass: Project::class),
+    provider: ApiResourceStateProvider::class,
 )]
 #[API\GetCollection()]
 #[API\Post(security: 'is_granted("ROLE_USER")')]
