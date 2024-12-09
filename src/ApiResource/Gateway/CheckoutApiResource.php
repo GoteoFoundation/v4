@@ -35,7 +35,7 @@ class CheckoutApiResource
      * The desired Gateway to checkout with.
      */
     #[Assert\NotBlank()]
-    public Gateway $gateway;
+    public GatewayApiResource $gateway;
 
     /**
      * The Accounting paying for the charges.
