@@ -5,7 +5,7 @@ namespace App\Tests\Gateway\Wallet;
 use App\Entity\Accounting\Transaction;
 use App\Entity\Money;
 use App\Entity\Tipjar;
-use App\Entity\User;
+use App\Entity\User\User;
 use App\Gateway\Wallet\StatementDirection;
 use App\Gateway\Wallet\WalletService;
 use Doctrine\ORM\EntityManagerInterface;
