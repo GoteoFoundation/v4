@@ -88,6 +88,7 @@
         }
     },
     "require-dev": {
+        "deployer/deployer": "^7.5",
         "friendsofphp/php-cs-fixer": "^3.58",
         "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "6.4.*",
