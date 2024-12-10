@@ -1,11 +1,13 @@
 <?php
 
-namespace App\State;
+namespace App\State\User;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\ApiResource\User\UserTokenApiResource;
 use App\Dto\UserTokenLoginDto;
 use App\Entity\User\UserToken;
+use App\Mapping\AutoMapper;
 use App\Repository\User\UserRepository;
 use App\Service\Auth\AuthService;
 use App\Service\Auth\AuthTokenType;
@@ -21,12 +23,15 @@ class UserTokenLoginProcessor implements ProcessorInterface
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $userPasswordHasher,
+        private AutoMapper $autoMapper,
     ) {}
 
     /**
      * @param UserTokenLoginDto $data
+     * 
+     * @param UserTokenApiResource
      */
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): UserToken
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         $user = $this->userRepository->findOneByIdentifier($data->identifier);
 
@@ -43,6 +48,6 @@ class UserTokenLoginProcessor implements ProcessorInterface
         $this->entityManager->persist($token);
         $this->entityManager->flush();
 
-        return $token;
+        return $this->autoMapper->map($token, UserTokenApiResource::class);
     }
 }
