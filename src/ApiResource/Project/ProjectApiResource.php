@@ -6,9 +6,11 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\ApiResource\User\UserApiResource;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
 use App\State\ApiResourceStateProvider;
+use App\State\Project\ProjectStateProcessor;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,6 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'Project',
     stateOptions: new Options(entityClass: Project::class),
     provider: ApiResourceStateProvider::class,
+    processor: ProjectStateProcessor::class
 )]
 #[API\GetCollection()]
 #[API\Post(security: 'is_granted("ROLE_USER")')]
@@ -36,10 +39,15 @@ class ProjectApiResource
     public AccountingApiResource $accounting;
 
     /**
+     * The User who owns this Project.
+     */
+    #[API\ApiProperty(writable: false)]
+    public UserApiResource $owner;
+
+    /**
      * Main title for the Project.
      */
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
-    #[API\ApiProperty(securityPostDenormalize: 'is_granted("PROJECT_EDIT")')]
     #[Assert\NotBlank()]
     public string $title;
 
