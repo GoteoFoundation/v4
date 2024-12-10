@@ -14,6 +14,7 @@ use App\ApiResource\Project\ProjectApiResource;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Project\Project;
+use App\Entity\Tipjar;
 use App\Entity\User\User;
 use App\Mapping\AutoMapper;
 use App\Service\AccountingService;
@@ -66,8 +67,6 @@ class AccountingStateProvider implements ProviderInterface
 
         $owner = $accounting->getOwner();
 
-        $resource->owner = $owner;
-
         switch ($owner::class) {
             case User::class:
                 $resourceClass = UserApiResource::class;
@@ -75,6 +74,8 @@ class AccountingStateProvider implements ProviderInterface
             case Project::class:
                 $resourceClass = ProjectApiResource::class;
                 break;
+            case Tipjar::class:
+                $resourceClass = Tipjar::class;
         }
 
         $resource->owner = $this->autoMapper->map($owner, $resourceClass);

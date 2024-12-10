@@ -32,7 +32,7 @@ class Accounting
     private ?string $currency = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $owner = null;
+    private ?string $ownerClass = null;
 
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist'])]
     private ?User $user = null;
@@ -69,37 +69,44 @@ class Accounting
         return $this;
     }
 
+    public function getOwnerClass(): ?string
+    {
+        return $this->ownerClass;
+    }
+
+    public function setOwnerClass(string $ownerClass): static
+    {
+        $this->ownerClass = $ownerClass;
+
+        return $this;
+    }
+
     public function getOwner(): ?AccountingOwnerInterface
     {
-        $owner = $this->owner;
-
-        return $this->$owner;
+        switch ($this->getOwnerClass()) {
+            case User::class:
+                return $this->getUser();
+            case Project::class:
+                return $this->getProject();
+            case Tipjar::class:
+                return $this->getTipjar();
+        }
     }
 
     public function setOwner(AccountingOwnerInterface $owner): static
     {
-        if ($owner instanceof User) {
-            $this->user = $owner;
-            $this->owner = 'user';
+        $this->setOwnerClass($owner::class);
 
-            return $this;
+        switch ($this->getOwnerClass()) {
+            case User::class:
+                return $this->setUser($owner);
+            case Project::class:
+                return $this->setProject($owner);
+            case Tipjar::class:
+                return $this->setTipjar($owner);
         }
 
-        if ($owner instanceof Project) {
-            $this->project = $owner;
-            $this->owner = 'project';
-
-            return $this;
-        }
-
-        if ($owner instanceof Tipjar) {
-            $this->tipjar = $owner;
-            $this->owner = 'tipjar';
-
-            return $this;
-        }
-
-        throw new \Exception(sprintf('%s is not a recognized AccountingOwnerInterface', $owner::class));
+        return $this;
     }
 
     public function getUser(): ?User
@@ -117,10 +124,6 @@ class Accounting
         // set the owning side of the relation if necessary
         if ($user !== null && $user->getAccounting() !== $this) {
             $user->setAccounting($this);
-        }
-
-        if ($user !== null) {
-            return $this->setOwner($user);
         }
 
         $this->user = $user;
@@ -145,10 +148,6 @@ class Accounting
             $project->setAccounting($this);
         }
 
-        if ($project !== null) {
-            return $this->setOwner($project);
-        }
-
         $this->project = $project;
 
         return $this;
@@ -169,10 +168,6 @@ class Accounting
         // set the owning side of the relation if necessary
         if ($tipjar !== null && $tipjar->getAccounting() !== $this) {
             $tipjar->setAccounting($this);
-        }
-
-        if ($tipjar !== null) {
-            return $this->setOwner($tipjar);
         }
 
         $this->tipjar = $tipjar;
