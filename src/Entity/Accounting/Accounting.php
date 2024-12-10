@@ -3,9 +3,9 @@
 namespace App\Entity\Accounting;
 
 use App\Entity\Interface\AccountingOwnerInterface;
-use App\Entity\Project;
+use App\Entity\Project\Project;
 use App\Entity\Tipjar;
-use App\Entity\User;
+use App\Entity\User\User;
 use App\Repository\Accounting\AccountingRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -32,7 +32,7 @@ class Accounting
     private ?string $currency = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $owner = null;
+    private ?string $ownerClass = null;
 
     #[ORM\OneToOne(mappedBy: 'accounting', cascade: ['persist'])]
     private ?User $user = null;
@@ -69,34 +69,44 @@ class Accounting
         return $this;
     }
 
+    public function getOwnerClass(): ?string
+    {
+        return $this->ownerClass;
+    }
+
+    public function setOwnerClass(string $ownerClass): static
+    {
+        $this->ownerClass = $ownerClass;
+
+        return $this;
+    }
+
     public function getOwner(): ?AccountingOwnerInterface
     {
-        $owner = $this->owner;
-
-        return $this->$owner;
+        switch ($this->getOwnerClass()) {
+            case User::class:
+                return $this->getUser();
+            case Project::class:
+                return $this->getProject();
+            case Tipjar::class:
+                return $this->getTipjar();
+        }
     }
 
     public function setOwner(AccountingOwnerInterface $owner): static
     {
-        if ($owner instanceof User) {
-            $this->owner = 'user';
+        $this->setOwnerClass($owner::class);
 
-            return $this->setUser($owner);
+        switch ($this->getOwnerClass()) {
+            case User::class:
+                return $this->setUser($owner);
+            case Project::class:
+                return $this->setProject($owner);
+            case Tipjar::class:
+                return $this->setTipjar($owner);
         }
 
-        if ($owner instanceof Project) {
-            $this->owner = 'project';
-
-            return $this->setProject($owner);
-        }
-
-        if ($owner instanceof Tipjar) {
-            $this->owner = 'tipjar';
-
-            return $this->setTipjar($owner);
-        }
-
-        throw new \Exception(sprintf('%s is not a recognized AccountingOwnerInterface', $owner::class));
+        return $this;
     }
 
     public function getUser(): ?User

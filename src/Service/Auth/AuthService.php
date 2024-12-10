@@ -2,8 +2,8 @@
 
 namespace App\Service\Auth;
 
-use App\Entity\User;
-use App\Entity\UserToken;
+use App\Entity\User\User;
+use App\Entity\User\UserToken;
 
 class AuthService
 {

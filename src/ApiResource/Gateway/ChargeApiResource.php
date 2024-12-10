@@ -4,11 +4,11 @@ namespace App\ApiResource\Gateway;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\ApiResource\Accounting\Accounting;
-use App\Entity\Gateway\Charge as EntityCharge;
+use App\ApiResource\Accounting\AccountingApiResource;
+use App\Entity\Gateway\Charge;
 use App\Entity\Money;
 use App\Gateway\ChargeType;
-use App\State\Gateway\ChargeStateProvider;
+use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -16,11 +16,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[API\ApiResource(
     shortName: 'GatewayCharge',
-    stateOptions: new Options(entityClass: EntityCharge::class),
-    provider: ChargeStateProvider::class
+    stateOptions: new Options(entityClass: Charge::class),
+    provider: ApiResourceStateProvider::class
 )]
 #[API\Get()]
-class Charge
+class ChargeApiResource
 {
     #[API\ApiProperty(writable: false, identifier: true)]
     public ?int $id = null;
@@ -51,7 +51,7 @@ class Charge
      * The Accounting receiving the money after a successful payment.
      */
     #[Assert\NotBlank()]
-    public Accounting $target;
+    public AccountingApiResource $target;
 
     /**
      * The money to-be-paid for this item at the Gateway.

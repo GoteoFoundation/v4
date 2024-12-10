@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Repository\UserTokenRepository;
+use App\Repository\User\UserTokenRepository;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\AccessToken\AccessTokenHandlerInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;

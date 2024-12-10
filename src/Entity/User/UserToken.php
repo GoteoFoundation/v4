@@ -1,13 +1,10 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\User;
 
-use ApiPlatform\Metadata as API;
-use App\Dto\UserTokenLoginDto;
 use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\Trait\TimestampedCreationEntity;
-use App\Repository\UserTokenRepository;
-use App\State\UserTokenLoginProcessor;
+use App\Repository\User\UserTokenRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -19,9 +16,6 @@ use Doctrine\ORM\Mapping as ORM;
  * `oat_` means the token was created via an OAuth flow.\
  * `pat_` means the token was created via a login flow.
  */
-#[API\Post(input: UserTokenLoginDto::class, processor: UserTokenLoginProcessor::class)]
-#[API\Get(security: 'is_granted("USER_OWNED", object)')]
-#[API\Delete(security: 'is_granted("USER_OWNED", object)')]
 #[ORM\Entity(repositoryClass: UserTokenRepository::class)]
 class UserToken implements UserOwnedInterface
 {
