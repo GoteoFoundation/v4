@@ -23,9 +23,7 @@ class ApiResourceStateProcessor implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        $entityClass = $this->getEntityClass($operation->getStateOptions());
-
-        $entity = $this->autoMapper->map($data, $entityClass);
+        $entity = $this->getEntity($data, $operation->getStateOptions());
 
         if ($operation instanceof DeleteOperationInterface) {
             $this->deleteProcessor->process($entity, $operation, $uriVariables, $context);
@@ -38,8 +36,11 @@ class ApiResourceStateProcessor implements ProcessorInterface
         return $this->autoMapper->map($entity, $data);
     }
 
-    public function getEntityClass(Options $options): string
+    public function getEntity(mixed $data, Options $options): object
     {
-        return $options->getEntityClass();
+        /** @var object */
+        $entity = $this->autoMapper->map($data, $options->getEntityClass(), ['skip_null_values' => true]);
+
+        return $entity;
     }
 }
