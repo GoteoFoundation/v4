@@ -11,8 +11,10 @@ use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\Accounting\AccountingApiResource;
 use App\ApiResource\Project\ProjectApiResource;
+use App\ApiResource\User\UserApiResource;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Project\Project;
+use App\Entity\User\User;
 use App\Mapping\AutoMapper;
 use App\Service\AccountingService;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -66,9 +68,16 @@ class AccountingStateProvider implements ProviderInterface
 
         $resource->owner = $owner;
 
-        if ($owner instanceof Project) {
-            $resource->owner = $this->autoMapper->map($owner, ProjectApiResource::class);
+        switch ($owner::class) {
+            case User::class:
+                $resourceClass = UserApiResource::class;
+                break;
+            case Project::class:
+                $resourceClass = ProjectApiResource::class;
+                break;
         }
+
+        $resource->owner = $this->autoMapper->map($owner, $resourceClass);
 
         return $resource;
     }
