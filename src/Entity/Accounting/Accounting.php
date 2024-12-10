@@ -91,10 +91,16 @@ class Accounting
             case Tipjar::class:
                 return $this->getTipjar();
         }
+
+        return null;
     }
 
-    public function setOwner(AccountingOwnerInterface $owner): static
+    public function setOwner(?AccountingOwnerInterface $owner): static
     {
+        if ($owner === null) {
+            return $this;
+        }
+
         $this->setOwnerClass($owner::class);
 
         switch ($this->getOwnerClass()) {
