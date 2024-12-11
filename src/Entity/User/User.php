@@ -1,19 +1,14 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\User;
 
-use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Project\Project;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
-use App\Filter\OrderedLikeFilter;
-use App\Filter\UserQueryFilter;
-use App\Repository\UserRepository;
-use App\State\UserStateProcessor;
-use AutoMapper\Attribute\MapTo;
+use App\Repository\User\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -21,8 +16,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Annotation\SerializedName;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Users represent people who interact with the platform.\
@@ -31,15 +24,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * This allows to keep an User's "wallet", withholding their non-raised fundings into their Accounting.
  */
 #[Gedmo\Loggable()]
-#[API\ApiResource(processor: UserStateProcessor::class)]
-#[API\GetCollection()]
-#[API\Post(validationContext: ['groups' => ['default', 'postValidation']])]
-#[API\Get()]
-#[API\Put(security: 'is_granted("USER_EDIT", object)')]
-#[API\Delete(security: 'is_granted("USER_EDIT", object)')]
-#[API\Patch(security: 'is_granted("USER_EDIT", object)')]
-#[API\ApiFilter(filterClass: UserQueryFilter::class, properties: ['query'])]
-#[API\ApiFilter(filterClass: OrderedLikeFilter::class, properties: ['username'])]
 #[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
 #[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -55,13 +39,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Gedmo\Versioned]
+    #[ORM\Column(length: 255)]
+    private ?string $email = null;
+
+    /**
+     * Has this User confirmed their email address?
+     */
+    #[ORM\Column]
+    private ?bool $emailConfirmed = null;
+
     /**
      * Human readable, non white space, unique string.
      */
     #[Gedmo\Versioned]
-    #[Assert\NotBlank()]
-    #[Assert\Length(min: 4, max: 30)]
-    #[Assert\Regex('/^[a-z0-9_]+$/')]
     #[ORM\Column(length: 255)]
     private ?string $username = null;
 
@@ -69,53 +60,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
      * @var list<string> The user roles. Admin only property.
      */
     #[ORM\Column]
-    #[API\ApiProperty(security: 'is_granted("ROLE_ADMIN")')]
     private array $roles = [];
 
-    /**
-     * @var string The user password
-     */
-    #[API\ApiProperty(writable: false, readable: false)]
-    #[ORM\Column]
-    private ?string $password = null;
-
-    /**
-     * Plain-text, will be hashed by the platform.
-     */
-    #[Assert\NotBlank(['groups' => ['postValidation']])]
-    #[Assert\Length(min: 12)]
-    #[API\ApiProperty(writable: true, readable: false, required: true)]
-    #[SerializedName('password')]
-    private ?string $plainPassword = null;
-
-    #[Gedmo\Versioned]
-    #[Assert\NotBlank()]
-    #[Assert\Email()]
-    #[ORM\Column(length: 255)]
-    private ?string $email = null;
-
-    /**
-     * Has this User confirmed their email address?
-     */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\Column]
-    private ?bool $emailConfirmed = null;
-
-    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist'])]
     private ?Accounting $accounting = null;
 
     /**
+     * The projects owned by this User.
+     */
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class)]
+    private Collection $projects;
+
+    /**
      * The UserTokens owned by this User. Owner only property.
      */
-    #[API\ApiProperty(writable: false, security: 'is_granted("USER_OWNED", object)')]
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: UserToken::class, orphanRemoval: true)]
     private Collection $tokens;
 
     /**
      * A flag determined by the platform for Users who are known to be active.
      */
-    #[API\ApiProperty(writable: false)]
     #[ORM\Column]
     private ?bool $active = null;
 
@@ -131,15 +95,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
 
-    /**
-     * The projects owned by this User.
-     */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class, cascade: ['persist'])]
-    private Collection $projects;
-
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?UserPersonal $personalData = null;
+
+    /**
+     * @var string The user password
+     */
+    #[ORM\Column]
+    private ?string $password = null;
 
     public function __construct()
     {
@@ -157,9 +120,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this->id;
     }
 
-    public function setId(int $id): static
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
     {
-        $this->id = $id;
+        return (string) $this->username;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function isEmailConfirmed(): ?bool
+    {
+        return $this->emailConfirmed;
+    }
+
+    public function setEmailConfirmed(bool $emailConfirmed): static
+    {
+        $this->emailConfirmed = $emailConfirmed;
 
         return $this;
     }
@@ -174,17 +164,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         $this->username = strtolower($username);
 
         return $this;
-    }
-
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    #[API\ApiProperty(readable: false)]
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->username;
     }
 
     /**
@@ -216,67 +195,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return count(array_intersect($this->getRoles(), $roles)) > 0;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
-    public function getPassword(): string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    #[MapTo(ignore: true)]
-    public function getPlainPassword(): ?string
-    {
-        return $this->plainPassword;
-    }
-
-    public function setPlainPassword(string $plainPassword): static
-    {
-        $this->plainPassword = $plainPassword;
-
-        return $this;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials(): void
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        $this->plainPassword = null;
-    }
-
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    public function isEmailConfirmed(): ?bool
-    {
-        return $this->emailConfirmed;
-    }
-
-    public function setEmailConfirmed(bool $emailConfirmed): static
-    {
-        $this->emailConfirmed = $emailConfirmed;
-
-        return $this;
-    }
-
     public function getAccounting(): ?Accounting
     {
         return $this->accounting;
@@ -285,6 +203,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     public function setAccounting(?Accounting $accounting): static
     {
         $this->accounting = $accounting;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Project>
+     */
+    public function getProjects(): Collection
+    {
+        return $this->projects;
+    }
+
+    public function addProject(Project $project): static
+    {
+        if (!$this->projects->contains($project)) {
+            $this->projects->add($project);
+            $project->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProject(Project $project): static
+    {
+        if ($this->projects->removeElement($project)) {
+            // set the owning side to null (unless already changed)
+            if ($project->getOwner() === $this) {
+                $project->setOwner(null);
+            }
+        }
 
         return $this;
     }
@@ -355,37 +303,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         return $this;
     }
 
-    /**
-     * @return Collection<int, Project>
-     */
-    public function getProjects(): Collection
-    {
-        return $this->projects;
-    }
-
-    public function addProject(Project $project): static
-    {
-        if (!$this->projects->contains($project)) {
-            $this->projects->add($project);
-            $project->setOwner($this);
-        }
-
-        return $this;
-    }
-
-    public function removeProject(Project $project): static
-    {
-        if ($this->projects->removeElement($project)) {
-            // set the owning side to null (unless already changed)
-            if ($project->getOwner() === $this) {
-                $project->setOwner(null);
-            }
-        }
-
-        return $this;
-    }
-
-    #[MapTo(if: 'getPersonalData')]
     public function getPersonalData(): ?UserPersonal
     {
         return $this->personalData;
@@ -401,5 +318,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
         $this->personalData = $personalData;
 
         return $this;
+    }
+
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): static
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
     }
 }

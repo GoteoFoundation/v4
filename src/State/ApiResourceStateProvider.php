@@ -8,8 +8,7 @@ use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
-use AutoMapper\AutoMapperInterface;
-use Doctrine\Common\Collections\ArrayCollection;
+use App\Mapping\AutoMapper;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ApiResourceStateProvider implements ProviderInterface
@@ -19,7 +18,7 @@ class ApiResourceStateProvider implements ProviderInterface
         private ProviderInterface $collectionProvider,
         #[Autowire(service: ItemProvider::class)]
         private ProviderInterface $itemProvider,
-        private AutoMapperInterface $autoMapper,
+        private AutoMapper $autoMapper,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
@@ -35,7 +34,7 @@ class ApiResourceStateProvider implements ProviderInterface
             }
 
             return new TraversablePaginator(
-                new ArrayCollection($resources),
+                new \ArrayIterator($resources),
                 $collection->getCurrentPage(),
                 $collection->getItemsPerPage(),
                 $collection->getTotalItems()
@@ -46,10 +45,6 @@ class ApiResourceStateProvider implements ProviderInterface
 
         if (!$item) {
             return null;
-        }
-
-        if ($item instanceof $resourceClass) {
-            return $item;
         }
 
         return $this->autoMapper->map($item, $resourceClass);

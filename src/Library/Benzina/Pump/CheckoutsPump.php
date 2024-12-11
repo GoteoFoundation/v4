@@ -19,7 +19,7 @@ use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
 use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;
 use App\Repository\Project\ProjectRepository;
 use App\Repository\TipjarRepository;
-use App\Repository\UserRepository;
+use App\Repository\User\UserRepository;
 use App\Service\Gateway\CheckoutService;
 use Doctrine\ORM\EntityManagerInterface;
 

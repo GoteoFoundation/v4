@@ -2,15 +2,22 @@
 
 namespace App\State\Accounting;
 
+use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Doctrine\Orm\State\CollectionProvider;
 use ApiPlatform\Doctrine\Orm\State\ItemProvider;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
-use App\ApiResource\Accounting as ApiResource;
-use App\Entity\Accounting as Entity;
-use App\Mapping\Accounting\AccountingMapper;
+use App\ApiResource\Accounting\AccountingApiResource;
+use App\ApiResource\Project\ProjectApiResource;
+use App\ApiResource\User\UserApiResource;
+use App\Entity\Accounting\Accounting;
+use App\Entity\Project\Project;
+use App\Entity\Tipjar;
+use App\Entity\User\User;
+use App\Mapping\AutoMapper;
+use App\Service\AccountingService;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class AccountingStateProvider implements ProviderInterface
@@ -20,7 +27,9 @@ class AccountingStateProvider implements ProviderInterface
         private ProviderInterface $itemProvider,
         #[Autowire(service: CollectionProvider::class)]
         private ProviderInterface $collectionProvider,
-        private AccountingMapper $accountingMapper,
+        private AutoMapper $autoMapper,
+        private AccountingService $accountingService,
+        private IriConverterInterface $iriConverter,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
@@ -43,15 +52,34 @@ class AccountingStateProvider implements ProviderInterface
 
         $accounting = $this->itemProvider->provide($operation, $uriVariables, $context);
 
-        return $this->toResource($accounting);
-    }
-
-    private function toResource(?Entity\Accounting $accounting): ?ApiResource\Accounting
-    {
         if ($accounting === null) {
             return null;
         }
 
-        return $this->accountingMapper->toResource($accounting);
+        return $this->toResource($accounting);
+    }
+
+    private function toResource(Accounting $accounting): AccountingApiResource
+    {
+        /** @var AccountingApiResource */
+        $resource = $this->autoMapper->map($accounting, AccountingApiResource::class);
+        $resource->balance = $this->accountingService->calcBalance($accounting);
+
+        $owner = $accounting->getOwner();
+
+        switch ($owner::class) {
+            case User::class:
+                $resourceClass = UserApiResource::class;
+                break;
+            case Project::class:
+                $resourceClass = ProjectApiResource::class;
+                break;
+            case Tipjar::class:
+                $resourceClass = Tipjar::class;
+        }
+
+        $resource->owner = $this->autoMapper->map($owner, $resourceClass);
+
+        return $resource;
     }
 }

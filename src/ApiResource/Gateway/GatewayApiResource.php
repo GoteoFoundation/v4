@@ -12,16 +12,19 @@ use App\State\Gateway\GatewayStateProvider;
  * These implementations make use of external or internal services to gather the funds that are inside a Transaction,
  * perform corroboration of funds and store the Transactions into the system.
  */
-#[API\ApiResource()]
-#[API\GetCollection(provider: GatewayStateProvider::class)]
-#[API\Get(provider: GatewayStateProvider::class)]
-class Gateway
+#[API\ApiResource(
+    shortName: 'Gateway',
+    provider: GatewayStateProvider::class
+)]
+#[API\GetCollection()]
+#[API\Get()]
+class GatewayApiResource
 {
     #[API\ApiProperty(identifier: true)]
-    public ?string $name = null;
+    public string $name;
 
     /**
      * @var array<int, \App\Gateway\ChargeType>
      */
-    public ?array $supports = null;
+    public array $supports;
 }

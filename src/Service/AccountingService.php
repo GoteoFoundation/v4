@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Money;
-use App\Entity\User;
+use App\Entity\User\User;
 use App\Gateway\Wallet\WalletService;
 use App\Library\Economy\MoneyService;
 use App\Repository\Accounting\TransactionRepository;
@@ -22,10 +22,8 @@ class AccountingService
         $owner = $accounting->getOwner();
 
         if ($owner instanceof User) {
-            return $this->wallet->getBalance($owner->getAccounting());
+            return $this->wallet->getBalance($accounting);
         }
-
-        $accounting = $owner->getAccounting();
 
         $balance = new Money(0, $accounting->getCurrency());
         $transactions = $this->transactionRepository->findByAccounting($accounting);
