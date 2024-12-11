@@ -27,7 +27,8 @@ class UserTokenLoginProcessor implements ProcessorInterface
 
     /**
      * @param UserTokenLoginDto $data
-     * @param UserTokenApiResource
+     *
+     * @return UserTokenApiResource
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {

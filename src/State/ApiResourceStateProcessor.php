@@ -21,6 +21,9 @@ class ApiResourceStateProcessor implements ProcessorInterface
         private AutoMapper $autoMapper,
     ) {}
 
+    /**
+     * @return T2
+     */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         $entity = $this->getEntity($data, $operation->getStateOptions());
