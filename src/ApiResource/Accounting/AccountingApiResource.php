@@ -55,7 +55,7 @@ class AccountingApiResource
 
     /**
      * The resource owning this Accounting.
-     * 
+     *
      * @return UserApiResource|ProjectApiResource|Tipjar
      */
     public function getOwner(): object

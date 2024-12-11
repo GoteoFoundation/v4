@@ -6,7 +6,6 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\User\UserTokenApiResource;
 use App\Dto\UserTokenLoginDto;
-use App\Entity\User\UserToken;
 use App\Mapping\AutoMapper;
 use App\Repository\User\UserRepository;
 use App\Service\Auth\AuthService;
@@ -28,7 +27,6 @@ class UserTokenLoginProcessor implements ProcessorInterface
 
     /**
      * @param UserTokenLoginDto $data
-     * 
      * @param UserTokenApiResource
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])

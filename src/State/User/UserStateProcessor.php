@@ -18,6 +18,7 @@ class UserStateProcessor implements ProcessorInterface
 
     /**
      * @param UserApiResource $data
+     *
      * @return UserApiResource
      */
     public function process(mixed $data, API\Operation $operation, array $uriVariables = [], array $context = [])

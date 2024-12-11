@@ -28,7 +28,7 @@ class ProjectStateProcessor implements ProcessorInterface
 
     /**
      * @param ProjectApiResource $data
-     * 
+     *
      * @return ProjectApiResource|null
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])

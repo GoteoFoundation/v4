@@ -48,6 +48,7 @@ class UserApiResource
 
     /**
      * A list of the roles assigned to this User. Admin scopped property.
+     *
      * @var array<int, string>
      */
     #[API\ApiProperty(securityPostDenormalize: 'is_granted("ROLE_ADMIN")')]
@@ -61,6 +62,7 @@ class UserApiResource
 
     /**
      * The Projects that are owned by this User.
+     *
      * @var array<int, \App\ApiResource\Project\ProjectApiResource>
      */
     #[API\ApiProperty(writable: false)]
