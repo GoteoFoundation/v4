@@ -4,8 +4,8 @@ namespace App\ApiResource\Project;
 
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
-use App\Entity\Project as Entity;
-use App\Entity\User;
+use App\ApiResource\User\UserApiResource;
+use App\Entity\Project\RewardClaim;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -15,11 +15,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[API\ApiResource(
     shortName: 'ProjectRewardClaim',
-    stateOptions: new Options(entityClass: Entity\Reward::class),
+    stateOptions: new Options(entityClass: RewardClaim::class),
     provider: ApiResourceStateProvider::class,
     processor: ApiResourceStateProcessor::class
 )]
-class RewardClaim
+class RewardClaimApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
@@ -28,11 +28,11 @@ class RewardClaim
      * The ProjectReward being claimed.
      */
     #[Assert\NotBlank()]
-    public Reward $reward;
+    public RewardApiResource $reward;
 
     /**
      * The User claiming the ProjectReward.
      */
     #[API\ApiProperty(writable: false)]
-    public User $owner;
+    public UserApiResource $owner;
 }

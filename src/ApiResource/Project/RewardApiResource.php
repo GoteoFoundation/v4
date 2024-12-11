@@ -5,7 +5,7 @@ namespace App\ApiResource\Project;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\Entity\Money;
-use App\Entity\Project as Entity;
+use App\Entity\Project\Reward;
 use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 use AutoMapper\Attribute\MapTo;
@@ -16,11 +16,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[API\ApiResource(
     shortName: 'ProjectReward',
-    stateOptions: new Options(entityClass: Entity\Reward::class),
+    stateOptions: new Options(entityClass: Reward::class),
     provider: ApiResourceStateProvider::class,
     processor: ApiResourceStateProcessor::class
 )]
-class Reward
+class RewardApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
     public int $id;
@@ -29,7 +29,7 @@ class Reward
      * The project which gives this reward.
      */
     #[Assert\NotBlank()]
-    public Project $project;
+    public ProjectApiResource $project;
 
     /**
      * A short, descriptive title for this reward.

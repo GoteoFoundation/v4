@@ -3,7 +3,7 @@
 namespace App\Entity\Project;
 
 use App\Entity\Interface\UserOwnedInterface;
-use App\Entity\User;
+use App\Entity\User\User;
 use App\Repository\Project\RewardClaimRepository;
 use Doctrine\ORM\Mapping as ORM;
 
