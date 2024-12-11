@@ -3,6 +3,7 @@
 namespace App\Entity\Trait;
 
 use ApiPlatform\Metadata as API;
+use AutoMapper\Attribute\MapFrom;
 use Doctrine\ORM\Mapping as ORM;
 
 trait MigratedEntity
@@ -18,6 +19,7 @@ trait MigratedEntity
      * Previous ID of the entity in the Goteo v3 platform.
      */
     #[API\ApiProperty(writable: false)]
+    #[MapFrom(if: 'isMigrated')]
     #[ORM\Column(length: 255, nullable: true)]
     protected ?string $migratedId = null;
 

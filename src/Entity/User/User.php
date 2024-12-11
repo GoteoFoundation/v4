@@ -21,7 +21,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * Users represent people who interact with the platform.\
  * \
  * Users are the usual issuers of funding, however an User's Accounting can still be a Transaction recipient.
- * This allows to keep an User's "wallet", witholding their non-raised fundings into their Accounting.
+ * This allows to keep an User's "wallet", withholding their non-raised fundings into their Accounting.
  */
 #[Gedmo\Loggable()]
 #[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
@@ -106,10 +106,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
 
     public function __construct()
     {
-        $accounting = new Accounting();
-        $accounting->setOwner($this);
-
-        $this->accounting = $accounting;
+        $this->accounting = Accounting::of($this);
 
         $this->emailConfirmed = false;
         $this->active = false;

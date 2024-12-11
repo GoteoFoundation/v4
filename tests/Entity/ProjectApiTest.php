@@ -55,6 +55,7 @@ class ProjectApiTest extends ApiTestCase
             [
                 'title' => 'Test Project',
                 'status' => ProjectStatus::InEditing->value,
+                'rewards' => [],
             ],
         ]]);
     }

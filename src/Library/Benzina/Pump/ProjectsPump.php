@@ -159,20 +159,20 @@ class ProjectsPump extends AbstractPump implements PumpInterface
     private function getProjectStatus(int $status): ProjectStatus
     {
         switch ($status) {
-            case 0:
-                return ProjectStatus::Rejected;
             case 1:
                 return ProjectStatus::InEditing;
             case 2:
                 return ProjectStatus::InReview;
+            case 0:
+                return ProjectStatus::Rejected;
             case 3:
                 return ProjectStatus::InCampaign;
+            case 6:
+                return ProjectStatus::Unfunded;
             case 4:
                 return ProjectStatus::InFunding;
             case 5:
                 return ProjectStatus::Fulfilled;
-            case 6:
-                return ProjectStatus::Unfunded;
         }
     }
 

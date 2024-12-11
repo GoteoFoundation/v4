@@ -40,10 +40,7 @@ class Tipjar implements AccountingOwnerInterface
 
     public function __construct()
     {
-        $accounting = new Accounting();
-        $accounting->setOwner($this);
-
-        $this->accounting = $accounting;
+        $this->accounting = Accounting::of($this);
     }
 
     public function getId(): ?int
