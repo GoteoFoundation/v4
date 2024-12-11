@@ -1,30 +1,16 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Project;
 
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
-use App\Repository\ProjectRepository;
+use App\Entity\User\User;
+use App\Repository\Project\ProjectRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * Projects describe a community-led event that is to be discovered, developed and funded by other Users.
- */
-#[API\GetCollection()]
-#[API\Post(security: 'is_granted("ROLE_USER")')]
-#[API\Get()]
-#[API\Delete(security: 'is_granted("AUTH_PROJECT_EDIT")')]
-#[API\Patch(security: 'is_granted("AUTH_PROJECT_EDIT")')]
-#[API\ApiFilter(filterClass: SearchFilter::class, properties: [
-    'title' => 'partial',
-    'status' => 'exact',
-    'owner' => 'exact',
-])]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project implements AccountingOwnerInterface
 {
@@ -47,15 +33,13 @@ class Project implements AccountingOwnerInterface
      * Since Projects can be recipients of funding, they are assigned an Accounting when created.
      * A Project's Accounting represents how much money the Project has raised from the community.
      */
-    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(inversedBy: 'project', cascade: ['persist'])]
     private ?Accounting $accounting = null;
 
     /**
      * The User who created this Project.
      */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\ManyToOne(inversedBy: 'projects')]
+    #[ORM\ManyToOne(inversedBy: 'projects', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $owner = null;
 
@@ -63,7 +47,6 @@ class Project implements AccountingOwnerInterface
      * The status of this Project as it goes through it's life-cycle.
      * Projects have a start and an end, and in the meantime they go through different phases represented under this status.
      */
-    #[API\ApiProperty(writable: true)]
     #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
     private ProjectStatus $status;
 
