@@ -34,7 +34,7 @@ class ProjectStateProcessor implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         /** @var Project */
-        $project = $this->autoMapper->map($data, Project::class, ['skip_null_values' => true]);
+        $project = $this->autoMapper->map($data, Project::class);
 
         if (!isset($data->id)) {
             $user = $this->security->getUser();

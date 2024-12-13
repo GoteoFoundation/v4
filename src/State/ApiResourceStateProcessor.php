@@ -42,7 +42,7 @@ class ApiResourceStateProcessor implements ProcessorInterface
     public function getEntity(mixed $data, Options $options): object
     {
         /** @var object */
-        $entity = $this->autoMapper->map($data, $options->getEntityClass(), ['skip_null_values' => true]);
+        $entity = $this->autoMapper->map($data, $options->getEntityClass());
 
         return $entity;
     }
