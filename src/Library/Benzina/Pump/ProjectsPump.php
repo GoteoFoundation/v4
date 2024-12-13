@@ -3,12 +3,12 @@
 namespace App\Library\Benzina\Pump;
 
 use App\Entity\Accounting\Accounting;
-use App\Entity\Project;
-use App\Entity\ProjectStatus;
-use App\Entity\User;
+use App\Entity\Project\Project;
+use App\Entity\Project\ProjectStatus;
+use App\Entity\User\User;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
 use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;
-use App\Repository\UserRepository;
+use App\Repository\User\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ProjectsPump extends AbstractPump implements PumpInterface
@@ -159,20 +159,20 @@ class ProjectsPump extends AbstractPump implements PumpInterface
     private function getProjectStatus(int $status): ProjectStatus
     {
         switch ($status) {
+            case 1:
+                return ProjectStatus::InEditing;
+            case 2:
+                return ProjectStatus::InReview;
             case 0:
                 return ProjectStatus::Rejected;
-            case 1:
-                return ProjectStatus::Editing;
-            case 2:
-                return ProjectStatus::Reviewing;
             case 3:
                 return ProjectStatus::InCampaign;
-            case 4:
-                return ProjectStatus::Funded;
-            case 5:
-                return ProjectStatus::Fulfilled;
             case 6:
                 return ProjectStatus::Unfunded;
+            case 4:
+                return ProjectStatus::InFunding;
+            case 5:
+                return ProjectStatus::Fulfilled;
         }
     }
 

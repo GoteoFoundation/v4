@@ -2,7 +2,7 @@
 
 namespace App\Library\Benzina\Pump;
 
-use App\Entity\User;
+use App\Entity\User\User;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
 use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;
 use Doctrine\ORM\EntityManagerInterface;

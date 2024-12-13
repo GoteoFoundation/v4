@@ -1,32 +1,21 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Project;
 
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata as API;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
-use App\Repository\ProjectRepository;
+use App\Entity\User\User;
+use App\Repository\Project\ProjectRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * Projects describe a community-led event that is to be discovered, developed and funded by other Users.
- */
-#[API\GetCollection()]
-#[API\Post(security: 'is_granted("ROLE_USER")')]
-#[API\Get()]
-#[API\Delete(security: 'is_granted("AUTH_PROJECT_EDIT")')]
-#[API\Patch(security: 'is_granted("AUTH_PROJECT_EDIT")')]
-#[API\ApiFilter(filterClass: SearchFilter::class, properties: [
-    'title' => 'partial',
-    'status' => 'exact',
-    'owner' => 'exact',
-])]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
-class Project implements AccountingOwnerInterface
+class Project implements UserOwnedInterface, AccountingOwnerInterface
 {
     use MigratedEntity;
     use TimestampedCreationEntity;
@@ -47,15 +36,13 @@ class Project implements AccountingOwnerInterface
      * Since Projects can be recipients of funding, they are assigned an Accounting when created.
      * A Project's Accounting represents how much money the Project has raised from the community.
      */
-    #[API\ApiProperty(writable: false)]
     #[ORM\OneToOne(inversedBy: 'project', cascade: ['persist'])]
     private ?Accounting $accounting = null;
 
     /**
      * The User who created this Project.
      */
-    #[API\ApiProperty(writable: false)]
-    #[ORM\ManyToOne(inversedBy: 'projects')]
+    #[ORM\ManyToOne(inversedBy: 'projects', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $owner = null;
 
@@ -63,21 +50,31 @@ class Project implements AccountingOwnerInterface
      * The status of this Project as it goes through it's life-cycle.
      * Projects have a start and an end, and in the meantime they go through different phases represented under this status.
      */
-    #[API\ApiProperty(writable: true)]
     #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
     private ProjectStatus $status;
 
+    /**
+     * @var Collection<int, Reward>
+     */
+    #[ORM\OneToMany(mappedBy: 'project', targetEntity: Reward::class)]
+    private Collection $rewards;
+
     public function __construct()
     {
-        $accounting = new Accounting();
-        $accounting->setOwner($this);
-
-        $this->accounting = $accounting;
+        $this->accounting = Accounting::of($this);
+        $this->rewards = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId(int $id): static
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     public function getTitle(): ?string
@@ -109,6 +106,11 @@ class Project implements AccountingOwnerInterface
         return $this->owner;
     }
 
+    public function isOwnedBy(User $user): bool
+    {
+        return $user->getId() === $this->owner->getId();
+    }
+
     public function setOwner(?User $owner): static
     {
         $this->owner = $owner;
@@ -124,6 +126,36 @@ class Project implements AccountingOwnerInterface
     public function setStatus(ProjectStatus $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Reward>
+     */
+    public function getRewards(): Collection
+    {
+        return $this->rewards;
+    }
+
+    public function addReward(Reward $reward): static
+    {
+        if (!$this->rewards->contains($reward)) {
+            $this->rewards->add($reward);
+            $reward->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReward(Reward $reward): static
+    {
+        if ($this->rewards->removeElement($reward)) {
+            // set the owning side to null (unless already changed)
+            if ($reward->getProject() === $this) {
+                $reward->setProject(null);
+            }
+        }
 
         return $this;
     }

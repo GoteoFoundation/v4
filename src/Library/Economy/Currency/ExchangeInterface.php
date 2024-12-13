@@ -4,7 +4,6 @@ namespace App\Library\Economy\Currency;
 
 use App\Entity\Money;
 use Brick\Money\Exception\CurrencyConversionException;
-use Brick\Money\MoneyContainer;
 
 interface ExchangeInterface
 {
@@ -19,14 +18,14 @@ interface ExchangeInterface
     public function getWeight(): int;
 
     /**
-     * @param MoneyContainer $money      The money to be converted
-     * @param string         $toCurrency The currency to convert to
+     * @param Money  $money      The money to be converted
+     * @param string $toCurrency The currency to convert to
      *
      * @return Money The converted Money
      *
      * @throws CurrencyConversionException If the exchange rate is not available
      */
-    public function convert(MoneyContainer $money, string $toCurrency): Money;
+    public function convert(Money $money, string $toCurrency): Money;
 
     /**
      * @param string $fromCurrency The currency to convert from

@@ -18,6 +18,8 @@ services:
             tags: ['app.lib.benzina.pump.pump']
         App\Library\Economy\Currency\ExchangeInterface:
             tags: ['app.lib.economy.currency.exchange']
+        AutoMapper\Provider\ProviderInterface:
+            tags: ['app.mapping.map_provider']
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -64,6 +66,10 @@ services:
     App\Library\Economy\Currency\ExchangeLocator:
         arguments:
             - !tagged 'app.lib.economy.currency.exchange'
+
+    App\Mapping\AutoMapper:
+        arguments:
+            - !tagged 'app.mapping.map_provider'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
