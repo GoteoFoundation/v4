@@ -15,7 +15,7 @@ class AutoMapper implements AutoMapperInterface
         iterable $mapProviders,
     ) {
         $this->innerMapper = InnerMapper::create(
-            providers: $mapProviders
+            providers: \iterator_to_array($mapProviders)
         );
     }
 
