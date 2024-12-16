@@ -10,9 +10,9 @@ use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\Project\ProjectApiResource;
 use App\Entity\Project\Project;
 use App\Mapping\AutoMapper;
-use App\Repository\User\UserRepository;
-use Symfony\Bundle\SecurityBundle\Security;
+use App\Service\Auth\AuthService;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class ProjectStateProcessor implements ProcessorInterface
 {
@@ -22,8 +22,7 @@ class ProjectStateProcessor implements ProcessorInterface
         #[Autowire(service: PersistProcessor::class)]
         private ProcessorInterface $persistProcessor,
         private AutoMapper $autoMapper,
-        private Security $security,
-        private UserRepository $userRepository,
+        private AuthService $authService,
     ) {}
 
     /**
@@ -37,8 +36,11 @@ class ProjectStateProcessor implements ProcessorInterface
         $project = $this->autoMapper->map($data, Project::class);
 
         if (!isset($data->id)) {
-            $user = $this->security->getUser();
-            $owner = $this->userRepository->findOneBy(['username' => $user->getUserIdentifier()]);
+            $owner = $this->authService->getUser();
+
+            if (!$owner) {
+                throw new AuthenticationException();
+            }
 
             $project->setOwner($owner);
         }
