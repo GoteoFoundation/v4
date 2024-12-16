@@ -8,7 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class EntityMapProvider implements ProviderInterface
 {
     public function __construct(
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
     ) {}
 
     public function provide(string $targetType, mixed $source, array $context): object|array|null

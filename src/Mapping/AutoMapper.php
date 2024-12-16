@@ -23,7 +23,7 @@ class AutoMapper implements AutoMapperInterface
     {
         $context = [
             self::SKIP_NULL_VALUES => true,
-            ...$context
+            ...$context,
         ];
 
         return $this->innerMapper->map($source, $target, $context);

@@ -8,10 +8,8 @@ use App\Entity\Project\RewardClaim;
 class RewardService
 {
     /**
-     * Processes a RewardClaim for the set Reward
-     * 
-     * @param Reward $reward The Reward being claimed
-     * 
+     * Processes a RewardClaim for the set Reward.
+     *
      * @return RewardClaim The processed RewardClaim with updated Reward
      */
     public function processClaim(RewardClaim $claim): RewardClaim
@@ -25,7 +23,7 @@ class RewardService
         $available = $reward->getUnitsAvailable();
 
         if ($available < 1) {
-            throw new \Exception("The claimed Reward has no units available");
+            throw new \Exception('The claimed Reward has no units available');
         }
 
         $reward->addClaim($claim);

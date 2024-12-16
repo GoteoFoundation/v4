@@ -18,7 +18,7 @@ class RewardStateProcessor implements ProcessorInterface
 
     /**
      * @param RewardApiResource $data
-     * 
+     *
      * @return RewardApiResource|null
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])

@@ -16,7 +16,7 @@ class AuthService
     public function __construct(
         private string $appSecret,
         private Security $security,
-        private UserRepository $userRepository
+        private UserRepository $userRepository,
     ) {}
 
     /**
