@@ -29,7 +29,7 @@ class ProjectStateProcessor implements ProcessorInterface
         /** @var Project */
         $project = $this->autoMapper->map($data, Project::class);
 
-        if (!isset($data->id)) {
+        if (!$project->getId()) {
             $owner = $this->authService->getUser();
 
             if (!$owner) {
