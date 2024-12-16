@@ -8,7 +8,9 @@ use App\Entity\Project\Project;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\User\UserRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -24,10 +26,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * This allows to keep an User's "wallet", withholding their non-raised fundings into their Accounting.
  */
 #[Gedmo\Loggable()]
-#[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
-#[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Index(fields: ['migratedId'])]
+#[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
+#[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
     use MigratedEntity;
@@ -68,7 +71,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     /**
      * The projects owned by this User.
      */
-    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class)]
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Project::class, cascade: ['persist'])]
     private Collection $projects;
 
     /**

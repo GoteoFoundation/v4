@@ -6,8 +6,8 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\Entity\Money;
 use App\Entity\Project\Reward;
-use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use App\State\Project\RewardStateProcessor;
 use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'ProjectReward',
     stateOptions: new Options(entityClass: Reward::class),
     provider: ApiResourceStateProvider::class,
-    processor: ApiResourceStateProcessor::class
+    processor: RewardStateProcessor::class
 )]
 class RewardApiResource
 {
