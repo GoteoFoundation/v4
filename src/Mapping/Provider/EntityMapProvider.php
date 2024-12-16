@@ -20,7 +20,7 @@ class EntityMapProvider implements ProviderInterface
         $repository = $this->entityManager->getRepository($targetType);
 
         if (!$repository) {
-            throw new \Exception(\sprintf("No repository found for '' class. Is it an Entity?", $targetType));
+            throw new \Exception(\sprintf("No repository found for '%s' class. Is it an Entity?", $targetType));
         }
 
         return $repository->find($source->id);
