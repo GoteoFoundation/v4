@@ -452,6 +452,87 @@
             "time": "2023-09-23T21:17:11+00:00"
         },
         {
+            "name": "composer/semver",
+            "version": "3.4.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer/semver.git",
+                "reference": "4313d26ada5e0c4edfbd1dc481a92ff7bff91f12"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/composer/semver/zipball/4313d26ada5e0c4edfbd1dc481a92ff7bff91f12",
+                "reference": "4313d26ada5e0c4edfbd1dc481a92ff7bff91f12",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3.2 || ^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.11",
+                "symfony/phpunit-bridge": "^3 || ^7"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "3.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Composer\\Semver\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nils Adermann",
+                    "email": "naderman@naderman.de",
+                    "homepage": "http://www.naderman.de"
+                },
+                {
+                    "name": "Jordi Boggiano",
+                    "email": "j.boggiano@seld.be",
+                    "homepage": "http://seld.be"
+                },
+                {
+                    "name": "Rob Bast",
+                    "email": "rob.bast@gmail.com",
+                    "homepage": "http://robbast.nl"
+                }
+            ],
+            "description": "Semver library that offers utilities, version constraint parsing and validation.",
+            "keywords": [
+                "semantic",
+                "semver",
+                "validation",
+                "versioning"
+            ],
+            "support": {
+                "irc": "ircs://irc.libera.chat:6697/composer",
+                "issues": "https://github.com/composer/semver/issues",
+                "source": "https://github.com/composer/semver/tree/3.4.3"
+            },
+            "funding": [
+                {
+                    "url": "https://packagist.com",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/composer",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/composer/composer",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-09-19T14:15:21+00:00"
+        },
+        {
             "name": "doctrine/annotations",
             "version": "2.0.2",
             "source": {
@@ -1859,22 +1940,25 @@
         },
         {
             "name": "doctrineencryptbundle/doctrine-encrypt-bundle",
-            "version": "5.4.1",
+            "version": "5.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DoctrineEncryptBundle/DoctrineEncryptBundle.git",
-                "reference": "556c2ec0156d519378e6d62a61c2e924e4583e13"
+                "reference": "79f148a15b4b70fb1886b1ce9b4136f4c3a287b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DoctrineEncryptBundle/DoctrineEncryptBundle/zipball/556c2ec0156d519378e6d62a61c2e924e4583e13",
-                "reference": "556c2ec0156d519378e6d62a61c2e924e4583e13",
+                "url": "https://api.github.com/repos/DoctrineEncryptBundle/DoctrineEncryptBundle/zipball/79f148a15b4b70fb1886b1ce9b4136f4c3a287b7",
+                "reference": "79f148a15b4b70fb1886b1ce9b4136f4c3a287b7",
                 "shasum": ""
             },
             "require": {
+                "composer-runtime-api": "^2.0",
+                "composer/semver": "^3.0",
                 "doctrine/annotations": "^1.13|^2.0",
+                "doctrine/common": "^3.4",
                 "doctrine/doctrine-bundle": "^2.0.8|^2.1",
-                "doctrine/orm": "^2.5",
+                "doctrine/orm": "^2.5|^3.3",
                 "paragonie/halite": "^4.6|^5.0",
                 "php": "^7.2|^8.0",
                 "symfony/config": "^5.4|^6.0|^7.0",
@@ -1887,6 +1971,7 @@
             "require-dev": {
                 "defuse/php-encryption": "^2.1",
                 "doctrine/cache": "^1.11",
+                "friendsofphp/php-cs-fixer": "3.64.0",
                 "jetbrains/phpstorm-attributes": "^1.0",
                 "phpcompatibility/php-compatibility": "^9.3",
                 "phpstan/phpstan": "^1.4",
@@ -1918,9 +2003,9 @@
             ],
             "support": {
                 "issues": "https://github.com/DoctrineEncryptBundle/DoctrineEncryptBundle/issues",
-                "source": "https://github.com/DoctrineEncryptBundle/DoctrineEncryptBundle/tree/5.4.1"
+                "source": "https://github.com/DoctrineEncryptBundle/DoctrineEncryptBundle/tree/5.4.2"
             },
-            "time": "2024-10-13T10:08:12+00:00"
+            "time": "2024-12-14T10:54:02+00:00"
         },
         {
             "name": "gedmo/doctrine-extensions",
@@ -7860,87 +7945,6 @@
                 }
             ],
             "time": "2024-08-27T18:44:43+00:00"
-        },
-        {
-            "name": "composer/semver",
-            "version": "3.4.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/composer/semver.git",
-                "reference": "4313d26ada5e0c4edfbd1dc481a92ff7bff91f12"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/composer/semver/zipball/4313d26ada5e0c4edfbd1dc481a92ff7bff91f12",
-                "reference": "4313d26ada5e0c4edfbd1dc481a92ff7bff91f12",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.3.2 || ^7.0 || ^8.0"
-            },
-            "require-dev": {
-                "phpstan/phpstan": "^1.11",
-                "symfony/phpunit-bridge": "^3 || ^7"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-main": "3.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Composer\\Semver\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nils Adermann",
-                    "email": "naderman@naderman.de",
-                    "homepage": "http://www.naderman.de"
-                },
-                {
-                    "name": "Jordi Boggiano",
-                    "email": "j.boggiano@seld.be",
-                    "homepage": "http://seld.be"
-                },
-                {
-                    "name": "Rob Bast",
-                    "email": "rob.bast@gmail.com",
-                    "homepage": "http://robbast.nl"
-                }
-            ],
-            "description": "Semver library that offers utilities, version constraint parsing and validation.",
-            "keywords": [
-                "semantic",
-                "semver",
-                "validation",
-                "versioning"
-            ],
-            "support": {
-                "irc": "ircs://irc.libera.chat:6697/composer",
-                "issues": "https://github.com/composer/semver/issues",
-                "source": "https://github.com/composer/semver/tree/3.4.3"
-            },
-            "funding": [
-                {
-                    "url": "https://packagist.com",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/composer",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/composer/composer",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2024-09-19T14:15:21+00:00"
         },
         {
             "name": "composer/xdebug-handler",
