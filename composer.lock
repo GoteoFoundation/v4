@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "606fea65b8befe4e0c0a4698dd4b24d7",
+    "content-hash": "e6ce71e83e822d251c388139fe38146f",
     "packages": [
         {
             "name": "api-platform/core",
@@ -450,6 +450,87 @@
                 }
             ],
             "time": "2023-09-23T21:17:11+00:00"
+        },
+        {
+            "name": "composer/semver",
+            "version": "3.4.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer/semver.git",
+                "reference": "4313d26ada5e0c4edfbd1dc481a92ff7bff91f12"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/composer/semver/zipball/4313d26ada5e0c4edfbd1dc481a92ff7bff91f12",
+                "reference": "4313d26ada5e0c4edfbd1dc481a92ff7bff91f12",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3.2 || ^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.11",
+                "symfony/phpunit-bridge": "^3 || ^7"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "3.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Composer\\Semver\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nils Adermann",
+                    "email": "naderman@naderman.de",
+                    "homepage": "http://www.naderman.de"
+                },
+                {
+                    "name": "Jordi Boggiano",
+                    "email": "j.boggiano@seld.be",
+                    "homepage": "http://seld.be"
+                },
+                {
+                    "name": "Rob Bast",
+                    "email": "rob.bast@gmail.com",
+                    "homepage": "http://robbast.nl"
+                }
+            ],
+            "description": "Semver library that offers utilities, version constraint parsing and validation.",
+            "keywords": [
+                "semantic",
+                "semver",
+                "validation",
+                "versioning"
+            ],
+            "support": {
+                "irc": "ircs://irc.libera.chat:6697/composer",
+                "issues": "https://github.com/composer/semver/issues",
+                "source": "https://github.com/composer/semver/tree/3.4.3"
+            },
+            "funding": [
+                {
+                    "url": "https://packagist.com",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/composer",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/composer/composer",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-09-19T14:15:21+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -1859,22 +1940,25 @@
         },
         {
             "name": "doctrineencryptbundle/doctrine-encrypt-bundle",
-            "version": "5.4.1",
+            "version": "5.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DoctrineEncryptBundle/DoctrineEncryptBundle.git",
-                "reference": "556c2ec0156d519378e6d62a61c2e924e4583e13"
+                "reference": "79f148a15b4b70fb1886b1ce9b4136f4c3a287b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DoctrineEncryptBundle/DoctrineEncryptBundle/zipball/556c2ec0156d519378e6d62a61c2e924e4583e13",
-                "reference": "556c2ec0156d519378e6d62a61c2e924e4583e13",
+                "url": "https://api.github.com/repos/DoctrineEncryptBundle/DoctrineEncryptBundle/zipball/79f148a15b4b70fb1886b1ce9b4136f4c3a287b7",
+                "reference": "79f148a15b4b70fb1886b1ce9b4136f4c3a287b7",
                 "shasum": ""
             },
             "require": {
+                "composer-runtime-api": "^2.0",
+                "composer/semver": "^3.0",
                 "doctrine/annotations": "^1.13|^2.0",
+                "doctrine/common": "^3.4",
                 "doctrine/doctrine-bundle": "^2.0.8|^2.1",
-                "doctrine/orm": "^2.5",
+                "doctrine/orm": "^2.5|^3.3",
                 "paragonie/halite": "^4.6|^5.0",
                 "php": "^7.2|^8.0",
                 "symfony/config": "^5.4|^6.0|^7.0",
@@ -1887,6 +1971,7 @@
             "require-dev": {
                 "defuse/php-encryption": "^2.1",
                 "doctrine/cache": "^1.11",
+                "friendsofphp/php-cs-fixer": "3.64.0",
                 "jetbrains/phpstorm-attributes": "^1.0",
                 "phpcompatibility/php-compatibility": "^9.3",
                 "phpstan/phpstan": "^1.4",
@@ -1918,9 +2003,9 @@
             ],
             "support": {
                 "issues": "https://github.com/DoctrineEncryptBundle/DoctrineEncryptBundle/issues",
-                "source": "https://github.com/DoctrineEncryptBundle/DoctrineEncryptBundle/tree/5.4.1"
+                "source": "https://github.com/DoctrineEncryptBundle/DoctrineEncryptBundle/tree/5.4.2"
             },
-            "time": "2024-10-13T10:08:12+00:00"
+            "time": "2024-12-14T10:54:02+00:00"
         },
         {
             "name": "gedmo/doctrine-extensions",
@@ -2051,73 +2136,6 @@
                 }
             ],
             "time": "2024-10-07T22:30:27+00:00"
-        },
-        {
-            "name": "godruoyi/php-snowflake",
-            "version": "3.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/godruoyi/php-snowflake.git",
-                "reference": "cbf44765679bd1e58f1c2ec0263eb340dd0d6f47"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/godruoyi/php-snowflake/zipball/cbf44765679bd1e58f1c2ec0263eb340dd0d6f47",
-                "reference": "cbf44765679bd1e58f1c2ec0263eb340dd0d6f47",
-                "shasum": ""
-            },
-            "require": {
-                "php-64bit": ">=8.1"
-            },
-            "require-dev": {
-                "ext-redis": "*",
-                "ext-swoole": "*",
-                "illuminate/contracts": "^10.0 || ^11.0",
-                "laravel/pint": "^1.10",
-                "phpstan/phpstan": "^1.10",
-                "phpunit/phpunit": "^10",
-                "predis/predis": "^2.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Godruoyi\\Snowflake\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Godruoyi",
-                    "email": "g@godruoyi.com"
-                }
-            ],
-            "description": "An ID Generator for PHP based on Snowflake Algorithm (Twitter announced).",
-            "homepage": "https://github.com/godruoyi/php-snowflake",
-            "keywords": [
-                "Unique ID",
-                "laravel snowflake",
-                "order id",
-                "php snowflake",
-                "php sonyflake",
-                "php unique id",
-                "snowflake algorithm",
-                "sonyflake",
-                "unique order id"
-            ],
-            "support": {
-                "issues": "https://github.com/godruoyi/php-snowflake/issues",
-                "source": "https://github.com/godruoyi/php-snowflake/tree/3.1.0"
-            },
-            "funding": [
-                {
-                    "url": "https://images.godruoyi.com/wechat.png",
-                    "type": "custom"
-                }
-            ],
-            "time": "2024-04-08T07:08:02+00:00"
         },
         {
             "name": "jolicode/automapper",
@@ -3373,50 +3391,6 @@
                 "source": "https://github.com/stripe/stripe-php/tree/v15.10.0"
             },
             "time": "2024-09-18T18:38:30+00:00"
-        },
-        {
-            "name": "subiabre/doctrine-snowflakes",
-            "version": "2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/subiabre/doctrine-snowflakes.git",
-                "reference": "f179b7aba6f4d08d455b3369b0af4903693de489"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/subiabre/doctrine-snowflakes/zipball/f179b7aba6f4d08d455b3369b0af4903693de489",
-                "reference": "f179b7aba6f4d08d455b3369b0af4903693de489",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/orm": "^2.16",
-                "godruoyi/php-snowflake": "^3.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^10.4"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Subiabre\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Daniel Subiabre",
-                    "email": "subiabrewd@gmail.com"
-                }
-            ],
-            "description": "Custom id generator implementing snowflake algorithm",
-            "support": {
-                "issues": "https://github.com/subiabre/doctrine-snowflakes/issues",
-                "source": "https://github.com/subiabre/doctrine-snowflakes/tree/2.0"
-            },
-            "time": "2023-11-13T19:04:37+00:00"
         },
         {
             "name": "symfony/asset",
@@ -7973,87 +7947,6 @@
             "time": "2024-08-27T18:44:43+00:00"
         },
         {
-            "name": "composer/semver",
-            "version": "3.4.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/composer/semver.git",
-                "reference": "4313d26ada5e0c4edfbd1dc481a92ff7bff91f12"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/composer/semver/zipball/4313d26ada5e0c4edfbd1dc481a92ff7bff91f12",
-                "reference": "4313d26ada5e0c4edfbd1dc481a92ff7bff91f12",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.3.2 || ^7.0 || ^8.0"
-            },
-            "require-dev": {
-                "phpstan/phpstan": "^1.11",
-                "symfony/phpunit-bridge": "^3 || ^7"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-main": "3.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Composer\\Semver\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nils Adermann",
-                    "email": "naderman@naderman.de",
-                    "homepage": "http://www.naderman.de"
-                },
-                {
-                    "name": "Jordi Boggiano",
-                    "email": "j.boggiano@seld.be",
-                    "homepage": "http://seld.be"
-                },
-                {
-                    "name": "Rob Bast",
-                    "email": "rob.bast@gmail.com",
-                    "homepage": "http://robbast.nl"
-                }
-            ],
-            "description": "Semver library that offers utilities, version constraint parsing and validation.",
-            "keywords": [
-                "semantic",
-                "semver",
-                "validation",
-                "versioning"
-            ],
-            "support": {
-                "irc": "ircs://irc.libera.chat:6697/composer",
-                "issues": "https://github.com/composer/semver/issues",
-                "source": "https://github.com/composer/semver/tree/3.4.3"
-            },
-            "funding": [
-                {
-                    "url": "https://packagist.com",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/composer",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/composer/composer",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2024-09-19T14:15:21+00:00"
-        },
-        {
             "name": "composer/xdebug-handler",
             "version": "3.0.5",
             "source": {
@@ -11317,7 +11210,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
@@ -11325,6 +11218,6 @@
         "ext-ctype": "*",
         "ext-iconv": "*"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }
