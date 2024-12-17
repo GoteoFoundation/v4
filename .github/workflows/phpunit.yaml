@@ -19,6 +19,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: php-actions/composer@v6
+        with:
+          php_extensions: pdo_mysql
 
       - name: PHPUnit
         uses: php-actions/phpunit@v4
