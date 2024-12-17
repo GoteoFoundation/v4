@@ -14,7 +14,7 @@
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.12",
         "doctrine/doctrine-migrations-bundle": "^3.3",
-        "doctrine/orm": "^2.19",
+        "doctrine/orm": "^3.0",
         "doctrineencryptbundle/doctrine-encrypt-bundle": "^5.4",
         "jolicode/automapper": "^9.2",
         "nelmio/cors-bundle": "^2.3",
