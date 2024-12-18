@@ -19,7 +19,7 @@ class MatchStrategyLocator
 
             if (\array_key_exists($strategyName, $this->strategiesByName)) {
                 throw new \Exception(\sprintf(
-                    "Duplicate strategy name '%s' by '%s', value already in use by '%s'",
+                    "Duplicate MatchStrategy name '%s' by '%s', value already in use by '%s'",
                     $strategyName,
                     $strategy::class,
                     $this->strategiesByName[$strategyName]::class
@@ -33,7 +33,10 @@ class MatchStrategyLocator
     public function get(string $strategyName): ?MatchStrategyInterface
     {
         if (!array_key_exists($strategyName, $this->strategiesByName)) {
-            return null;
+            throw new \Exception(\sprintf(
+                "Could not find a MatchStrategy by the name '%s', value does not exist",
+                $strategyName
+            ));
         }
 
         return $this->strategiesByName[$strategyName];
