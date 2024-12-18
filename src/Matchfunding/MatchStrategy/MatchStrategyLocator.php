@@ -2,6 +2,8 @@
 
 namespace App\Matchfunding\MatchStrategy;
 
+use App\Entity\Matchfunding\MatchCall;
+
 class MatchStrategyLocator
 {
     /** @var array<string, MatchStrategyInterface> */
@@ -35,5 +37,10 @@ class MatchStrategyLocator
         }
 
         return $this->strategiesByName[$strategyName];
+    }
+
+    public function getForCall(MatchCall $call): ?MatchStrategyInterface
+    {
+        return $this->get($call->getStrategyName());
     }
 }
