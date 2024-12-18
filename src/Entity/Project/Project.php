@@ -5,6 +5,7 @@ namespace App\Entity\Project;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
 use App\Entity\Interface\UserOwnedInterface;
+use App\Entity\Matchfunding\MatchSubmission;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
@@ -59,10 +60,17 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface
     #[ORM\OneToMany(mappedBy: 'project', targetEntity: Reward::class)]
     private Collection $rewards;
 
+    /**
+     * @var Collection<int, MatchSubmission>
+     */
+    #[ORM\OneToMany(mappedBy: 'project', targetEntity: MatchSubmission::class)]
+    private Collection $matchSubmissions;
+
     public function __construct()
     {
         $this->accounting = Accounting::of($this);
         $this->rewards = new ArrayCollection();
+        $this->matchSubmissions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -154,6 +162,36 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface
             // set the owning side to null (unless already changed)
             if ($reward->getProject() === $this) {
                 $reward->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MatchSubmission>
+     */
+    public function getMatchSubmissions(): Collection
+    {
+        return $this->matchSubmissions;
+    }
+
+    public function addMatchSubmission(MatchSubmission $matchSubmission): static
+    {
+        if (!$this->matchSubmissions->contains($matchSubmission)) {
+            $this->matchSubmissions->add($matchSubmission);
+            $matchSubmission->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMatchSubmission(MatchSubmission $matchSubmission): static
+    {
+        if ($this->matchSubmissions->removeElement($matchSubmission)) {
+            // set the owning side to null (unless already changed)
+            if ($matchSubmission->getProject() === $this) {
+                $matchSubmission->setProject(null);
             }
         }
 
