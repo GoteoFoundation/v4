@@ -18,6 +18,8 @@ services:
             tags: ['app.lib.benzina.pump.pump']
         App\Library\Economy\Currency\ExchangeInterface:
             tags: ['app.lib.economy.currency.exchange']
+        App\Matchfunding\MatchStrategy\MatchStrategyInterface:
+            tags: ['app.matchfunding.strategy.strategy']
         AutoMapper\Provider\ProviderInterface:
             tags: ['app.mapping.map_provider']
 
@@ -54,6 +56,10 @@ services:
         arguments:
             - '%env(STRIPE_API_KEY)%'
             - '%env(STRIPE_WEBHOOK_SECRET)%'
+
+    App\Matchfunding\MatchStrategy\MatchStrategyLocator:
+        arguments:
+            - !tagged 'app.matchfunding.strategy.strategy'
 
     App\Service\Auth\AuthService:
         arguments:
