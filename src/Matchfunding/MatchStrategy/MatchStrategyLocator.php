@@ -29,6 +29,14 @@ class MatchStrategyLocator
         }
     }
 
+    /**
+     * @return array<string, MatchStrategyInterface>
+     */
+    public function getAll(): array
+    {
+        return $this->strategiesByName;
+    }
+
     public function get(string $strategyName): ?MatchStrategyInterface
     {
         if (!array_key_exists($strategyName, $this->strategiesByName)) {
