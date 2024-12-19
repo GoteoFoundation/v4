@@ -3,27 +3,27 @@
 namespace App\Entity\Matchfunding;
 
 use App\Entity\Project\Project;
-use App\Repository\Matchfunding\MatchSubmissionRepository;
+use App\Repository\Matchfunding\MatchCallSubmissionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: MatchSubmissionRepository::class)]
-class MatchSubmission
+#[ORM\Entity(repositoryClass: MatchCallSubmissionRepository::class)]
+class MatchCallSubmission
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'matchSubmissions')]
+    #[ORM\ManyToOne(inversedBy: 'matchCallSubmissions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?MatchCall $matchCall = null;
 
-    #[ORM\ManyToOne(inversedBy: 'matchSubmissions')]
+    #[ORM\ManyToOne(inversedBy: 'matchCallSubmissions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Project $project = null;
 
-    #[ORM\Column(enumType: MatchSubmissionStatus::class)]
-    private ?MatchSubmissionStatus $status = null;
+    #[ORM\Column(enumType: MatchCallSubmissionStatus::class)]
+    private ?MatchCallSubmissionStatus $status = null;
 
     public function getId(): ?int
     {
@@ -54,12 +54,12 @@ class MatchSubmission
         return $this;
     }
 
-    public function getStatus(): ?MatchSubmissionStatus
+    public function getStatus(): ?MatchCallSubmissionStatus
     {
         return $this->status;
     }
 
-    public function setStatus(MatchSubmissionStatus $status): static
+    public function setStatus(MatchCallSubmissionStatus $status): static
     {
         $this->status = $status;
 

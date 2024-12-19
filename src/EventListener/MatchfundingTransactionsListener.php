@@ -3,7 +3,7 @@
 namespace App\EventListener;
 
 use App\Entity\Accounting\Transaction;
-use App\Entity\Matchfunding\MatchSubmissionStatus;
+use App\Entity\Matchfunding\MatchCallSubmissionStatus;
 use App\Entity\Project\Project;
 use App\Matchfunding\MatchStrategy\MatchStrategyLocator;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
@@ -34,10 +34,10 @@ final class MatchfundingTransactionsListener
             return;
         }
 
-        $submissions = $target->getMatchSubmissions();
+        $submissions = $target->getMatchCallSubmissions();
 
         foreach ($submissions as $submission) {
-            if ($submission->getStatus() !== MatchSubmissionStatus::Accepted) {
+            if ($submission->getStatus() !== MatchCallSubmissionStatus::Accepted) {
                 continue;
             }
 

@@ -11,11 +11,11 @@ use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
 
 /**
- * A MatchCall is an owned and managed event which accepts MatchSubmissions from Projects to receive *matchfunding* financement.
+ * A MatchCall is an owned and managed event which accepts MatchCallSubmissions from Projects to receive *matchfunding* financement.
  * This means any money inside a Transaction going to a Project in a MatchCall will be matched with funds from the MatchCall accounting.
  * \
  * \
- * MatchSubmissions from Projects can be accepted or rejected by the managers.
+ * MatchCallSubmissions from Projects can be accepted or rejected by the managers.
  * They can also choose from predefined strategies and tune them to perform the matching.
  */
 #[API\ApiResource(
@@ -44,9 +44,9 @@ class MatchCallApiResource
     public array $managers;
 
     /**
-     * A list of the MatchSubmissions received by this MatchCall.
+     * A list of the MatchCallSubmissions received by this MatchCall.
      * 
-     * @var MatchSubmissionApiResource[]
+     * @var MatchCallSubmissionApiResource[]
      */
-    public array $matchSubmissions;
+    public array $matchCallSubmissions;
 }

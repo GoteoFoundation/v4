@@ -29,10 +29,10 @@ class MatchCall implements AccountingOwnerInterface
     private Collection $managers;
 
     /**
-     * @var Collection<int, MatchSubmission>
+     * @var Collection<int, MatchCallSubmission>
      */
-    #[ORM\OneToMany(mappedBy: 'matchCall', targetEntity: MatchSubmission::class)]
-    private Collection $matchSubmissions;
+    #[ORM\OneToMany(mappedBy: 'matchCall', targetEntity: MatchCallSubmission::class)]
+    private Collection $matchCallSubmissions;
 
     #[ORM\Column(length: 255)]
     private ?string $strategyName = null;
@@ -41,7 +41,7 @@ class MatchCall implements AccountingOwnerInterface
     {
         $this->accounting = Accounting::of($this);
         $this->managers = new ArrayCollection();
-        $this->matchSubmissions = new ArrayCollection();
+        $this->matchCallSubmissions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -86,26 +86,26 @@ class MatchCall implements AccountingOwnerInterface
     }
 
     /**
-     * @return Collection<int, MatchSubmission>
+     * @return Collection<int, MatchCallSubmission>
      */
-    public function getMatchSubmissions(): Collection
+    public function getMatchCallSubmissions(): Collection
     {
-        return $this->matchSubmissions;
+        return $this->matchCallSubmissions;
     }
 
-    public function addMatchSubmission(MatchSubmission $submission): static
+    public function addMatchCallSubmission(MatchCallSubmission $submission): static
     {
-        if (!$this->matchSubmissions->contains($submission)) {
-            $this->matchSubmissions->add($submission);
+        if (!$this->matchCallSubmissions->contains($submission)) {
+            $this->matchCallSubmissions->add($submission);
             $submission->setMatchCall($this);
         }
 
         return $this;
     }
 
-    public function removeMatchSubmission(MatchSubmission $submission): static
+    public function removeMatchCallSubmission(MatchCallSubmission $submission): static
     {
-        if ($this->matchSubmissions->removeElement($submission)) {
+        if ($this->matchCallSubmissions->removeElement($submission)) {
             // set the owning side to null (unless already changed)
             if ($submission->getMatchCall() === $this) {
                 $submission->setMatchCall(null);
