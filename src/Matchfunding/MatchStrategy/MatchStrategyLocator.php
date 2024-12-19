@@ -10,7 +10,7 @@ class MatchStrategyLocator
     private array $strategiesByName;
 
     public function __construct(
-        iterable $strategies
+        iterable $strategies,
     ) {
         $strategies = \iterator_to_array($strategies);
 

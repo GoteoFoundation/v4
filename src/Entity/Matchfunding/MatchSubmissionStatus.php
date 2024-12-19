@@ -10,12 +10,12 @@ enum MatchSubmissionStatus: string
     case InReview = 'in_review';
 
     /**
-     * The MatchSubmission was accepted into the MatchCall
+     * The MatchSubmission was accepted into the MatchCall.
      */
     case Accepted = 'accepted';
 
     /**
-     * The MatchSubmission was rejected out of the MatchCall
+     * The MatchSubmission was rejected out of the MatchCall.
      */
     case Rejected = 'rejected';
 }

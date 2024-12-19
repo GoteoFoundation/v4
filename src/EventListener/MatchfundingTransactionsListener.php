@@ -18,11 +18,11 @@ use Doctrine\ORM\Events;
 final class MatchfundingTransactionsListener
 {
     public function __construct(
-        private MatchStrategyLocator $matchStrategyLocator
+        private MatchStrategyLocator $matchStrategyLocator,
     ) {}
 
     /**
-     * Generates an income statement for User-received Transactions.
+     * Generates matched Transactions for Transactions inside a MatchCall.
      */
     public function processTransaction(
         Transaction $transaction,
