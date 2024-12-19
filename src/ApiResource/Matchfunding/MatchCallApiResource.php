@@ -42,4 +42,11 @@ class MatchCallApiResource
      */
     #[API\ApiProperty(securityPostDenormalize: 'is_granted("MATCHCALL_EDIT", object)')]
     public array $managers;
+
+    /**
+     * A list of the MatchSubmissions received by this MatchCall.
+     * 
+     * @var MatchSubmissionApiResource[]
+     */
+    public array $matchSubmissions;
 }
