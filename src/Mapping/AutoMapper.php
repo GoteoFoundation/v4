@@ -7,13 +7,17 @@ use AutoMapper\AutoMapperInterface;
 
 class AutoMapper implements AutoMapperInterface
 {
+    public const CACHE_DIR = 'automapper';
+
     private AutoMapperInterface $innerMapper;
 
     public function __construct(
-        iterable $mapProviders,
+        ?string $cacheDirectory = null,
+        iterable $mapProviders = [],
     ) {
         $this->innerMapper = InnerMapper::create(
-            providers: $mapProviders
+            cacheDirectory: \sprintf('%s%s%s', $cacheDirectory, \DIRECTORY_SEPARATOR, self::CACHE_DIR),
+            providers: $mapProviders,
         );
     }
 
