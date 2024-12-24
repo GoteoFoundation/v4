@@ -10,7 +10,7 @@ class AutoMapper implements AutoMapperInterface
     public const CACHE_DIR = 'automapper';
 
     public const DEFAULT_CONTEXT = [
-        'skip_null_values' => true
+        'skip_null_values' => true,
     ];
 
     private AutoMapperInterface $innerMapper;
