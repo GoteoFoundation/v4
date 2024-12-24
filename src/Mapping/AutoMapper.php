@@ -9,6 +9,10 @@ class AutoMapper implements AutoMapperInterface
 {
     public const CACHE_DIR = 'automapper';
 
+    public const DEFAULT_CONTEXT = [
+        'skip_null_values' => true
+    ];
+
     private AutoMapperInterface $innerMapper;
 
     public function __construct(
@@ -23,6 +27,11 @@ class AutoMapper implements AutoMapperInterface
 
     public function map(array|object $source, string|array|object $target, array $context = []): array|object|null
     {
+        $context = [
+            ...self::DEFAULT_CONTEXT,
+            ...$context,
+        ];
+
         return $this->innerMapper->map($source, $target, $context);
     }
 }
