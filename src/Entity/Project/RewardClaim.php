@@ -4,9 +4,12 @@ namespace App\Entity\Project;
 
 use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\User\User;
+use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\RewardClaimRepository;
+use AutoMapper\Attribute\MapProvider;
 use Doctrine\ORM\Mapping as ORM;
 
+#[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: RewardClaimRepository::class)]
 class RewardClaim implements UserOwnedInterface
 {
