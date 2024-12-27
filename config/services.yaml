@@ -75,6 +75,7 @@ services:
 
     App\Mapping\AutoMapper:
         arguments:
+            - '%kernel.cache_dir%'
             - !tagged 'app.mapping.map_provider'
 
     # add more service definitions when explicit configuration is needed
