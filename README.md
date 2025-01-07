@@ -1,6 +1,8 @@
 # The v4 API
 This repository holds the code for the Goteo **v4** API.
 
+> **NOTE**: Review the trusted certificates by OpenSSL. See: https://github.com/GoteoFoundation/v4/issues/43
+
 ## Installation
 This application requires [Docker](https://docs.docker.com/get-docker/) and the [Docker Compose](https://docs.docker.com/compose/install/) plugin.
 
@@ -31,7 +33,7 @@ UID=1001
 GID=1001
 
 APP_HTTP_PORT=8080
-APP_HTTPS_PORT=8433
+APP_HTTPS_PORT=8443
 ```
 
 Then feed your custom env vars to Compose:
@@ -41,7 +43,7 @@ docker compose --env-file .env.local up -d --build
 
 - Option B. Passing the variables through the shell.
 ```shell
-export APP_HTTP_PORT=8080 && export APP_HTTPS_PORT=8433
+export APP_HTTP_PORT=8080 && export APP_HTTPS_PORT=8443
 
 # Dynamic user and group id
 export UID=$(id -u) && export GID=$(id -g)
@@ -73,7 +75,7 @@ bin/docker php bin/console app:gateways:setup
 
 ## Usage
 
-The app should be live at [http://localhost:8091](http://localhost:8091) (or your specified ports). Keep in mind that the API address is [/v4](http://localhost:8091/v4).
+The app should be live at [http://localhost:8090](http://localhost:8090) (or your specified ports). Keep in mind that the API address is [/v4](http://localhost:8090/v4).
 
 You can access a real-time build of the OpenAPI spec file for v4 at [http://localhost:8090/v4/docs.json](http://localhost:8090/v4/docs.json), to be used, for example, with API development suites such as Hoppscotch. This file will be up to date with most of your latest changes.
 
@@ -83,6 +85,7 @@ For quick Docker access you can use the `bin/docker` shortcut to quickly `exec` 
 
 - Login to mysql CLI: `bin/docker mariadb mysql -u goteo -pgoteo goteo`
 - Debug the symfony services: `bin/docker php bin/console debug:container`
+- List app custom commands: `bin/docker php bin/console list app`
 
 ## Testing
 
