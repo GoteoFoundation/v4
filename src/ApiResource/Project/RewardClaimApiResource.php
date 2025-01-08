@@ -6,8 +6,8 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\User\UserApiResource;
 use App\Entity\Project\RewardClaim;
-use App\State\ApiResourceStateProcessor;
 use App\State\ApiResourceStateProvider;
+use App\State\Project\RewardClaimStateProcessor;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'ProjectRewardClaim',
     stateOptions: new Options(entityClass: RewardClaim::class),
     provider: ApiResourceStateProvider::class,
-    processor: ApiResourceStateProcessor::class
+    processor: RewardClaimStateProcessor::class
 )]
 class RewardClaimApiResource
 {

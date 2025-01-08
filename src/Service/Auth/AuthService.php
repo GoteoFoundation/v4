@@ -4,6 +4,8 @@ namespace App\Service\Auth;
 
 use App\Entity\User\User;
 use App\Entity\User\UserToken;
+use App\Repository\User\UserRepository;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class AuthService
 {
@@ -13,6 +15,8 @@ class AuthService
 
     public function __construct(
         private string $appSecret,
+        private Security $security,
+        private UserRepository $userRepository,
     ) {}
 
     /**
@@ -39,5 +43,18 @@ class AuthService
         )));
 
         return $token;
+    }
+
+    public function getUser(): ?User
+    {
+        $loggedInUser = $this->security->getUser();
+
+        if (!$loggedInUser) {
+            return null;
+        }
+
+        return $this->userRepository->findOneBy(
+            ['username' => $loggedInUser->getUserIdentifier()]
+        );
     }
 }
