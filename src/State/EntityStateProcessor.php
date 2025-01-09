@@ -27,7 +27,7 @@ class EntityStateProcessor implements ProcessorInterface
         if ($data instanceof LocalizedContentInterface) {
             $data->setTranslatableLocale($context['request']->getLocale());
         }
-        
+
         if ($operation instanceof DeleteOperationInterface) {
             return $this->deleteProcessor->process($data, $operation, $uriVariables, $context);
         }

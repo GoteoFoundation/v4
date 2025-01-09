@@ -4,14 +4,19 @@ namespace App\Doctrine;
 
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
-use Doctrine\ORM\QueryBuilder;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Interface\LocalizedContentInterface;
 use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
 use Gedmo\Translatable\TranslatableListener;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * Adds localization hints to translatable entity queries.
+ *
+ * @see https://github.com/doctrine-extensions/DoctrineExtensions/blob/main/doc/translatable.md#using-orm-query-hint
+ */
 final class LocalizedContentExtension implements QueryItemExtensionInterface, QueryCollectionExtensionInterface
 {
     public function __construct(
@@ -51,7 +56,7 @@ final class LocalizedContentExtension implements QueryItemExtensionInterface, Qu
         string $resourceClass,
         array $identifiers,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         if (!$this->supports($resourceClass)) {
             return;
@@ -68,7 +73,7 @@ final class LocalizedContentExtension implements QueryItemExtensionInterface, Qu
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         if (!$this->supports($resourceClass)) {
             return;

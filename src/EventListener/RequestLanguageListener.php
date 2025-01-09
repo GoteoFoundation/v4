@@ -12,7 +12,7 @@ final class RequestLanguageListener
     /**
      * Sets the request locale from language headers
      * - `Content-Language` for write requests
-     * - `Accept-Language` for read requests
+     * - `Accept-Language` for read requests.
      */
     public function processLanguage(RequestEvent $event): void
     {

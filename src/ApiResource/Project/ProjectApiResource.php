@@ -46,7 +46,7 @@ class ProjectApiResource
 
     /**
      * List of the available content locales.
-     * 
+     *
      * @var array<string>
      */
     #[API\ApiProperty(writable: false)]
