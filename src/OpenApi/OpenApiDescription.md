@@ -12,9 +12,9 @@ This API is still in early development and is not set to have backward compatibi
 
 # Authentication
 
-The v4 API uses Access Tokens to authenticate requests. To use a Token, include it in the Authorization header using the [Bearer](https://swagger.io/docs/specification/authentication/bearer-authentication/) strategy.
+The v4 API uses Access Tokens to authenticate requests. To use a Token, include it in the `Authorization` header using the [Bearer](https://swagger.io/docs/specification/authentication/bearer-authentication/) strategy.
 
-```shell
+```sh
 curl -X 'GET' \
   'https://api.goteo.org/v4/projects?page=1' \
   -H 'accept: application/json' \
@@ -26,3 +26,11 @@ UserTokens exist under an User's scope, when you obtain a token this will only g
 To obtain a UserToken you must send a POST request to [/v4/user_tokens](/v4/user_tokens) with the User login credentials (username and password) in the payload. If the credentials are correct a UserToken will be created, the `token` property value of which you must include in future requests.
 
 Users can delete UserTokens owned by them at any moment, revoking your application's access to the v4 API on their behalf. When a UserToken fails to authenticate a request you will receive a 401 Unauthorized response from the API, at which point your application must look to get a new UserToken from the User.
+
+# Localization
+
+The v4 API accepts [Content negotiation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation) for localized content. Resources such as Projects can have owner-submitted content (title, description, etc) in different languages, the extent of which is subject to the owner.
+
+Retrieval of content in different locales is performed via standard HTTP content negotiation. When the request supplies an `Accept-Language` header, the API will retrieve localized versions of the content when available. Resources with localized content versions will expose a `locales` property listing the available options.
+
+Aditionally the `Content-Language` header can also be used to set the desired locale, mainly for write requests where you wish to supply a localized version of the working resource. The API will save the localized content under the respective locale without overwriting previous content for other localized versions of the same resource.
