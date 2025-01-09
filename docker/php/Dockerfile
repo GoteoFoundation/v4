@@ -17,6 +17,10 @@ RUN docker-php-ext-install \
     intl \
     zip
 
+RUN apk --no-cache add $PHPIZE_DEPS
+RUN pecl install apcu \
+    && docker-php-ext-enable apcu
+
 COPY --from=composer:lts /usr/bin/composer /usr/local/bin/composer
 
 
