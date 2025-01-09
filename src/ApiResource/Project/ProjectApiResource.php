@@ -45,6 +45,14 @@ class ProjectApiResource
     public UserApiResource $owner;
 
     /**
+     * List of the available content locales.
+     * 
+     * @var array<string>
+     */
+    #[API\ApiProperty(writable: false)]
+    public array $locales;
+
+    /**
      * Main title for the Project.
      */
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
