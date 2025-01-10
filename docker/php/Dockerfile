@@ -17,14 +17,18 @@ RUN docker-php-ext-install \
     intl \
     zip
 
-COPY --from=composer:lts /usr/bin/composer /usr/local/bin/composer
+RUN docker-php-ext-install opcache
+
+RUN apk --no-cache add $PHPIZE_DEPS
+RUN pecl install apcu \
+    && docker-php-ext-enable apcu
 
 RUN curl --remote-name https://curl.se/ca/cacert.pem \
     && mv cacert.pem /etc/ssl/certs/ca-certificates.crt
 
-FROM base AS dev
+COPY --from=composer:lts /usr/bin/composer /usr/local/bin/composer
 
-RUN docker-php-ext-install opcache
+FROM base AS dev
 
 RUN apk --no-cache add $PHPIZE_DEPS
 RUN pecl install xdebug \
