@@ -8,28 +8,50 @@ class LocalizationService
 {
     public const ERROR_TAG_INVALID_LANG = "The tag '%s' does not match to any language.";
 
+    private string $defaultLanguage;
+
     public function __construct(
         private string $defaultLocale,
-    ) {}
+    ) {
+        $this->defaultLanguage = $this->getPrimaryLanguage($defaultLocale);
+    }
+
+    public function getDefaultLocale(): string
+    {
+        return $this->defaultLocale;
+    }
+
+    public function getDefaultLanguage(): string
+    {
+        return $this->defaultLanguage;
+    }
 
     /**
      * @param string $tags A string of language tags
      *
-     * @return string The primary language of the first supplied tag
+     * @return string The primary language of the first supplied tag, or the default language if empty
+     *
+     * @throws \Exception If the first tag specifies an invalid language
      *
      * @see https://www.rfc-editor.org/rfc/bcp/bcp47.txt
      */
     public function getLanguage(string $tags): string
     {
-        $tag = $this->parseLanguageTags($tags)[0];
+        $tags = $this->parseLanguageTags($tags);
 
-        return $this->getPrimaryLanguage($tag);
+        if (empty($tags[0])) {
+            return $this->getDefaultLanguage();
+        }
+
+        return $this->getPrimaryLanguage($tags[0]);
     }
 
     /**
      * @param string $tags A string of language tags
      *
      * @return array The primary language of the supplied tags
+     *
+     * @throws \Exception If one of the supplied tags specifies an invalid language
      *
      * @see https://www.rfc-editor.org/rfc/bcp/bcp47.txt
      */
@@ -58,21 +80,13 @@ class LocalizationService
         return $language;
     }
 
-    private function parseLanguageTags(?string $tags = null): array
+    private function parseLanguageTags(string $tagsString): array
     {
-        if ($tags === null) {
-            return [$this->defaultLocale];
-        }
-
         $languages = \array_map(function (string $tag) {
             $tag = \explode(';', $tag);
 
             return \trim($tag[0]);
-        }, \explode(',', $tags));
-
-        if (empty($languages)) {
-            return [$this->defaultLocale];
-        }
+        }, \explode(',', $tagsString));
 
         return $languages;
     }

@@ -39,6 +39,14 @@ class LocalizationServiceTest extends KernelTestCase
         $this->assertEquals('es', $language);
     }
 
+    public function testReturnsDefaultLocale()
+    {
+        $this->assertEquals(
+            $this->localizationService->getDefaultLanguage(),
+            $this->localizationService->getLanguage('')
+        );
+    }
+
     public function testGetsLanguagesFromTags()
     {
         $languages = $this->localizationService->getLanguages(self::TAGS);
