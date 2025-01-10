@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use Locale;
 use Symfony\Component\Intl\Languages;
 
 class LocalizationService
@@ -46,7 +47,7 @@ class LocalizationService
 
     private function getPrimaryLanguage(string $tag): string
     {
-        $language = \Locale::getPrimaryLanguage($tag);
+        $language = Locale::getPrimaryLanguage($tag);
         if ($language === null) {
             throw new \Exception(\sprintf(self::ERROR_TAG_INVALID_LANG, $tag));
         }
@@ -64,7 +65,11 @@ class LocalizationService
             return [$this->defaultLocale];
         }
 
-        $languages = \array_map('trim', \explode(',', $tags));
+        $languages = \array_map(function (string $tag) {
+            $tag = \explode(';', $tag);
+
+            return \trim($tag[0]);
+        }, \explode(',', $tags));
 
         if (empty($languages)) {
             return [$this->defaultLocale];
