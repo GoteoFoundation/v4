@@ -23,6 +23,9 @@ RUN apk --no-cache add $PHPIZE_DEPS
 RUN pecl install apcu \
     && docker-php-ext-enable apcu
 
+RUN curl --remote-name https://curl.se/ca/cacert.pem \
+    && mv cacert.pem /etc/ssl/certs/ca-certificates.crt
+
 COPY --from=composer:lts /usr/bin/composer /usr/local/bin/composer
 
 FROM base AS dev
