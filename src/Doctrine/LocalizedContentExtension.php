@@ -41,7 +41,7 @@ final class LocalizedContentExtension implements QueryItemExtensionInterface, Qu
 
         $this->addHints(
             $queryBuilder->getQuery(),
-            $this->localizationService->getLanguages($request->headers->get('Accept-Language'))
+            $this->localizationService->getLanguages($request->headers->get('Accept-Language', ''))
         );
     }
 
@@ -60,7 +60,7 @@ final class LocalizedContentExtension implements QueryItemExtensionInterface, Qu
 
         $this->addHints(
             $queryBuilder->getQuery(),
-            $this->localizationService->getLanguages($request->headers->get('Accept-Language'))
+            $this->localizationService->getLanguages($request->headers->get('Accept-Language', ''))
         );
     }
 
