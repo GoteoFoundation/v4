@@ -29,8 +29,8 @@ Users can delete UserTokens owned by them at any moment, revoking your applicati
 
 # Localization
 
-The v4 API accepts [Content negotiation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation) for localized content. Resources such as Projects can have owner-submitted content (title, description, etc) in different languages, the extent of which is subject to the owner.
+The v4 API accepts localization of content. Resources such as Projects can have owner-submitted data (title, description, etc) in different languages, the extent of which is subject to the owner. Resources with localized content versions will expose a `locales` property listing the available localizations.
 
-Retrieval of content in different locales is performed via standard HTTP content negotiation. When the request supplies an `Accept-Language` header, the API will retrieve localized versions of the content when available. Resources with localized content versions will expose a `locales` property listing the available options.
+Retrieval of content in different locales is performed via standard HTTP [content negotiation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation). When the request supplies an `Accept-Language` header, the API will retrieve localized versions of the content where available, falling back to the default locale of the API instance, and finally to the first available localization of the content regardless of the request preferences or the API defaults if it cannot find suitable localizations.
 
-Aditionally the `Content-Language` header can also be used to set the desired locale, mainly for write requests where you wish to supply a localized version of the working resource. The API will save the localized content under the respective locale without overwriting previous content for other localized versions of the same resource.
+Submission of localized content is performed over standard HTTP content submission with the addition of a `Content-Language` header to a POST, PUT or PATCH request.
