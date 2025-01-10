@@ -8,7 +8,9 @@ use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Interface\LocalizedContentInterface;
+use App\Service\LocalizationService;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\Request;
 
 class EntityStateProcessor implements ProcessorInterface
 {
@@ -17,6 +19,7 @@ class EntityStateProcessor implements ProcessorInterface
         private ProcessorInterface $deleteProcessor,
         #[Autowire(service: PersistProcessor::class)]
         private ProcessorInterface $persistProcessor,
+        private LocalizationService $localizationService,
     ) {}
 
     /**
@@ -25,7 +28,12 @@ class EntityStateProcessor implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         if ($data instanceof LocalizedContentInterface) {
-            $data->setTranslatableLocale($context['request']->getLocale());
+            /** @var Request */
+            $request = $context['request'];
+
+            $data->setTranslatableLocale($this->localizationService->getLanguage(
+                $request->headers->get('Content-Language'),
+            ));
         }
 
         if ($operation instanceof DeleteOperationInterface) {
