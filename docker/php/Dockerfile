@@ -19,6 +19,8 @@ RUN docker-php-ext-install \
 
 COPY --from=composer:lts /usr/bin/composer /usr/local/bin/composer
 
+RUN curl --remote-name https://curl.se/ca/cacert.pem \
+    && mv cacert.pem /etc/ssl/certs/ca-certificates.crt
 
 FROM base AS dev
 

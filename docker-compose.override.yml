@@ -1,6 +1,7 @@
 services:
   php:
     volumes:
+      # ./docker/php/ssl/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
       - ./docker/php/conf.d/opcache.dev.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
       - ./docker/php/conf.d/xdebug.dev.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro
     extra_hosts:
