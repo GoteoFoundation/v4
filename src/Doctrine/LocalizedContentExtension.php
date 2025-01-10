@@ -7,6 +7,7 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Interface\LocalizedContentInterface;
+use App\Service\LocalizationService;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Gedmo\Translatable\TranslatableListener;
@@ -21,34 +22,8 @@ final class LocalizedContentExtension implements QueryItemExtensionInterface, Qu
 {
     public function __construct(
         private RequestStack $requestStack,
+        private LocalizationService $localizationService,
     ) {}
-
-    private function supports(string $resourceClass): bool
-    {
-        $reflection = new \ReflectionClass($resourceClass);
-
-        return $reflection->implementsInterface(LocalizedContentInterface::class);
-    }
-
-    private function addHints(Query $query, string $locale)
-    {
-        $query->setHint(
-            Query::HINT_CUSTOM_OUTPUT_WALKER,
-            'Gedmo\\Translatable\\Query\\TreeWalker\\TranslationWalker'
-        );
-
-        $query->setHint(
-            TranslatableListener::HINT_TRANSLATABLE_LOCALE,
-            $locale
-        );
-
-        $query->setHint(
-            TranslatableListener::HINT_FALLBACK,
-            1
-        );
-
-        $query->getResult();
-    }
 
     public function applyToItem(
         QueryBuilder $queryBuilder,
@@ -62,9 +37,11 @@ final class LocalizedContentExtension implements QueryItemExtensionInterface, Qu
             return;
         }
 
+        $request = $this->requestStack->getCurrentRequest();
+
         $this->addHints(
             $queryBuilder->getQuery(),
-            $this->requestStack->getCurrentRequest()->getLocale()
+            $this->localizationService->getLanguages($request->headers->get('Accept-Language'))
         );
     }
 
@@ -79,9 +56,41 @@ final class LocalizedContentExtension implements QueryItemExtensionInterface, Qu
             return;
         }
 
+        $request = $this->requestStack->getCurrentRequest();
+
         $this->addHints(
             $queryBuilder->getQuery(),
-            $this->requestStack->getCurrentRequest()->getLocale()
+            $this->localizationService->getLanguages($request->headers->get('Accept-Language'))
         );
+    }
+
+    private function supports(string $resourceClass): bool
+    {
+        $reflection = new \ReflectionClass($resourceClass);
+
+        return $reflection->implementsInterface(LocalizedContentInterface::class);
+    }
+
+    private function addHints(Query $query, array $locales)
+    {
+        $query->setHint(
+            Query::HINT_CUSTOM_OUTPUT_WALKER,
+            'Gedmo\\Translatable\\Query\\TreeWalker\\TranslationWalker'
+        );
+
+        $locales = \array_reverse($locales);
+        foreach ($locales as $locale) {
+            $query->setHint(
+                TranslatableListener::HINT_TRANSLATABLE_LOCALE,
+                $locale
+            );
+        }
+
+        $query->setHint(
+            TranslatableListener::HINT_FALLBACK,
+            1
+        );
+
+        $query->getResult();
     }
 }
