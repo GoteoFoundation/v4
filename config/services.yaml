@@ -59,6 +59,11 @@ services:
         arguments:
             - '%env(APP_SECRET)%'
 
+    App\State\LocalizedContentProvider:
+        arguments:
+            $itemExtensions: !tagged api_platform.doctrine.orm.query_extension.item
+            $collectionExtensions: !tagged api_platform.doctrine.orm.query_extension.collection
+
     App\Service\LocalizationService:
         arguments:
             - '%kernel.default_locale%'
