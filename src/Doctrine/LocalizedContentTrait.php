@@ -2,12 +2,22 @@
 
 namespace App\Doctrine;
 
+use App\Service\LocalizationService;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Gedmo\Translatable\TranslatableListener;
+use Symfony\Contracts\Service\Attribute\Required;
 
 trait LocalizedContentTrait
 {
+    protected LocalizationService $localizationService;
+
+    #[Required]
+    public function setLocalizationService(LocalizationService $localizationService)
+    {
+        $this->localizationService = $localizationService;
+    }
+
     private function addLocalizationHints(QueryBuilder $queryBuilder, array $locales): Query
     {
         $query = $queryBuilder->getQuery();
