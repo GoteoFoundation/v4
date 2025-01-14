@@ -10,15 +10,15 @@ trait PaginationExtensionTrait
 {
     /**
      * Determines the value of the $fetchJoinCollection argument passed to the Doctrine ORM Paginator.
-     * 
+     *
      * Ported from api-platform/core source code
-     * 
+     *
      * @see https://github.com/api-platform/core/blob/a11c21335297b6026aa2b12fbe11a77e888481d7/src/Doctrine/Orm/Extension/PaginationExtension.php#L128
      */
     private function shouldDoctrinePaginatorFetchJoinCollection(
         QueryBuilder $queryBuilder,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): bool {
         $fetchJoinCollection = $operation?->getPaginationFetchJoinCollection();
 
@@ -50,9 +50,9 @@ trait PaginationExtensionTrait
 
     /**
      * Determines whether the Doctrine ORM Paginator should use output walkers.
-     * 
+     *
      * Ported from api-platform/core source code
-     * 
+     *
      * @see https://github.com/api-platform/core/blob/a11c21335297b6026aa2b12fbe11a77e888481d7/src/Doctrine/Orm/Extension/PaginationExtension.php#L161
      */
     private function shouldDoctrinePaginatorUseOutputWalkers(QueryBuilder $queryBuilder, ?Operation $operation = null, array $context = []): bool
