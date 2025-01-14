@@ -32,6 +32,17 @@ final class LocalizedContentExtension implements QueryResultCollectionExtensionI
         private Pagination $pagination,
     ) {}
 
+    /**
+     * Same priority as `api_platform.doctrine.orm.query_extension.pagination`.
+     * This ensures other filters can have precedence over localization.
+     *
+     * @see https://api-platform.com/docs/core/extensions/#custom-doctrine-orm-extension
+     */
+    public static function getDefaultPriority(): int
+    {
+        return -64;
+    }
+
     public function supportsResult(string $resourceClass, ?Operation $operation = null, array $context = []): bool
     {
         $reflectionClass = new \ReflectionClass($resourceClass);
@@ -43,11 +54,11 @@ final class LocalizedContentExtension implements QueryResultCollectionExtensionI
         QueryBuilder $queryBuilder,
         ?string $resourceClass = null,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): iterable {
         $query = $this->addLocalizationHints($queryBuilder, $this->getContextLanguages($context));
 
-        if (1 === \count($queryBuilder->getAllAliases())) {
+        if (\count($queryBuilder->getAllAliases()) === 1) {
             $query->setHint(CountWalker::HINT_DISTINCT, false);
         }
 
@@ -57,8 +68,7 @@ final class LocalizedContentExtension implements QueryResultCollectionExtensionI
         $isPartialEnabled = $this->pagination->isPartialEnabled($operation, $context);
 
         if ($isPartialEnabled) {
-            return new class($doctrineOrmPaginator) extends AbstractPaginator {
-            };
+            return new class($doctrineOrmPaginator) extends AbstractPaginator {};
         }
 
         return new Paginator($doctrineOrmPaginator);
@@ -69,7 +79,7 @@ final class LocalizedContentExtension implements QueryResultCollectionExtensionI
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         if (null === $pagination = $this->getPagination($queryBuilder, $operation, $context)) {
             return;
