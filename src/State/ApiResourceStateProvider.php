@@ -19,15 +19,10 @@ class ApiResourceStateProvider implements ProviderInterface
         #[Autowire(service: ItemProvider::class)]
         private ProviderInterface $itemProvider,
         private AutoMapper $autoMapper,
-        private LocalizedContentProvider $localizedContentProvider,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        if ($this->localizedContentProvider->supports($operation)) {
-            return $this->localizedContentProvider->provide($operation, $uriVariables, $context);
-        }
-
         $resourceClass = $operation->getClass();
 
         if ($operation instanceof CollectionOperationInterface) {
