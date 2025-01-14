@@ -5,7 +5,6 @@ namespace App\Doctrine;
 use ApiPlatform\Doctrine\Orm\Extension\QueryResultItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
-use App\Entity\Interface\LocalizedContentInterface;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -28,18 +27,11 @@ final class LocalizedItemExtension implements QueryResultItemExtensionInterface
         return -64;
     }
 
-    public function supportsResult(string $resourceClass, ?Operation $operation = null, array $context = []): bool
-    {
-        $reflectionClass = new \ReflectionClass($resourceClass);
-
-        return $reflectionClass->implementsInterface(LocalizedContentInterface::class);
-    }
-
     public function getResult(
         QueryBuilder $queryBuilder,
         ?string $resourceClass = null,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): ?object {
         $query = $this->addLocalizationHints($queryBuilder, $this->getContextLanguages($context));
 
@@ -52,6 +44,6 @@ final class LocalizedItemExtension implements QueryResultItemExtensionInterface
         string $resourceClass,
         array $identifiers,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {}
 }

@@ -7,7 +7,6 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryResultCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Paginator;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
-use App\Entity\Interface\LocalizedContentInterface;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\CountWalker;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrineOrmPaginator;
@@ -31,13 +30,6 @@ final class LocalizedCollectionExtension implements QueryResultCollectionExtensi
     public static function getDefaultPriority(): int
     {
         return -64;
-    }
-
-    public function supportsResult(string $resourceClass, ?Operation $operation = null, array $context = []): bool
-    {
-        $reflectionClass = new \ReflectionClass($resourceClass);
-
-        return $reflectionClass->implementsInterface(LocalizedContentInterface::class);
     }
 
     public function getResult(

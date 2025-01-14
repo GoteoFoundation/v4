@@ -2,6 +2,8 @@
 
 namespace App\Doctrine;
 
+use ApiPlatform\Metadata\Operation;
+use App\Entity\Interface\LocalizedContentInterface;
 use App\Service\LocalizationService;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
@@ -16,6 +18,13 @@ trait LocalizedContentTrait
     public function setLocalizationService(LocalizationService $localizationService)
     {
         $this->localizationService = $localizationService;
+    }
+
+    public function supportsResult(string $resourceClass, ?Operation $operation = null, array $context = []): bool
+    {
+        $reflectionClass = new \ReflectionClass($resourceClass);
+
+        return $reflectionClass->implementsInterface(LocalizedContentInterface::class);
     }
 
     private function addLocalizationHints(QueryBuilder $queryBuilder, array $locales): Query
