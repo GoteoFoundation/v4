@@ -10,20 +10,19 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
 use App\Entity\Interface\LocalizedContentInterface;
 use App\Service\LocalizationService;
-use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\CountWalker;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrineOrmPaginator;
 use Doctrine\Persistence\ManagerRegistry;
-use Gedmo\Translatable\TranslatableListener;
 
 /**
  * Adds localization hints to translatable entity queries.
  *
  * @see https://github.com/doctrine-extensions/DoctrineExtensions/blob/main/doc/translatable.md#using-orm-query-hint
  */
-final class LocalizedContentExtension implements QueryResultCollectionExtensionInterface
+final class LocalizedCollectionExtension implements QueryResultCollectionExtensionInterface
 {
+    use LocalizedContentTrait;
     use PaginationExtensionTrait;
 
     public function __construct(
@@ -108,31 +107,5 @@ final class LocalizedContentExtension implements QueryResultCollectionExtensionI
         }
 
         return \array_slice($this->pagination->getPagination($operation, $context), 1);
-    }
-
-    private function addLocalizationHints(QueryBuilder $queryBuilder, array $locales): Query
-    {
-        $query = $queryBuilder->getQuery();
-
-        $query->setHint(
-            Query::HINT_CUSTOM_OUTPUT_WALKER,
-            'Gedmo\\Translatable\\Query\\TreeWalker\\TranslationWalker'
-        );
-
-        \array_reverse($locales);
-        foreach ($locales as $locale) {
-            $query->setHint(TranslatableListener::HINT_TRANSLATABLE_LOCALE, $locale);
-        }
-
-        $query->setHint(TranslatableListener::HINT_FALLBACK, 1);
-
-        return $query;
-    }
-
-    private function getContextLanguages(array $context): array
-    {
-        $tags = $context['request']->headers->get('Accept-Language', '');
-
-        return $this->localizationService->getLanguages($tags);
     }
 }
