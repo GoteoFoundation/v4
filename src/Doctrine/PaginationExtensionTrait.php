@@ -4,10 +4,29 @@ namespace App\Doctrine;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryChecker;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\Pagination;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Contracts\Service\Attribute\Required;
 
 trait PaginationExtensionTrait
 {
+    protected Pagination $pagination;
+
+    protected ManagerRegistry $managerRegistry;
+
+    #[Required]
+    public function setManagerRegistry(ManagerRegistry $managerRegistry)
+    {
+        $this->managerRegistry = $managerRegistry;
+    }
+
+    #[Required]
+    public function setPagination(Pagination $pagination)
+    {
+        $this->pagination = $pagination;
+    }
+
     /**
      * Determines the value of the $fetchJoinCollection argument passed to the Doctrine ORM Paginator.
      *

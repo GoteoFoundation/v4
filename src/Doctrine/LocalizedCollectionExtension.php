@@ -7,13 +7,10 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryResultCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Paginator;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\Pagination\Pagination;
 use App\Entity\Interface\LocalizedContentInterface;
-use App\Service\LocalizationService;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\CountWalker;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrineOrmPaginator;
-use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * Adds localization hints to translatable entity queries.
@@ -24,12 +21,6 @@ final class LocalizedCollectionExtension implements QueryResultCollectionExtensi
 {
     use LocalizedContentTrait;
     use PaginationExtensionTrait;
-
-    public function __construct(
-        private LocalizationService $localizationService,
-        private ManagerRegistry $managerRegistry,
-        private Pagination $pagination,
-    ) {}
 
     /**
      * Same priority as `api_platform.doctrine.orm.query_extension.pagination`.
