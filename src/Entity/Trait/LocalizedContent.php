@@ -43,7 +43,6 @@ trait LocalizedContent
         return $this;
     }
 
-
     public function setLocales(array $locales): static
     {
         $this->locales = $locales;

@@ -79,12 +79,12 @@ class EntityStateProcessor implements ProcessorInterface
         Operation $operation,
         array $uriVariables = [],
         array $context = [],
-        array $languages = []
+        array $languages = [],
     ) {
         $translationRepository = $this->entityManager->getRepository(Translation::class);
 
         if (!\array_diff($data->getLocales(), $languages)) {
-            throw new \Exception("Cannot leave empty resource. Must have at least one available localization.");
+            throw new \Exception('Cannot leave empty resource. Must have at least one available localization.');
         }
 
         $nonLocalizedLanguages = \array_diff($languages, $data->getLocales());
@@ -99,7 +99,7 @@ class EntityStateProcessor implements ProcessorInterface
             $translations = $translationRepository->findBy([
                 'locale' => $language,
                 'objectClass' => $data::class,
-                'foreignKey' => $data->getId()
+                'foreignKey' => $data->getId(),
             ]);
 
             foreach ($translations as $translation) {
