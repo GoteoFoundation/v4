@@ -14,7 +14,7 @@ use Doctrine\ORM\QueryBuilder;
  */
 final class LocalizedItemExtension implements QueryResultItemExtensionInterface
 {
-    use LocalizedContentTrait;
+    use LocalizedExtensionTrait;
 
     /**
      * Same priority as `api_platform.doctrine.orm.query_extension.pagination`.

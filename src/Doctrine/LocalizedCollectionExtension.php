@@ -18,7 +18,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator as DoctrineOrmPaginator;
  */
 final class LocalizedCollectionExtension implements QueryResultCollectionExtensionInterface
 {
-    use LocalizedContentTrait;
+    use LocalizedExtensionTrait;
     use PaginationExtensionTrait;
 
     /**

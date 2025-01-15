@@ -10,7 +10,7 @@ use Doctrine\ORM\QueryBuilder;
 use Gedmo\Translatable\TranslatableListener;
 use Symfony\Contracts\Service\Attribute\Required;
 
-trait LocalizedContentTrait
+trait LocalizedExtensionTrait
 {
     protected LocalizationService $localizationService;
 
