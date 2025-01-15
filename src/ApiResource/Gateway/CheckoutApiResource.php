@@ -12,6 +12,7 @@ use App\Gateway\Tracking;
 use App\State\ApiResourceStateProvider;
 use App\State\Gateway\CheckoutStateProcessor;
 use AutoMapper\Attribute\MapFrom;
+use AutoMapper\Attribute\MapTo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -35,6 +36,7 @@ class CheckoutApiResource
      * The desired Gateway to checkout with.
      */
     #[Assert\NotBlank()]
+    #[MapTo(property: 'gatewayName', transformer: 'source.gateway.name')]
     public GatewayApiResource $gateway;
 
     /**
