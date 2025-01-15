@@ -32,6 +32,18 @@ trait LocalizedContent
         return $this;
     }
 
+    public function removeLocale(string $locale): static
+    {
+        $needle = $locale;
+
+        $this->locales = [...\array_filter($this->locales, function (string $locale) use ($needle) {
+            return $locale !== $needle;
+        })];
+
+        return $this;
+    }
+
+
     public function setLocales(array $locales): static
     {
         $this->locales = $locales;

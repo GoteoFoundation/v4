@@ -13,6 +13,8 @@ use Gedmo\Translatable\Translatable;
  */
 interface LocalizedContentInterface extends Translatable
 {
+    public function getId(): ?int;
+
     /**
      * Set the locale of the working content for translations.
      */
@@ -27,6 +29,11 @@ interface LocalizedContentInterface extends Translatable
      * Add to the list of available translation locales.
      */
     public function addLocale(string $locale): static;
+
+    /**
+     * Remove from the list of available translation locales.
+     */
+    public function removeLocale(string $locale): static;
 
     /**
      * Set the list of available translation locales.
