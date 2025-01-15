@@ -41,7 +41,7 @@ class Checkout
      * The Accounting that will issue the Transactions of the GatewayCharges after a successful checkout.
      */
     #[Assert\NotBlank()]
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $origin = null;
 
