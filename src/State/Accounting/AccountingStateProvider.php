@@ -65,21 +65,6 @@ class AccountingStateProvider implements ProviderInterface
         $resource = $this->autoMapper->map($accounting, AccountingApiResource::class);
         $resource->balance = $this->accountingService->calcBalance($accounting);
 
-        $owner = $accounting->getOwner();
-
-        switch ($owner::class) {
-            case User::class:
-                $resourceClass = UserApiResource::class;
-                break;
-            case Project::class:
-                $resourceClass = ProjectApiResource::class;
-                break;
-            case Tipjar::class:
-                $resourceClass = Tipjar::class;
-        }
-
-        $resource->owner = $this->autoMapper->map($owner, $resourceClass);
-
         return $resource;
     }
 }
