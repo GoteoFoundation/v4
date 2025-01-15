@@ -59,6 +59,10 @@ services:
         arguments:
             - '%env(APP_SECRET)%'
 
+    App\Service\LocalizationService:
+        arguments:
+            - '%kernel.default_locale%'
+
     App\Library\Benzina\Benzina:
         arguments:
             - !tagged 'app.lib.benzina.pump.pump'

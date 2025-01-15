@@ -41,6 +41,10 @@ class ProjectStateProcessor implements ProcessorInterface
 
         $project = $this->entityStateProcessor->process($project, $operation, $uriVariables, $context);
 
+        if ($project === null) {
+            return null;
+        }
+
         return $this->autoMapper->map($project, $data);
     }
 }
