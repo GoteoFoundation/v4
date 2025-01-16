@@ -51,7 +51,7 @@ class Charge
      * The Accounting receiving the consequent Transaction for this GatewayCharge.
      */
     #[Assert\NotBlank()]
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Accounting $target = null;
 

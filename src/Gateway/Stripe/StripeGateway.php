@@ -4,7 +4,7 @@ namespace App\Gateway\Stripe;
 
 use ApiPlatform\Api\IriConverterInterface;
 use App\Entity\Gateway\Checkout;
-use App\Entity\User;
+use App\Entity\User\User;
 use App\Gateway\ChargeType;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\GatewayInterface;
@@ -136,7 +136,10 @@ class StripeGateway implements GatewayInterface
     {
         $owner = $checkout->getOrigin()->getOwner();
         if (!$owner instanceof User) {
-            return '';
+            throw new \Exception(\sprintf(
+                "Checkout with Stripe must be performed by an User, instance of '%s' supplied",
+                $owner::class
+            ));
         }
 
         return $owner->getEmail();
