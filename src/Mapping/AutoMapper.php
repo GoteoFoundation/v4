@@ -18,10 +18,12 @@ class AutoMapper implements AutoMapperInterface
     public function __construct(
         ?string $cacheDirectory = null,
         iterable $mapProviders = [],
+        iterable $mapTransformers = [],
     ) {
         $this->innerMapper = InnerMapper::create(
             cacheDirectory: \sprintf('%s%s%s', $cacheDirectory, \DIRECTORY_SEPARATOR, self::CACHE_DIR),
             providers: $mapProviders,
+            propertyTransformers: $mapTransformers,
         );
     }
 
