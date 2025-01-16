@@ -25,6 +25,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: php-actions/composer@v6
+        env:
+          STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
         with:
           php_version: ${{ env.PHP_VERSION }}
           php_extensions: ${{ env.PHP_EXTENSIONS }}
