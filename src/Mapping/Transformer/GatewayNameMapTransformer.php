@@ -12,7 +12,8 @@ class GatewayNameMapTransformer implements PropertyTransformerInterface
         private GatewayLocator $gatewayLocator,
     ) {}
 
-    public function transform(mixed $value, object|array $source, array $context): mixed {
+    public function transform(mixed $value, object|array $source, array $context): mixed
+    {
         $gateway = $this->gatewayLocator->get($value);
 
         $resource = new GatewayApiResource();
