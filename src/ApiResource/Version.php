@@ -5,9 +5,7 @@ namespace App\ApiResource;
 use ApiPlatform\Metadata as API;
 use App\Filter\ResourceVersionResourceFilter;
 use App\Filter\ResourceVersionResourceIdFilter;
-use App\Service\ApiService;
 use App\State\ResourceVersionStateProvider;
-use Gedmo\Loggable\Entity\LogEntry;
 
 /**
  * Some resources are versioned. This means v4 keeps track of the changes performed in subsets of specific properties within these resources.\
@@ -21,64 +19,32 @@ use Gedmo\Loggable\Entity\LogEntry;
 #[API\Get(provider: ResourceVersionStateProvider::class)]
 class Version
 {
-    public function __construct(
-        private readonly LogEntry $log,
-        private readonly object $entity,
-    ) {}
+    public int $id;
 
     /**
-     * The ID of the version record.
+     * Version number for the resource object.
      */
-    public function getId(): ?int
-    {
-        return $this->log->getId();
-    }
+    public int $version;
 
     /**
-     * The ID of the version for this specific resource.
+     * The action-type that performed the version change.
      */
-    public function getVersion(): ?int
-    {
-        return $this->log->getVersion();
-    }
+    public string $action;
 
     /**
-     * The type of action that performed the recorded changes.
+     * The changes made by the action for this version.
+     *
+     * @return array<string, mixed>
      */
-    public function getAction(): ?string
-    {
-        return $this->log->getAction();
-    }
+    public array $changes;
 
     /**
-     * The type of the recorded resource.
+     * Reconstructed resource data for this version.
      */
-    public function getResource(): string
-    {
-        return ApiService::toResource($this->log->getObjectClass());
-    }
+    public EmbeddedResource $resource;
 
     /**
-     * The ID of the recorded resource.
+     * Version creation timestamp.
      */
-    public function getResourceId(): int
-    {
-        return $this->log->getObjectId();
-    }
-
-    /**
-     * The changed resource data, i.e the new values of the changed properties.
-     */
-    public function getResourceChanges()
-    {
-        return $this->log->getData();
-    }
-
-    /**
-     * The date at which this version was created.
-     */
-    public function getDateCreated(): ?\DateTimeInterface
-    {
-        return $this->log->getLoggedAt();
-    }
+    public \DateTimeInterface $dateCreated;
 }

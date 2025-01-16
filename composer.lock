@@ -3375,50 +3375,6 @@
             "time": "2024-09-18T18:38:30+00:00"
         },
         {
-            "name": "subiabre/doctrine-snowflakes",
-            "version": "2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/subiabre/doctrine-snowflakes.git",
-                "reference": "f179b7aba6f4d08d455b3369b0af4903693de489"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/subiabre/doctrine-snowflakes/zipball/f179b7aba6f4d08d455b3369b0af4903693de489",
-                "reference": "f179b7aba6f4d08d455b3369b0af4903693de489",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/orm": "^2.16",
-                "godruoyi/php-snowflake": "^3.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^10.4"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Subiabre\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Daniel Subiabre",
-                    "email": "subiabrewd@gmail.com"
-                }
-            ],
-            "description": "Custom id generator implementing snowflake algorithm",
-            "support": {
-                "issues": "https://github.com/subiabre/doctrine-snowflakes/issues",
-                "source": "https://github.com/subiabre/doctrine-snowflakes/tree/2.0"
-            },
-            "time": "2023-11-13T19:04:37+00:00"
-        },
-        {
             "name": "symfony/asset",
             "version": "v6.4.8",
             "source": {

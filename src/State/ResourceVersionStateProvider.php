@@ -2,11 +2,12 @@
 
 namespace App\State;
 
+use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Metadata as API;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use App\ApiResource\EmbeddedResource;
 use App\ApiResource\Version;
-use App\Service\ApiResourceNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\Mapping\MappingException;
 use Gedmo\Loggable\Entity\LogEntry;
@@ -19,6 +20,7 @@ class ResourceVersionStateProvider implements ProviderInterface
 
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private IriConverterInterface $iriConverter,
     ) {
         $this->versionRepository = $this->entityManager->getRepository(LogEntry::class);
     }
@@ -49,7 +51,7 @@ class ResourceVersionStateProvider implements ProviderInterface
 
         $entity = $this->entityManager->find($log->getObjectClass(), $log->getObjectId());
 
-        return new Version($log, $entity);
+        return new Version($log, $entity, $this->iriConverter->getIriFromResource($entity));
     }
 
     /**
@@ -57,7 +59,7 @@ class ResourceVersionStateProvider implements ProviderInterface
      */
     private function getVersions(string $resourceName, int $resourceId): array
     {
-        $resourceClass = ApiResourceNormalizer::toEntity($resourceName);
+        $resourceClass = \sprintf('App\\Entity\\%s', ucfirst($resourceName));
 
         try {
             $entity = $this->entityManager->find($resourceClass, $resourceId);
@@ -72,10 +74,39 @@ class ResourceVersionStateProvider implements ProviderInterface
         $logs = $this->versionRepository->getLogEntries($entity);
 
         $versions = [];
-        foreach ($logs as $log) {
-            $versions[] = new Version($log, $entity);
+        foreach ($logs as $key => $log) {
+            $resource = new EmbeddedResource();
+            $resource->id = $entity->getId();
+            $resource->iri = $this->iriConverter->getIriFromResource($entity);
+            $resource->resource = $this->reconstructEntity($entity, \array_slice($logs, 0, $key));
+
+            $version = new Version();
+            $version->id = $log->getId();
+            $version->version = $log->getVersion();
+            $version->action = $log->getAction();
+            $version->changes = $log->getData();
+            $version->resource = $resource;
+            $version->dateCreated = $log->getLoggedAt();
+
+            $versions[] = $version;
         }
 
         return $versions;
+    }
+
+    /**
+     * @param LogEntry[] $logs
+     */
+    private function reconstructEntity(object $entity, array $logs): object
+    {
+        foreach ($logs as $log) {
+            $data = $log->getData();
+            foreach ($data as $property => $value) {
+                $setter = \sprintf('set%s', \ucfirst($property));
+                $entity->$setter($value);
+            }
+        }
+
+        return $entity;
     }
 }
