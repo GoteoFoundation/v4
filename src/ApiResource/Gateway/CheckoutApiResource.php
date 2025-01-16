@@ -9,6 +9,7 @@ use App\Entity\Gateway\Checkout;
 use App\Gateway\CheckoutStatus;
 use App\Gateway\Link;
 use App\Gateway\Tracking;
+use App\Mapping\Transformer\GatewayNameMapTransformer;
 use App\State\ApiResourceStateProvider;
 use App\State\Gateway\CheckoutStateProcessor;
 use AutoMapper\Attribute\MapFrom;
@@ -36,6 +37,7 @@ class CheckoutApiResource
      * The desired Gateway to checkout with.
      */
     #[Assert\NotBlank()]
+    #[MapFrom(property: 'gatewayName', transformer: GatewayNameMapTransformer::class)]
     #[MapTo(property: 'gatewayName', transformer: 'source.gateway.name')]
     public GatewayApiResource $gateway;
 
