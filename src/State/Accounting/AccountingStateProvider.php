@@ -2,7 +2,6 @@
 
 namespace App\State\Accounting;
 
-use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Doctrine\Orm\State\CollectionProvider;
 use ApiPlatform\Doctrine\Orm\State\ItemProvider;
 use ApiPlatform\Metadata\CollectionOperationInterface;
@@ -23,7 +22,6 @@ class AccountingStateProvider implements ProviderInterface
         private ProviderInterface $collectionProvider,
         private AutoMapper $autoMapper,
         private AccountingService $accountingService,
-        private IriConverterInterface $iriConverter,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
