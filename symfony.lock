@@ -105,7 +105,7 @@
         ]
     },
     "stof/doctrine-extensions-bundle": {
-        "version": "1.11",
+        "version": "1.13",
         "recipe": {
             "repo": "github.com/symfony/recipes-contrib",
             "branch": "main",
