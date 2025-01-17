@@ -29,7 +29,7 @@ interface GatewayInterface
     public static function getName(): string;
 
     /**
-     * @return \App\Gateway\ChargeType[] The charge types that can be processed by this Gateway
+     * @return ChargeType[] The charge types that can be processed by this Gateway
      */
     public static function getSupportedChargeTypes(): array;
 

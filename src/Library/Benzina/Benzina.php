@@ -7,7 +7,7 @@ use App\Library\Benzina\Stream\StreamInterface;
 
 class Benzina
 {
-    /** @var Pump\PumpInterface[] */
+    /** @var PumpInterface[] */
     private array $availablePumps = [];
 
     public function __construct(
