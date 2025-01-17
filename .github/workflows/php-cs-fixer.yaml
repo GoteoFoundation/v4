@@ -22,4 +22,4 @@ jobs:
           php_extensions: ${{ env.PHP_EXTENSIONS }}
 
       - name: PHP CS Fixer
-        run: php-cs-fixer check
+        run: php ./vendor/bin/php-cs-fixer check
