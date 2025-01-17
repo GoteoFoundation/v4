@@ -4,6 +4,7 @@ on: [pull_request]
 
 env:
   PHP_VERSION: '8.3'
+  PHP_EXTENSIONS: pdo_mysql
 
 jobs:
   php-cs-fixer:
@@ -15,6 +16,7 @@ jobs:
       - uses: php-actions/composer@v6
         with:
           php_version: ${{ env.PHP_VERSION }}
-          
+          php_extensions: ${{ env.PHP_EXTENSIONS }}
+
       - name: PHP CS Fixer
         run: php-cs-fixer check
