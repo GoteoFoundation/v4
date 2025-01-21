@@ -29,9 +29,9 @@ class ProjectApiTest extends ApiTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['@id' => '/v4/projects']);
-        $this->assertJsonContains(['@type' => 'hydra:Collection']);
-        $this->assertJsonContains(['hydra:totalItems' => 0]);
-        $this->assertJsonContains(['hydra:member' => []]);
+        $this->assertJsonContains(['@type' => 'Collection']);
+        $this->assertJsonContains(['totalItems' => 0]);
+        $this->assertJsonContains(['member' => []]);
 
         $owner = new User();
         $owner->setUsername('test_user');
@@ -50,8 +50,8 @@ class ProjectApiTest extends ApiTestCase
         static::createClient()->request('GET', '/v4/projects');
 
         $this->assertResponseIsSuccessful();
-        $this->assertJsonContains(['hydra:totalItems' => 1]);
-        $this->assertJsonContains(['hydra:member' => [
+        $this->assertJsonContains(['totalItems' => 1]);
+        $this->assertJsonContains(['member' => [
             [
                 'title' => 'Test Project',
                 'status' => ProjectStatus::InEditing->value,

@@ -1,8 +1,17 @@
 name: PHPUnit
+
 on: [push]
+
+env:
+  PHP_VERSION: '8.3'
+  PHP_EXTENSIONS: pdo_mysql intl
+
 jobs:
   phpunit:
     runs-on: ubuntu-latest
+
+    env:
+      STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
 
     services:
       mariadb:
@@ -19,12 +28,15 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: php-actions/composer@v6
+        with:
+          php_version: ${{ env.PHP_VERSION }}
+          php_extensions: ${{ env.PHP_EXTENSIONS }}
 
       - name: PHPUnit
         uses: php-actions/phpunit@v4
         env:
           DATABASE_URL: mysql://root:goteo@127.0.0.1:${{ job.services.mariadb.ports['3306'] }}/goteo
         with:
-          php_version: 8.3
-          php_extensions: pdo_mysql
+          php_version: ${{ env.PHP_VERSION }}
+          php_extensions: ${{ env.PHP_EXTENSIONS }}
           configuration:  phpunit.xml.dist

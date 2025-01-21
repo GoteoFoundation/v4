@@ -4,8 +4,10 @@ namespace App\Entity\Project;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
+use App\Entity\Interface\LocalizedContentInterface;
 use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\Matchfunding\MatchCallSubmission;
+use App\Entity\Trait\LocalizedContent;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
@@ -16,11 +18,13 @@ use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
-class Project implements UserOwnedInterface, AccountingOwnerInterface
+class Project implements UserOwnedInterface, AccountingOwnerInterface, LocalizedContentInterface
 {
+    use LocalizedContent;
     use MigratedEntity;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
@@ -34,6 +38,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface
      * The main title for the project.
      */
     #[ORM\Column(length: 255)]
+    #[Gedmo\Translatable()]
     private ?string $title = null;
 
     /**

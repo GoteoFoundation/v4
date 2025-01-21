@@ -2,7 +2,7 @@
 
 namespace App\Gateway\Paypal;
 
-use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Metadata\IriConverterInterface;
 use App\Entity\Gateway\Charge;
 use App\Entity\Gateway\Checkout;
 use App\Gateway\ChargeType;
@@ -45,10 +45,10 @@ class PaypalGateway implements GatewayInterface
 
     public function __construct(
         private PaypalService $paypal,
-        private EntityManagerInterface $entityManager,
-        private IriConverterInterface $iriConverter,
         private CheckoutService $checkoutService,
         private CheckoutRepository $checkoutRepository,
+        private EntityManagerInterface $entityManager,
+        private IriConverterInterface $iriConverter,
     ) {}
 
     public static function getName(): string

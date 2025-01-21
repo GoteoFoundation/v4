@@ -11,8 +11,10 @@ use App\Entity\Money;
 use App\Entity\Project\Project;
 use App\Entity\Tipjar;
 use App\Entity\User\User;
+use App\Mapping\Transformer\AccountingBalanceMapTransformer;
 use App\State\Accounting\AccountingStateProcessor;
 use App\State\Accounting\AccountingStateProvider;
+use AutoMapper\Attribute\MapFrom;
 
 /**
  * v4 features an advanced economy model under the hood.
@@ -41,17 +43,14 @@ class AccountingApiResource
      */
     public string $currency;
 
+    /**
+     * The money currently held by the Accounting.
+     */
+    #[MapFrom(Accounting::class, transformer: AccountingBalanceMapTransformer::class)]
+    public Money $balance;
+
     #[API\ApiProperty(readable: false, writable: false)]
     public string $ownerClass;
-
-    #[API\ApiProperty(readable: false, writable: false)]
-    public ?UserApiResource $user = null;
-
-    #[API\ApiProperty(readable: false, writable: false)]
-    public ?ProjectApiResource $project = null;
-
-    #[API\ApiProperty(readable: false, writable: false)]
-    public ?Tipjar $tipjar = null;
 
     /**
      * The resource owning this Accounting.
@@ -70,8 +69,12 @@ class AccountingApiResource
         }
     }
 
-    /**
-     * The money currently held by the Accounting.
-     */
-    public Money $balance;
+    #[API\ApiProperty(readable: false, writable: false)]
+    public ?UserApiResource $user = null;
+
+    #[API\ApiProperty(readable: false, writable: false)]
+    public ?ProjectApiResource $project = null;
+
+    #[API\ApiProperty(readable: false, writable: false)]
+    public ?Tipjar $tipjar = null;
 }
