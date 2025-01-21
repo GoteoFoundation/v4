@@ -12,9 +12,9 @@ This API is still in early development and is not set to have backward compatibi
 
 # Authentication
 
-The v4 API uses Access Tokens to authenticate requests. To use a Token, include it in the Authorization header using the [Bearer](https://swagger.io/docs/specification/authentication/bearer-authentication/) strategy.
+The v4 API uses Access Tokens to authenticate requests. To use a Token, include it in the `Authorization` header using the [Bearer](https://swagger.io/docs/specification/authentication/bearer-authentication/) strategy.
 
-```shell
+```sh
 curl -X 'GET' \
   'https://api.goteo.org/v4/projects?page=1' \
   -H 'accept: application/json' \
@@ -26,3 +26,15 @@ UserTokens exist under an User's scope, when you obtain a token this will only g
 To obtain a UserToken you must send a POST request to [/v4/user_tokens](/v4/user_tokens) with the User login credentials (username and password) in the payload. If the credentials are correct a UserToken will be created, the `token` property value of which you must include in future requests.
 
 Users can delete UserTokens owned by them at any moment, revoking your application's access to the v4 API on their behalf. When a UserToken fails to authenticate a request you will receive a 401 Unauthorized response from the API, at which point your application must look to get a new UserToken from the User.
+
+# Localization
+
+The v4 API accepts localization of content. Resources such as Projects can have owner-submitted data (title, description, etc) in different languages, the extent of which is subject to the owner. Resources with localized content versions will expose a `locales` property listing the available localizations.
+
+Retrieval of content in different locales is performed via standard HTTP [content negotiation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation). When the request supplies an `Accept-Language` header, the API will retrieve localized versions of the content where available, falling back to the default locale of the API instance, and finally to the first available localization of the content regardless of the request preferences or the API defaults if it cannot find suitable localizations.
+
+Submission of localized content is performed over standard REST content submission with the addition of a `Content-Language` header to a POST, PUT or PATCH request. Only the first tag will be used to determine the submitted localization.
+
+Removal of localized content is performed over standard REST content deletion with the addition of a `Content-Language` header to a DELETE request. A delete request for localized content will act partially and remove only the requested localizations, not the entire resource. To remove the resource you can send a non-localized request omitting the `Content-Language` header. Unlike on submission v4 will process all language tags included in the header and remove every matching localization.
+
+Localizations are assumed to be one per language globally. Language tags will be parsed to match to an [ISO 639](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes) two-letter languade code, e.g: a value of "en_US" will be converted to "en", ignoring the "US" subtag.

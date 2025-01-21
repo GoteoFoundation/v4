@@ -4,7 +4,7 @@ on: [push]
 
 env:
   PHP_VERSION: '8.3'
-  PHP_EXTENSIONS: pdo_mysql
+  PHP_EXTENSIONS: pdo_mysql intl
 
 jobs:
   phpunit:
