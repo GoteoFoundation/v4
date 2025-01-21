@@ -2,7 +2,7 @@
 
 namespace App\Gateway\Stripe;
 
-use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Metadata\IriConverterInterface;
 use App\Entity\Gateway\Checkout;
 use App\Entity\User\User;
 use App\Gateway\ChargeType;

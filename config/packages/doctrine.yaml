@@ -35,6 +35,8 @@ doctrine:
         dql:
             string_functions:
                 instr: DoctrineExtensions\Query\Mysql\Instr
+        controller_resolver:
+            auto_mapping: false
 
 when@test:
     doctrine:

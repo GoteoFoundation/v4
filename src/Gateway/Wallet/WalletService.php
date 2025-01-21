@@ -21,7 +21,7 @@ class WalletService
     ) {}
 
     /**
-     * @return \App\Entity\WalletStatement[]
+     * @return WalletStatement[]
      */
     public function getStatements(Accounting $accounting): array
     {

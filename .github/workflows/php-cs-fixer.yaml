@@ -1,17 +1,25 @@
 name: PHP CS Fixer
+
 on: [pull_request]
+
+env:
+  PHP_VERSION: '8.3'
+  PHP_EXTENSIONS: pdo_mysql
+
 jobs:
   php-cs-fixer:
-    runs-on: "ubuntu-latest"
+    runs-on: ubuntu-latest
+
+    env:
+      STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+
     steps:
-      - name: Setup PHP 8.3
-        uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@v4
+
+      - uses: php-actions/composer@v6
         with:
-          php-version: '8.3'
-          tools: php-cs-fixer:3.64
+          php_version: ${{ env.PHP_VERSION }}
+          php_extensions: ${{ env.PHP_EXTENSIONS }}
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run PHP CS Fixer
-        run: php-cs-fixer check
+      - name: PHP CS Fixer
+        run: php ./vendor/bin/php-cs-fixer check
