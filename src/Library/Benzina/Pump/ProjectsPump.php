@@ -68,7 +68,12 @@ class ProjectsPump extends AbstractPump implements PumpInterface
 
     private function isPumpable(array $record): bool
     {
-        if (empty($record['id']) || empty($record['name'])) {
+        if (
+            empty($record['id'])
+            || empty($record['name'])
+            || empty($record['description'])
+            || \in_array($record['status'], [0, 1])
+        ) {
             return false;
         }
 
