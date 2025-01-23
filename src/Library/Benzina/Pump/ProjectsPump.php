@@ -9,6 +9,7 @@ use App\Entity\User\User;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
 use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;
 use App\Repository\User\UserRepository;
+use App\Service\LocalizationService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ProjectsPump extends AbstractPump implements PumpInterface
@@ -20,6 +21,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
     public function __construct(
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
+        private LocalizationService $localizationService,
     ) {}
 
     public function supports(mixed $batch): bool
@@ -47,7 +49,9 @@ class ProjectsPump extends AbstractPump implements PumpInterface
             }
 
             $project = new Project();
+            $project->setTranslatableLocale($this->getProjectLang($record['lang']));
             $project->setTitle($record['name']);
+            $project->setDescription($record['description']);
             $project->setOwner($owners[$record['owner']]);
             $project->setStatus($this->getProjectStatus($record['status']));
             $project->setMigrated(true);
@@ -86,6 +90,15 @@ class ProjectsPump extends AbstractPump implements PumpInterface
         }
 
         return $owners;
+    }
+
+    private function getProjectLang(string $lang): string
+    {
+        if (empty($lang)) {
+            return $this->localizationService->getDefaultLanguage();
+        }
+
+        return $this->localizationService->getLanguage($lang);
     }
 
     private function getProjectStatus(int $status): ProjectStatus
