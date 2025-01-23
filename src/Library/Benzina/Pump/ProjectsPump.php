@@ -115,11 +115,11 @@ class ProjectsPump extends AbstractPump implements PumpInterface
         $owners = $this->getOwners($batch);
 
         foreach ($batch as $key => $record) {
-            if (!\array_key_exists($record['owner'], $owners)) {
+            if (!$this->isPumpable($record)) {
                 continue;
             }
 
-            if (empty($record['name'])) {
+            if (!\array_key_exists($record['owner'], $owners)) {
                 continue;
             }
 
@@ -137,6 +137,15 @@ class ProjectsPump extends AbstractPump implements PumpInterface
 
         $this->entityManager->flush();
         $this->entityManager->clear();
+    }
+
+    private function isPumpable(array $record): bool
+    {
+        if (empty($record['id']) || empty($record['name'])) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
