@@ -16,6 +16,7 @@ use App\Repository\Project\ProjectRepository;
 use AutoMapper\Attribute\MapProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -39,6 +40,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     #[ORM\Column(length: 255)]
     #[Gedmo\Translatable()]
     private ?string $title = null;
+
+    /**
+     * The description body for the Project.
+     */
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $description = null;
 
     /**
      * Since Projects can be recipients of funding, they are assigned an Accounting when created.
@@ -93,6 +100,18 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setTitle(string $title): static
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
 
         return $this;
     }

@@ -60,6 +60,13 @@ class ProjectApiResource
     public string $title;
 
     /**
+     * Free-form rich text description for the Project.
+     */
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
+    #[Assert\NotBlank()]
+    public string $description;
+
+    /**
      * The status of a Project represents how far it is in it's life-cycle.
      */
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
