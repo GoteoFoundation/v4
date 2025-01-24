@@ -53,11 +53,18 @@ class ProjectApiResource
     public array $locales;
 
     /**
-     * Main title for the Project.
+     * Main headline for the Project.
      */
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
     #[Assert\NotBlank()]
     public string $title;
+
+    /**
+     * Secondary headline for the Project.
+     */
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
+    #[Assert\NotBlank()]
+    public string $subtitle;
 
     /**
      * Free-form rich text description for the Project.

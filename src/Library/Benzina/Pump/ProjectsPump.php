@@ -51,6 +51,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
             $project = new Project();
             $project->setTranslatableLocale($this->getProjectLang($record['lang']));
             $project->setTitle($record['name']);
+            $project->setSubtitle($record['subtitle']);
             $project->setDescription($record['description']);
             $project->setOwner($owners[$record['owner']]);
             $project->setStatus($this->getProjectStatus($record['status']));
