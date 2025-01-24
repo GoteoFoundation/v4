@@ -28,7 +28,7 @@ final class ProjectVoter extends Voter
 
         switch ($attribute) {
             case self::EDIT:
-                return $this->isOwnerOf($user, $subject);
+                return $this->isOwnerOf($subject, $user);
             case self::VIEW:
                 return true;
         }

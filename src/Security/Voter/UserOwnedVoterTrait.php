@@ -11,13 +11,17 @@ trait UserOwnedVoterTrait
     /**
      * Determines if the given User is the owner of the resource.
      *
-     * @param User   $user    The User to check ownership against
      * @param object $subject A resource that might or might not be owned by the User
+     * @param ?User  $user    The User to check ownership against
      *
      * @return bool `false` if ownership could not be guaranteed
      */
-    public function isOwnerOf(User $user, object $subject): bool
+    public function isOwnerOf(object $subject, ?User $user): bool
     {
+        if ($user === null) {
+            return false;
+        }
+
         if ($subject instanceof UserOwnedInterface) {
             return $subject->isOwnedBy($user);
         }
