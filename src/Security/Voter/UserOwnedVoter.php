@@ -20,11 +20,11 @@ class UserOwnedVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (!in_array($attribute, [self::OWNED])) {
-            return false;
+        if (in_array($attribute, [self::OWNED])) {
+            return true;
         }
 
-        return $subject instanceof UserOwnedInterface;
+        return false;
     }
 
     /**
