@@ -3,36 +3,35 @@
 namespace App\Security\Voter;
 
 use App\Entity\Interface\UserOwnedInterface;
-use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserOwnedVoter extends Voter
 {
+    use UserOwnedVoterTrait;
+
+    /**
+     * Exclusively grants access to the owner.
+     *
+     * This is intended for sensitive information that is meant for the owner only.
+     * SHOULD NEVER BE OVERRIDEN BY ADMINS, MODERATORS, SUPER-ADMINS OR ANY HIGHER ROLE.
+     */
     public const OWNED = 'USER_OWNED';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (!in_array($attribute, [self::OWNED])) {
-            return false;
+        if (in_array($attribute, [self::OWNED])) {
+            return true;
         }
 
-        return $subject instanceof UserOwnedInterface;
+        return false;
     }
 
     /**
-     * @param User|UserOwnedInterface $subject
+     * @param UserOwnedInterface $subject
      */
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
-        $user = $token->getUser();
-
-        // if the user is anonymous, do not grant access
-        if (!$user instanceof UserInterface) {
-            return false;
-        }
-
-        return $subject->isOwnedBy($user);
+        return $this->isOwnerOf($subject, $token->getUser());
     }
 }

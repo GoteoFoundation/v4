@@ -2,10 +2,10 @@
 
 namespace App\Security\Voter;
 
-use App\Entity\User;
+use App\ApiResource\User\UserApiResource;
+use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserVoter extends Voter
 {
@@ -15,26 +15,38 @@ class UserVoter extends Voter
     protected function supports(string $attribute, mixed $subject): bool
     {
         return in_array($attribute, [self::EDIT, self::VIEW])
-            && $subject instanceof User;
+            && $subject instanceof UserApiResource;
     }
 
     /**
-     * @param User $subject
+     * @param UserApiResource $subject
      */
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 
-        if (!$user instanceof UserInterface) {
+        switch ($attribute) {
+            case self::EDIT:
+                return $this->canEdit($subject, $user);
+            case self::VIEW:
+                return true;
+        }
+
+        return false;
+    }
+
+    private function canEdit(UserApiResource $subject, User $user): bool
+    {
+        if (!$user instanceof User) {
             return false;
         }
 
-        switch ($attribute) {
-            case self::EDIT:
-                return $user->getUserIdentifier() === $subject->getUserIdentifier()
-                    || \in_array('ROLE_ADMIN', $user->getRoles());
-            case self::VIEW:
-                return true;
+        if ($user->hasRoles(['ROLE_ADMIN'])) {
+            return true;
+        }
+
+        if ($subject->id === $user->getId()) {
+            return true;
         }
 
         return false;

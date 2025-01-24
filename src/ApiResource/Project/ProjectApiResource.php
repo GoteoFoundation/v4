@@ -25,8 +25,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\GetCollection()]
 #[API\Post(security: 'is_granted("ROLE_USER")')]
 #[API\Get()]
-#[API\Patch(security: 'is_granted("PROJECT_EDIT")')]
-#[API\Delete(security: 'is_granted("PROJECT_EDIT")')]
+#[API\Patch(security: 'is_granted("PROJECT_EDIT", object)')]
+#[API\Delete(security: 'is_granted("PROJECT_EDIT", object)')]
 class ProjectApiResource
 {
     #[API\ApiProperty(identifier: true, writable: false)]
