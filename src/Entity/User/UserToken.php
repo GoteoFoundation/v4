@@ -4,6 +4,7 @@ namespace App\Entity\User;
 
 use App\Entity\Interface\UserOwnedInterface;
 use App\Entity\Trait\TimestampedCreationEntity;
+use App\Entity\Trait\UserOwnedTrait;
 use App\Repository\User\UserTokenRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -20,6 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
 class UserToken implements UserOwnedInterface
 {
     use TimestampedCreationEntity;
+    use UserOwnedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -54,22 +56,5 @@ class UserToken implements UserOwnedInterface
         $this->token = $token;
 
         return $this;
-    }
-
-    public function getOwner(): ?User
-    {
-        return $this->owner;
-    }
-
-    public function setOwner(?User $owner): static
-    {
-        $this->owner = $owner;
-
-        return $this;
-    }
-
-    public function isOwnedBy(User $user): bool
-    {
-        return $this->owner->getUserIdentifier() === $user->getUserIdentifier();
     }
 }

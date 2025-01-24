@@ -10,6 +10,7 @@ use App\Entity\Trait\LocalizedContent;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
+use App\Entity\Trait\UserOwnedTrait;
 use App\Entity\User\User;
 use App\Mapping\Provider\EntityMapProvider;
 use App\Repository\Project\ProjectRepository;
@@ -28,6 +29,7 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     use MigratedEntity;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
+    use UserOwnedTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -124,23 +126,6 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setAccounting(?Accounting $accounting): static
     {
         $this->accounting = $accounting;
-
-        return $this;
-    }
-
-    public function getOwner(): ?User
-    {
-        return $this->owner;
-    }
-
-    public function isOwnedBy(User $user): bool
-    {
-        return $user->getId() === $this->owner->getId();
-    }
-
-    public function setOwner(?User $owner): static
-    {
-        $this->owner = $owner;
 
         return $this;
     }
