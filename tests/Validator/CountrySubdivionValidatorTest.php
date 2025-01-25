@@ -10,7 +10,7 @@ class CountrySubdivionValidatorTest extends TestCase
     /**
      * @dataProvider isoValid
      */
-    public function testValidatesISO3166_2(string $iso3166_2): void
+    public function testValidatesISO31662(string $iso3166_2): void
     {
         $this->assertTrue(CountrySubdivisionValidator::validateISO3166_2($iso3166_2));
     }

@@ -14,7 +14,7 @@ final class CountrySubdivision extends Constraint
     public function __construct(
         public string $mode = 'strict',
         ?array $groups = null,
-        mixed $payload = null
+        mixed $payload = null,
     ) {
         parent::__construct([], $groups, $payload);
     }

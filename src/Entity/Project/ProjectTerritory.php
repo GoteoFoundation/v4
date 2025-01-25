@@ -29,9 +29,8 @@ class ProjectTerritory
     public function __construct(
         string $country,
         ?string $subLvl1 = null,
-        ?string $subLvl2 = null
-    )
-    {
+        ?string $subLvl2 = null,
+    ) {
         $this->country = $country;
         $this->subLvl1 = $subLvl1 ?? null;
         $this->subLvl2 = $subLvl2 ?? null;

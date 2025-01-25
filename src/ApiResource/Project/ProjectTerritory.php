@@ -19,14 +19,14 @@ class ProjectTerritory
 
     /**
      * ISO 3166-2 first level subdivision code.\
-     * e.g: ES-AN (Andalucía, Spain)
+     * e.g: ES-AN (Andalucía, Spain).
      */
     #[CountrySubdivision()]
     public string $subLvl1;
 
     /**
      * ISO 3166-2 second level subdivision code.\
-     * e.g: ES-GR (Granada, Andalucía, Spain)
+     * e.g: ES-GR (Granada, Andalucía, Spain).
      */
     #[CountrySubdivision()]
     public string $subLvl2;

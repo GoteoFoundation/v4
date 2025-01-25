@@ -28,6 +28,11 @@ final class CountrySubdivisionValidator extends ConstraintValidator
         ;
     }
 
+    /**
+     * Check if a a string is an actual ISO 3166-2 value.
+     *
+     * @return `true` if the string is a recognized territory
+     */
     public static function validateISO3166_2(string $iso3166_2): bool
     {
         $pieces = \explode('-', $iso3166_2);
