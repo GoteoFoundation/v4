@@ -67,6 +67,12 @@ class ProjectApiResource
     public string $subtitle;
 
     /**
+     * ISO 3166 data about the Project's territory of interest.
+     */
+    #[Assert\Valid()]
+    public ProjectTerritory $territory;
+
+    /**
      * Free-form rich text description for the Project.
      */
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]

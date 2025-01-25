@@ -51,6 +51,12 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     private ?string $subtitle = null;
 
     /**
+     * Project's territory of interest.
+     */
+    #[ORM\Embedded(class: ProjectTerritory::class)]
+    private ?ProjectTerritory $territory;
+
+    /**
      * The description body for the Project.
      */
     #[ORM\Column(type: Types::TEXT)]
@@ -121,6 +127,18 @@ class Project implements UserOwnedInterface, AccountingOwnerInterface, Localized
     public function setSubtitle(string $subtitle): static
     {
         $this->subtitle = $subtitle;
+
+        return $this;
+    }
+
+    public function getTerritory(): ?ProjectTerritory
+    {
+        return $this->territory;
+    }
+
+    public function setTerritory(ProjectTerritory $territory): static
+    {
+        $this->territory = $territory;
 
         return $this;
     }
