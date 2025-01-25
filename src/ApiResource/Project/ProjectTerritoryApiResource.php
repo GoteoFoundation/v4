@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * ISO 3166 data about the Project's territory of interest.
  */
-class ProjectTerritory
+class ProjectTerritoryApiResource
 {
     /**
      * ISO 3166-1 alpha-2 two-letter country code.

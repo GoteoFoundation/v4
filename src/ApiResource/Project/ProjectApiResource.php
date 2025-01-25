@@ -70,7 +70,7 @@ class ProjectApiResource
      * ISO 3166 data about the Project's territory of interest.
      */
     #[Assert\Valid()]
-    public ProjectTerritory $territory;
+    public ProjectTerritoryApiResource $territory;
 
     /**
      * Free-form rich text description for the Project.
