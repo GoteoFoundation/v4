@@ -118,7 +118,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
         }
 
         if (!empty($record['project_location'])) {
-            $cleanLocation = self::cleanProjectLocation($record['project_location']);
+            $cleanLocation = self::cleanProjectLocation($record['project_location'], 2);
 
             if ($cleanLocation !== '') {
                 return $this->territoryService->search($cleanLocation);
