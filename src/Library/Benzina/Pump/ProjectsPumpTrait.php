@@ -4,6 +4,51 @@ namespace App\Library\Benzina\Pump;
 
 trait ProjectsPumpTrait
 {
+    /**
+     * Cleans the project location field to obtain better and more cacheable search queries.
+     * Based on analysis of the Goteo v3 `project.project_location` values.
+     */
+    public static function cleanProjectLocation(string $location): ?string
+    {
+        // Skip web addresses
+        if (
+            \str_starts_with($location, 'www.')
+            || \str_starts_with($location, 'http://')
+            || \str_starts_with($location, 'https://')
+        ) {
+            return '';
+        }
+
+        // Remove secondary places from locations
+        // e.g: "España y el mundo" -> "España"
+        if (\str_contains($location, ' y ')) {
+            $location = \explode(' y ', $location, 1)[0];
+        }
+
+        // Normalize parenthesis
+        if (\str_contains($location, '(') && \str_contains($location, ')')) {
+            $location = \str_replace('(', ',', $location);
+            $location = \str_replace(')', '', $location);
+        }
+
+        // Up to 3 levels of location specifity
+        $location = \explode(',', $location);
+        $location = \array_slice($location, -3);
+
+        $location = \array_map(fn($l) => trim($l), $location);
+
+        // Clean non desired remaining location pieces
+        $location = \array_filter($location, function ($l) {
+            if (empty($l)) return false;
+            if (ctype_digit($l)) return false;
+            if (\str_contains($l, 'º')) return false;
+
+            return true;
+        });
+
+        return \mb_strtoupper(\trim(\join(', ', $location), '.'));
+    }
+
     private const PROJECT_KEYS = [
         'id',
         'name',
