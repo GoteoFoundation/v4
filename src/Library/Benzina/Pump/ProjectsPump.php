@@ -5,11 +5,13 @@ namespace App\Library\Benzina\Pump;
 use App\Entity\Accounting\Accounting;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
+use App\Entity\Project\ProjectTerritory;
 use App\Entity\User\User;
 use App\Library\Benzina\Pump\Trait\ArrayPumpTrait;
 use App\Library\Benzina\Pump\Trait\DoctrinePumpTrait;
 use App\Repository\User\UserRepository;
 use App\Service\LocalizationService;
+use App\Service\Project\TerritoryService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ProjectsPump extends AbstractPump implements PumpInterface
@@ -22,6 +24,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
         private LocalizationService $localizationService,
+        private TerritoryService $territoryService,
     ) {}
 
     public function supports(mixed $batch): bool
@@ -52,6 +55,7 @@ class ProjectsPump extends AbstractPump implements PumpInterface
             $project->setTranslatableLocale($this->getProjectLang($record['lang']));
             $project->setTitle($record['name']);
             $project->setSubtitle($record['subtitle']);
+            $project->setTerritory($this->getProjectTerritory($record));
             $project->setDescription($record['description']);
             $project->setOwner($owners[$record['owner']]);
             $project->setStatus($this->getProjectStatus($record['status']));
@@ -105,6 +109,23 @@ class ProjectsPump extends AbstractPump implements PumpInterface
         }
 
         return $this->localizationService->getLanguage($lang);
+    }
+
+    private function getProjectTerritory(array $record): ProjectTerritory
+    {
+        if (empty($record['country'])) {
+            return ProjectTerritory::unknown();
+        }
+
+        if (!empty($record['project_location'])) {
+            $cleanLocation = self::cleanProjectLocation($record['project_location']);
+
+            if ($cleanLocation !== '') {
+                return $this->territoryService->search($cleanLocation);
+            }
+        }
+
+        return $this->territoryService->search($record['country']);
     }
 
     private function getProjectStatus(int $status): ProjectStatus
