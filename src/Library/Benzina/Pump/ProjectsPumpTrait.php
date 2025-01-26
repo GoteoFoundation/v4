@@ -7,8 +7,10 @@ trait ProjectsPumpTrait
     /**
      * Cleans the project location field to obtain better and more cacheable search queries.
      * Based on analysis of the Goteo v3 `project.project_location` values.
+     * 
+     * @param int $detailLevel Desired number of remaining components in output address
      */
-    public static function cleanProjectLocation(string $location): ?string
+    public static function cleanProjectLocation(string $location, int $detailLevel = 3): ?string
     {
         // Skip web addresses
         if (
@@ -37,20 +39,20 @@ trait ProjectsPumpTrait
         // e.g: "Universidad Carlos III de Madrid: Campus de Getafe, Calle Madrid, Getafe, España" -> "Campus de Getafe, Calle Madrid, Getafe, España"
         $location = \preg_replace('/^[\w ]+:/', '', $location);
 
+        // Clean non desired location pieces
         $location = \explode(',', $location);
         $location = \array_map(fn($l) => trim($l), $location);
-
-        // Clean non desired location pieces
         $location = \array_filter($location, function ($l) {
             if (empty($l)) return false;
+            
+            // Skip numeric only pieces: coordinates, street numbers, etc
             if (\preg_match('/^[-\d.]*$/', $l)) return false;
             if (\str_contains($l, 'º')) return false;
 
             return true;
         });
 
-        // Up to 3 levels of location specifity
-        $location = \array_slice($location, -3);
+        $location = \array_slice($location, -1 * $detailLevel);
 
         return \mb_strtoupper(\trim(\join(', ', $location), '.-;'));
     }
