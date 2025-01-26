@@ -43,7 +43,7 @@ trait ProjectsPumpTrait
         // Clean non desired location pieces
         $location = \array_filter($location, function ($l) {
             if (empty($l)) return false;
-            if (is_numeric($l)) return false;
+            if (\preg_match('/^[\d.]*$/', $l)) return false;
             if (\str_contains($l, 'º')) return false;
 
             return true;
