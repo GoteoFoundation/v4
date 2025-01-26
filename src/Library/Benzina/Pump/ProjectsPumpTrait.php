@@ -26,7 +26,7 @@ trait ProjectsPumpTrait
         }
 
         // Normalize parenthesis
-        if (\str_contains($location, '(') && \str_contains($location, ')')) {
+        if (\str_contains($location, '(') || \str_contains($location, ')')) {
             $location = \str_replace('(', ',', $location);
             $location = \str_replace(')', '', $location);
         }
