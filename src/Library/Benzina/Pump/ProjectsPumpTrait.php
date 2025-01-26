@@ -33,6 +33,10 @@ trait ProjectsPumpTrait
             $location = \str_replace(')', '', $location);
         }
 
+        // Remove colon specifications
+        // e.g: "Universidad Carlos III de Madrid: Campus de Getafe, Calle Madrid, Getafe, España" -> "Campus de Getafe, Calle Madrid, Getafe, España"
+        $location = \preg_replace('/^[\w ]+:/', '', $location);
+
         $location = \explode(',', $location);
         $location = \array_map(fn($l) => trim($l), $location);
 
