@@ -21,7 +21,7 @@ trait ProjectsPumpTrait
 
         // Remove secondary conjoined places from locations
         // e.g: "España y el mundo" -> "España"
-        foreach ([' / ', ' y '] as $conjoinment) {
+        foreach ([' / ', ' | ', ' y ', ' and '] as $conjoinment) {
             if (\str_contains($location, $conjoinment)) {
                 $location = \explode($conjoinment, $location)[0];
             }
