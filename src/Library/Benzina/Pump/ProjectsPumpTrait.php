@@ -52,9 +52,11 @@ trait ProjectsPumpTrait
             return true;
         });
 
-        $location = \array_slice($location, -1 * $detailLevel);
+        $location = \join(', ', \array_slice($location, -1 * $detailLevel));
+        $location = \preg_replace('/^[\d\.\-;]+/', '', $location);
+        $location = \preg_replace('/[\d\.\-;]+$/', '', $location);
 
-        return \mb_strtoupper(\trim(\join(', ', $location), '.-;'));
+        return \mb_strtoupper(\trim($location));
     }
 
     private const PROJECT_KEYS = [
