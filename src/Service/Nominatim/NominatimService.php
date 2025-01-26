@@ -32,7 +32,7 @@ class NominatimService
      * Main request method with built-in caching.
      *
      * @param string $endpoint   One of the available nominatim endpoints
-     * @param array{parameters: array}  $options List of parameters to be passed to the endpoint
+     * @param array{query: array}  $options List of parameters to be passed to the endpoint
      *
      * @see https://nominatim.org/release-docs/develop/api/Overview/
      */
@@ -40,7 +40,7 @@ class NominatimService
         string $endpoint,
         array $options,
     ): array {
-        $cacheKey = \sprintf('%s?%s', \ltrim($endpoint, '/'), \http_build_query($options['parameters']));
+        $cacheKey = \sprintf('%s?%s', \ltrim($endpoint, '/'), \http_build_query($options['query']));
 
         return $this->cache->get(
             $cacheKey,
@@ -67,7 +67,7 @@ class NominatimService
         bool $nameDetails = false,
     ): array {
         return $this->request('/search', [
-            'parameters' => [
+            'query' => [
                 'q' => $query,
                 'limit' => $limit,
                 'addressdetails' => (int) $addressDetails,
