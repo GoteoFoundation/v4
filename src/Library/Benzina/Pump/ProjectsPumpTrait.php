@@ -19,10 +19,10 @@ trait ProjectsPumpTrait
             return '';
         }
 
-        // Remove secondary places from locations
+        // Remove secondary conjoined places from locations
         // e.g: "España y el mundo" -> "España"
         if (\str_contains($location, ' y ')) {
-            $location = \explode(' y ', $location, 1)[0];
+            $location = \explode(' y ', $location)[0];
         }
 
         // Normalize parenthesis
