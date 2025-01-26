@@ -52,7 +52,7 @@ trait ProjectsPumpTrait
         // Up to 3 levels of location specifity
         $location = \array_slice($location, -3);
 
-        return \mb_strtoupper(\trim(\join(', ', $location), '.-'));
+        return \mb_strtoupper(\trim(\join(', ', $location), '.-;'));
     }
 
     private const PROJECT_KEYS = [
