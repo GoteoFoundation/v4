@@ -31,13 +31,10 @@ trait ProjectsPumpTrait
             $location = \str_replace(')', '', $location);
         }
 
-        // Up to 3 levels of location specifity
         $location = \explode(',', $location);
-        $location = \array_slice($location, -3);
-
         $location = \array_map(fn($l) => trim($l), $location);
 
-        // Clean non desired remaining location pieces
+        // Clean non desired location pieces
         $location = \array_filter($location, function ($l) {
             if (empty($l)) return false;
             if (is_numeric($l)) return false;
@@ -45,6 +42,9 @@ trait ProjectsPumpTrait
 
             return true;
         });
+
+        // Up to 3 levels of location specifity
+        $location = \array_slice($location, -3);
 
         return \mb_strtoupper(\trim(\join(', ', $location), '.'));
     }
