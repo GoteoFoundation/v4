@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Embeddable]
 class ProjectTerritory
 {
+    public const COUNTRY_UNKNOWN_CODE = 'ZZ';
+
     #[ORM\Column(type: Types::STRING, nullable: false)]
     public readonly string $country;
 
@@ -34,5 +36,10 @@ class ProjectTerritory
         $this->country = $country;
         $this->subLvl1 = $subLvl1 ?? null;
         $this->subLvl2 = $subLvl2 ?? null;
+    }
+
+    public static function unknown(): ProjectTerritory
+    {
+        return new ProjectTerritory(self::COUNTRY_UNKNOWN_CODE);
     }
 }
