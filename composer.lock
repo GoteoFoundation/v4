@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "60e2eb3df89fbc45c59e9512d650d822",
+    "content-hash": "08fa7ec631ec320fda5a05875269bf6b",
     "packages": [
         {
             "name": "api-platform/doctrine-common",
@@ -2996,6 +2996,74 @@
                 }
             ],
             "time": "2024-10-07T22:30:27+00:00"
+        },
+        {
+            "name": "goteo/benzina-bundle",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/GoteoFoundation/benzina-bundle.git",
+                "reference": "9217129c2703b3a82bbe4b343fe17a79c9d5f104"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/GoteoFoundation/benzina-bundle/zipball/9217129c2703b3a82bbe4b343fe17a79c9d5f104",
+                "reference": "9217129c2703b3a82bbe4b343fe17a79c9d5f104",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ctype": "*",
+                "ext-iconv": "*",
+                "php": ">=8.1",
+                "symfony/console": "6.4.*",
+                "symfony/dotenv": "6.4.*",
+                "symfony/flex": "^2",
+                "symfony/framework-bundle": "6.4.*",
+                "symfony/runtime": "6.4.*",
+                "symfony/yaml": "6.4.*"
+            },
+            "conflict": {
+                "symfony/symfony": "*"
+            },
+            "default-branch": true,
+            "type": "symfony-bundle",
+            "extra": {
+                "symfony": {
+                    "allow-contrib": false,
+                    "require": "6.4.*"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Goteo\\BenzinaBundle\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Goteo\\Tests\\BenzinaBundle\\": "tests/"
+                }
+            },
+            "scripts": {
+                "auto-scripts": {
+                    "cache:clear": "symfony-cmd",
+                    "assets:install %PUBLIC_DIR%": "symfony-cmd"
+                },
+                "post-install-cmd": [
+                    "@auto-scripts"
+                ],
+                "post-update-cmd": [
+                    "@auto-scripts"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Benzina is the migration tool used to transform v3 records into v4",
+            "support": {
+                "source": "https://github.com/GoteoFoundation/benzina-bundle/tree/main",
+                "issues": "https://github.com/GoteoFoundation/benzina-bundle/issues"
+            },
+            "time": "2025-01-27T11:10:54+00:00"
         },
         {
             "name": "jolicode/automapper",
@@ -12252,7 +12320,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "goteo/benzina-bundle": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

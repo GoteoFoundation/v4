@@ -78,6 +78,9 @@
             ".php-cs-fixer.dist.php"
         ]
     },
+    "goteo/benzina-bundle": {
+        "version": "dev-main"
+    },
     "nelmio/cors-bundle": {
         "version": "2.3",
         "recipe": {
