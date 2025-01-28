@@ -1,17 +1,23 @@
 <?php
 
-namespace App\Tests\Library\Benzina\Pump;
+namespace App\Tests\Benzina;
 
-use App\Library\Benzina\Pump\ProjectsPumpTrait;
+use App\Benzina\ProjectsPumpTrait;
 use PHPUnit\Framework\TestCase;
 
 class ProjectsPumpTraitTest extends TestCase
 {
-    use ProjectsPumpTrait;
+    /** @var ProjectsPumpTrait */
+    private $pump;
+
+    public function setUp(): void
+    {
+        $this->pump = $this->getMockForTrait(ProjectsPumpTrait::class);
+    }
 
     public function testCapitalizesResult()
     {
-        $cleanAddress = $this->cleanProjectLocation('Test Address');
+        $cleanAddress = $this->pump->cleanProjectLocation('Test Address');
 
         $this->assertEquals('TEST ADDRESS', $cleanAddress);
     }
@@ -21,7 +27,7 @@ class ProjectsPumpTraitTest extends TestCase
      */
     public function testSkipsInternetAddresses($internetAddress)
     {
-        $this->assertEquals('', $this->cleanProjectLocation($internetAddress));
+        $this->assertEquals('', $this->pump->cleanProjectLocation($internetAddress));
     }
 
     public function provideInternetAddresses(): array
@@ -40,7 +46,7 @@ class ProjectsPumpTraitTest extends TestCase
      */
     public function testStripsConjoinedAddresses($conjoinedAddress, $finalAddress)
     {
-        $cleanAddress = $this->cleanProjectLocation($conjoinedAddress);
+        $cleanAddress = $this->pump->cleanProjectLocation($conjoinedAddress);
 
         $this->assertEquals($finalAddress, $cleanAddress);
     }
@@ -61,7 +67,7 @@ class ProjectsPumpTraitTest extends TestCase
      */
     public function testStripsColonSpecifiers($colonSpecified, $removedSpecifier)
     {
-        $cleanAddress = $this->cleanProjectLocation($colonSpecified);
+        $cleanAddress = $this->pump->cleanProjectLocation($colonSpecified);
         
         $this->assertStringNotContainsString($removedSpecifier, $cleanAddress);
     }
@@ -80,7 +86,7 @@ class ProjectsPumpTraitTest extends TestCase
      */
     public function testFixesBadPunctuations($badAddress, $fixedAddress)
     {
-        $cleanAddress = $this->cleanProjectLocation($badAddress);
+        $cleanAddress = $this->pump->cleanProjectLocation($badAddress);
 
         $this->assertEquals($fixedAddress, $cleanAddress);
     }
