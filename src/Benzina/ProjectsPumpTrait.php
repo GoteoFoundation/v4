@@ -5,7 +5,7 @@ namespace App\Benzina;
 trait ProjectsPumpTrait
 {
     /**
-     * Cleans the project location field to obtain highly cacheable and improved search queries.
+     * Normalizes flexible address strings to obtain highly cacheable and improved search queries.
      * Based on analysis of the Goteo v3 `project.project_location` values.
      *
      * @param int $detailLevel Desired number of remaining components in output address
@@ -39,7 +39,7 @@ trait ProjectsPumpTrait
         // e.g: "Universidad Carlos III de Madrid: Campus de Getafe, Calle Madrid, Getafe, España" -> "Campus de Getafe, Calle Madrid, Getafe, España"
         $location = \preg_replace('/^[\w ]+:/', '', $location);
 
-        // Clean non desired location pieces
+        // Process comma-separated address pieces
         $location = \explode(',', $location);
         $location = \array_map(function ($l) {
             $l = trim($l);
@@ -53,16 +53,15 @@ trait ProjectsPumpTrait
 
             return $l;
         }, $location);
+
+        // Clean non desired location pieces
         $location = \array_filter($location, function ($l) {
             if (empty($l)) {
                 return false;
             }
 
             // Skip numeric only pieces: coordinates, street numbers, etc
-            if (\preg_match('/^[-\d.]*$/', $l)) {
-                return false;
-            }
-            if (\str_contains($l, 'º')) {
+            if (\preg_match('/^[-\d.]*$/', $l) || \str_contains($l, 'º')) {
                 return false;
             }
 
@@ -70,6 +69,8 @@ trait ProjectsPumpTrait
         });
 
         $location = \join(', ', \array_slice($location, -1 * $detailLevel));
+
+        // Trim remaining numbers and punctuation marks
         $location = \preg_replace('/^[\d\.\-;]+/', '', $location);
         $location = \preg_replace('/[\d\.\-;]+$/', '', $location);
 
