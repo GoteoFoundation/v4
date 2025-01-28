@@ -4,9 +4,10 @@ namespace App\Benzina;
 
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
+use App\Entity\Project\ProjectTerritory;
 use App\Entity\User\User;
 use App\Repository\User\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Project\TerritoryService;
 use Goteo\Benzina\Pump\AbstractPump;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
@@ -19,7 +20,7 @@ class ProjectsPump extends AbstractPump
 
     public function __construct(
         private UserRepository $userRepository,
-        private EntityManagerInterface $entityManager,
+        private TerritoryService $territoryService,
     ) {}
 
     public function supports(mixed $sample): bool
@@ -48,8 +49,10 @@ class ProjectsPump extends AbstractPump
         }
 
         $project = new Project();
+        $project->setTranslatableLocale($record['lang']);
         $project->setTitle($record['name']);
         $project->setSubtitle($record['subtitle']);
+        $project->setTerritory($this->getProjectTerritory($record));
         $project->setDescription($record['description']);
         $project->setOwner($owner);
         $project->setStatus($status);
@@ -84,5 +87,16 @@ class ProjectsPump extends AbstractPump
             case 5:
                 return ProjectStatus::Fulfilled;
         }
+    }
+
+    private function getProjectTerritory(array $record): ProjectTerritory
+    {
+        $cleanAddress = $this->cleanProjectLocation($record['project_location'], 2);
+
+        if ($cleanAddress === '') {
+            return ProjectTerritory::unknown();
+        }
+
+        return $this->territoryService->search($cleanAddress);
     }
 }
