@@ -5,9 +5,9 @@ namespace App\Benzina;
 trait ProjectsPumpTrait
 {
     /**
-     * Cleans the project location field to obtain better and more cacheable search queries.
+     * Cleans the project location field to obtain highly cacheable and improved search queries.
      * Based on analysis of the Goteo v3 `project.project_location` values.
-     * 
+     *
      * @param int $detailLevel Desired number of remaining components in output address
      */
     public static function cleanProjectLocation(string $location, int $detailLevel = 3): string
@@ -23,7 +23,7 @@ trait ProjectsPumpTrait
 
         // Remove secondary conjoined places from locations
         // e.g: "España y el mundo" -> "España"
-        foreach ([' / ', ' | ', ' - ', ' y ', ' and '] as $conjoinment) {
+        foreach ([' / ', ' | ', ' - ', ' y ', ' and ', ' & '] as $conjoinment) {
             if (\str_contains($location, $conjoinment)) {
                 $location = \explode($conjoinment, $location)[0];
             }
@@ -41,13 +41,30 @@ trait ProjectsPumpTrait
 
         // Clean non desired location pieces
         $location = \explode(',', $location);
-        $location = \array_map(fn($l) => trim($l), $location);
+        $location = \array_map(function ($l) {
+            $l = trim($l);
+
+            // Normalize typos and name variations
+            foreach (self::COMMON_VARIATIONS as $standard => $variations) {
+                if (in_array(\mb_strtoupper($l), $variations)) {
+                    $l = $standard;
+                }
+            }
+
+            return $l;
+        }, $location);
         $location = \array_filter($location, function ($l) {
-            if (empty($l)) return false;
-            
+            if (empty($l)) {
+                return false;
+            }
+
             // Skip numeric only pieces: coordinates, street numbers, etc
-            if (\preg_match('/^[-\d.]*$/', $l)) return false;
-            if (\str_contains($l, 'º')) return false;
+            if (\preg_match('/^[-\d.]*$/', $l)) {
+                return false;
+            }
+            if (\str_contains($l, 'º')) {
+                return false;
+            }
 
             return true;
         });
@@ -58,6 +75,28 @@ trait ProjectsPumpTrait
 
         return \mb_strtoupper(\trim($location));
     }
+
+    /**
+     * @var array<string, array> The standard preferred name and a list of possible variations and misspellings
+     */
+    private const COMMON_VARIATIONS = [
+        'ESPAÑA' => ['ESPANYA', 'ESPANHA', 'ESPAGNE', 'SPAGNA', 'SPANIEN', 'SPAIN'],
+        'CATALUÑA' => ['CATALUNYA', 'PAÏSOS CATALANS'],
+        'ANDALUCÍA' => ['ANDALUCIA', 'ANDALUSIA'],
+        'FRANCIA' => ['FRANCE'],
+        'ITALIA' => ['ITALY'],
+        'ALEMANIA' => ['GERMANY'],
+        'CÁDIZ' => ['CADIZ'],
+        'VALENCIA' => ['VALÈNCIA', 'PROVINCIA DE VALENCIA'],
+        'ALICANTE' => ['ALACANT'],
+        'CÁCERES' => ['CACERES'],
+        'BALEARES' => ['BALEAREN', 'ISLAS BALEARES', 'ILLES BALEARS', 'BALEARIC ISLANDS'],
+        'GALICIA' => ['GALIZA'],
+        'BILBAO' => ['BILBO'],
+        'LLEIDA' => ['LÉRIDA'],
+        'BARCELONA' => ['PROVINCIA DE BARCELONA'],
+        'MURCIA' => ['REGIÓN DE MURCIA'],
+    ];
 
     private const PROJECT_KEYS = [
         'id',

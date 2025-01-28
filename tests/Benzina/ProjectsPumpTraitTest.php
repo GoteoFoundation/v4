@@ -37,7 +37,7 @@ class ProjectsPumpTraitTest extends TestCase
             ['http://www.ecologiaperumanu.com/mapaproyecto.php'],
             ['http://www.esbaluard.org/es/'],
             ['https://www.google.es/maps/@40.0320175,-5.7727571,500m/data=!3m1!1e3'],
-            ['www.google.com/maps/place/Tecoanapa,+Gro./@16.9873264,-99.2593372,18.25z/data=!4m5!3m4!1s0x85ca2be1bd85bfcd:0xd3cb17e67573bf44!8m2!3d16.9865731!4d-99.2604936']
+            ['www.google.com/maps/place/Tecoanapa,+Gro./@16.9873264,-99.2593372,18.25z/data=!4m5!3m4!1s0x85ca2be1bd85bfcd:0xd3cb17e67573bf44!8m2!3d16.9865731!4d-99.2604936'],
         ];
     }
 
@@ -50,7 +50,7 @@ class ProjectsPumpTraitTest extends TestCase
 
         $this->assertEquals($finalAddress, $cleanAddress);
     }
-    
+
     public function provideConjoinedAddresses(): array
     {
         return [
@@ -58,7 +58,7 @@ class ProjectsPumpTraitTest extends TestCase
             ['buenos aires, argentina y barcelona españa', 'BUENOS AIRES, ARGENTINA'],
             ['Barcelona y Bilbao', 'BARCELONA'],
             ['Madrid, España / San Francisco, EEUU', 'MADRID, ESPAÑA'],
-            ['Calafou, Camí de Ca la Fou, s/n | CP: 08785  | Vallbona d´Anoia (Barcelona)', 'CALAFOU, CAMÍ DE CA LA FOU, S/N']
+            ['Calafou, Camí de Ca la Fou, s/n | CP: 08785  | Vallbona d´Anoia (Barcelona)', 'CALAFOU, CAMÍ DE CA LA FOU, S/N'],
         ];
     }
 
@@ -68,7 +68,7 @@ class ProjectsPumpTraitTest extends TestCase
     public function testStripsColonSpecifiers($colonSpecified, $removedSpecifier)
     {
         $cleanAddress = $this->pump->cleanProjectLocation($colonSpecified);
-        
+
         $this->assertStringNotContainsString($removedSpecifier, $cleanAddress);
     }
 
@@ -96,7 +96,27 @@ class ProjectsPumpTraitTest extends TestCase
         return [
             [', Cali, Colombia', 'CALI, COLOMBIA'],
             ['Lobres (Granada', 'LOBRES, GRANADA'],
-            ['California City, California, EE. UU.', 'CALIFORNIA CITY, CALIFORNIA, EE. UU']
+            ['California City, California, EE. UU.', 'CALIFORNIA CITY, CALIFORNIA, EE. UU'],
+        ];
+    }
+
+    /**
+     * @dataProvider provideCountryVariations
+     */
+    public function testStandarisesCountry($variation, $standard)
+    {
+        $cleanAddress = $this->pump->cleanProjectLocation($variation);
+
+        $this->assertEquals($standard, $cleanAddress);
+    }
+
+    public function provideCountryVariations(): array
+    {
+        return [
+            ['SPAIN', 'ESPAÑA'],
+            ['MADRID, ESPAÑA', 'MADRID, ESPAÑA'],
+            ['MADRID, ESPANYA', 'MADRID, ESPAÑA'],
+            ['MADRID, ESPAGNE', 'MADRID, ESPAÑA'],
         ];
     }
 }
