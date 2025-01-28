@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Library\Benzina\Pump;
+namespace App\Benzina;
 
 trait ProjectsPumpTrait
 {
