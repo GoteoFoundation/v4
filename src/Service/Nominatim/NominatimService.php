@@ -31,8 +31,8 @@ class NominatimService
     /**
      * Main request method with built-in caching.
      *
-     * @param string $endpoint   One of the available nominatim endpoints
-     * @param array{query: array}  $options List of parameters to be passed to the endpoint
+     * @param string              $endpoint One of the available nominatim endpoints
+     * @param array{query: array} $options  List of parameters to be passed to the endpoint
      *
      * @see https://nominatim.org/release-docs/develop/api/Overview/
      */
@@ -74,7 +74,7 @@ class NominatimService
                 'extratags' => (int) $extraTags,
                 'namedetails' => (int) $nameDetails,
                 'format' => OutputFormat::Json->value,
-            ]
+            ],
         ]);
     }
 }
