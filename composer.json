@@ -17,7 +17,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
         "doctrineencryptbundle/doctrine-encrypt-bundle": "^5.4",
-        "goteo/benzina-bundle": "dev-main",
+        "goteo/benzina": "^0.1",
         "jolicode/automapper": "^9.2",
         "nelmio/cors-bundle": "^2.3",
         "phpdocumentor/reflection-docblock": "^5.3",
@@ -99,11 +99,5 @@
         "symfony/maker-bundle": "^1.51",
         "symfony/phpunit-bridge": "^7.2",
         "zenstruck/foundry": "^2.3"
-    },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/GoteoFoundation/benzina-bundle"
-        }
-    ]
+    }
 }

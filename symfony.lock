@@ -78,8 +78,8 @@
             ".php-cs-fixer.dist.php"
         ]
     },
-    "goteo/benzina-bundle": {
-        "version": "dev-main"
+    "goteo/benzina": {
+        "version": "0.1"
     },
     "nelmio/cors-bundle": {
         "version": "2.3",
