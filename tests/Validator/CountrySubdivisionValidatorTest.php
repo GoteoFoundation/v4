@@ -5,7 +5,7 @@ namespace App\Tests\Validator;
 use App\Validator\CountrySubdivisionValidator;
 use PHPUnit\Framework\TestCase;
 
-class CountrySubdivionValidatorTest extends TestCase
+class CountrySubdivisionValidatorTest extends TestCase
 {
     /**
      * @dataProvider isoValid
