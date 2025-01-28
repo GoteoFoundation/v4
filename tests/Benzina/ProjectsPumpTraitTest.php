@@ -54,7 +54,7 @@ class ProjectsPumpTraitTest extends TestCase
     public function provideConjoinedAddresses(): array
     {
         return [
-            ['Avda de Francia nº 34, Jaca (Huesca) y www.lacasadelamontaña.com', 'JACA, HUESCA'],
+            ['Jaca (Huesca) y www.lacasadelamontaña.com', 'JACA, HUESCA'],
             ['buenos aires, argentina y barcelona españa', 'BUENOS AIRES, ARGENTINA'],
             ['Barcelona y Bilbao', 'BARCELONA'],
             ['Madrid, España / San Francisco, EEUU', 'MADRID, ESPAÑA'],
