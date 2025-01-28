@@ -2,7 +2,6 @@
 
 namespace App\Benzina;
 
-use App\Entity\Accounting\Accounting;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
 use App\Entity\User\User;
@@ -38,18 +37,20 @@ class ProjectsPump extends AbstractPump
             return;
         }
 
-        $status = $this->getProjectStatus($record['status']);
+        $status = $this->getProjectStatus($record);
         if (\in_array($status, [ProjectStatus::InEditing, ProjectStatus::Rejected])) {
             return;
         }
 
-        $owner = $this->getProjectOwner($record['owner']);
+        $owner = $this->getProjectOwner($record);
         if ($owner === null) {
             return;
         }
 
         $project = new Project();
         $project->setTitle($record['name']);
+        $project->setSubtitle($record['subtitle']);
+        $project->setDescription($record['description']);
         $project->setOwner($owner);
         $project->setStatus($status);
         $project->setMigrated(true);
@@ -60,14 +61,14 @@ class ProjectsPump extends AbstractPump
         $this->persist($project);
     }
 
-    private function getProjectOwner(string $owner): ?User
+    private function getProjectOwner(array $record): ?User
     {
-        return $this->userRepository->findOneBy(['migratedId' => $owner]);
+        return $this->userRepository->findOneBy(['migratedId' => $record['owner']]);
     }
 
-    private function getProjectStatus(int $status): ProjectStatus
+    private function getProjectStatus(array $record): ProjectStatus
     {
-        switch ($status) {
+        switch ($record['status']) {
             case 1:
                 return ProjectStatus::InEditing;
             case 2:
@@ -83,13 +84,5 @@ class ProjectsPump extends AbstractPump
             case 5:
                 return ProjectStatus::Fulfilled;
         }
-    }
-
-    private function getAccounting(array $record): Accounting
-    {
-        $accounting = new Accounting();
-        $accounting->setCurrency($record['currency']);
-
-        return $accounting;
     }
 }
