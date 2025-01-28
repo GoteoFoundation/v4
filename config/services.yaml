@@ -14,8 +14,6 @@ services:
     _instanceof:
         App\Gateway\GatewayInterface:
             tags: ['app.gateway.gateway']
-        App\Library\Benzina\Pump\PumpInterface:
-            tags: ['app.lib.benzina.pump.pump']
         App\Library\Economy\Currency\ExchangeInterface:
             tags: ['app.lib.economy.currency.exchange']
         AutoMapper\Provider\ProviderInterface:
@@ -64,10 +62,6 @@ services:
     App\Service\LocalizationService:
         arguments:
             - '%kernel.default_locale%'
-
-    App\Library\Benzina\Benzina:
-        arguments:
-            - !tagged 'app.lib.benzina.pump.pump'
 
     App\Library\Economy\Currency\ExchangeLocator:
         arguments:
