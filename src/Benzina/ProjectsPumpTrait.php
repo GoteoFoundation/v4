@@ -10,7 +10,7 @@ trait ProjectsPumpTrait
      * 
      * @param int $detailLevel Desired number of remaining components in output address
      */
-    public static function cleanProjectLocation(string $location, int $detailLevel = 3): ?string
+    public static function cleanProjectLocation(string $location, int $detailLevel = 3): string
     {
         // Skip web addresses
         if (
