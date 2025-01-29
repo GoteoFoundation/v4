@@ -53,11 +53,31 @@ class ProjectApiResource
     public array $locales;
 
     /**
-     * Main title for the Project.
+     * Main headline for the Project.
      */
     #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
     #[Assert\NotBlank()]
     public string $title;
+
+    /**
+     * Secondary headline for the Project.
+     */
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
+    #[Assert\NotBlank()]
+    public string $subtitle;
+
+    /**
+     * ISO 3166 data about the Project's territory of interest.
+     */
+    #[Assert\Valid()]
+    public ProjectTerritoryApiResource $territory;
+
+    /**
+     * Free-form rich text description for the Project.
+     */
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
+    #[Assert\NotBlank()]
+    public string $description;
 
     /**
      * The status of a Project represents how far it is in it's life-cycle.

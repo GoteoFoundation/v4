@@ -2,12 +2,12 @@
 
 namespace App\Benzina;
 
-use App\Entity\Accounting\Accounting;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
+use App\Entity\Project\ProjectTerritory;
 use App\Entity\User\User;
 use App\Repository\User\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Project\TerritoryService;
 use Goteo\Benzina\Pump\AbstractPump;
 use Goteo\Benzina\Pump\ArrayPumpTrait;
 use Goteo\Benzina\Pump\DoctrinePumpTrait;
@@ -20,7 +20,7 @@ class ProjectsPump extends AbstractPump
 
     public function __construct(
         private UserRepository $userRepository,
-        private EntityManagerInterface $entityManager,
+        private TerritoryService $territoryService,
     ) {}
 
     public function supports(mixed $sample): bool
@@ -38,18 +38,22 @@ class ProjectsPump extends AbstractPump
             return;
         }
 
-        $status = $this->getProjectStatus($record['status']);
+        $status = $this->getProjectStatus($record);
         if (\in_array($status, [ProjectStatus::InEditing, ProjectStatus::Rejected])) {
             return;
         }
 
-        $owner = $this->getProjectOwner($record['owner']);
+        $owner = $this->getProjectOwner($record);
         if ($owner === null) {
             return;
         }
 
         $project = new Project();
+        $project->setTranslatableLocale($record['lang']);
         $project->setTitle($record['name']);
+        $project->setSubtitle($record['subtitle']);
+        $project->setTerritory($this->getProjectTerritory($record));
+        $project->setDescription($record['description']);
         $project->setOwner($owner);
         $project->setStatus($status);
         $project->setMigrated(true);
@@ -60,14 +64,14 @@ class ProjectsPump extends AbstractPump
         $this->persist($project);
     }
 
-    private function getProjectOwner(string $owner): ?User
+    private function getProjectOwner(array $record): ?User
     {
-        return $this->userRepository->findOneBy(['migratedId' => $owner]);
+        return $this->userRepository->findOneBy(['migratedId' => $record['owner']]);
     }
 
-    private function getProjectStatus(int $status): ProjectStatus
+    private function getProjectStatus(array $record): ProjectStatus
     {
-        switch ($status) {
+        switch ($record['status']) {
             case 1:
                 return ProjectStatus::InEditing;
             case 2:
@@ -85,11 +89,14 @@ class ProjectsPump extends AbstractPump
         }
     }
 
-    private function getAccounting(array $record): Accounting
+    private function getProjectTerritory(array $record): ProjectTerritory
     {
-        $accounting = new Accounting();
-        $accounting->setCurrency($record['currency']);
+        $cleanAddress = $this->cleanProjectLocation($record['project_location'], 2);
 
-        return $accounting;
+        if ($cleanAddress === '') {
+            return ProjectTerritory::unknown();
+        }
+
+        return $this->territoryService->search($cleanAddress);
     }
 }

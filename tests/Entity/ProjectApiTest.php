@@ -5,6 +5,7 @@ namespace App\Tests\Entity;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Project\Project;
 use App\Entity\Project\ProjectStatus;
+use App\Entity\Project\ProjectTerritory;
 use App\Entity\User\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,6 +41,9 @@ class ProjectApiTest extends ApiTestCase
 
         $project = new Project();
         $project->setTitle('Test Project');
+        $project->setSubtitle('Test Project Subtitle');
+        $project->setDescription('Test Project Description');
+        $project->setTerritory(new ProjectTerritory('ES'));
         $project->setOwner($owner);
         $project->setStatus(ProjectStatus::InEditing);
 

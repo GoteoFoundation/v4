@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\User;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
@@ -38,13 +39,19 @@ class UserApiResource
     public bool $emailConfirmed;
 
     /**
-     * A unique byte-safe string, non white space, identifier for this User.
+     * A unique, non white space, byte-safe string identifier for this User.
      */
     #[API\ApiFilter(filterClass: OrderedLikeFilter::class)]
     #[Assert\NotBlank()]
     #[Assert\Length(min: 4, max: 30)]
     #[Assert\Regex('/^[a-z0-9_]+$/')]
     public string $username;
+
+    /**
+     * Display name chosen by the User.
+     */
+    #[API\ApiFilter(filterClass: SearchFilter::class, strategy: 'partial')]
+    public string $name;
 
     /**
      * A list of the roles assigned to this User. Admin scopped property.
