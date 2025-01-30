@@ -91,5 +91,6 @@ class ProjectApiResource
      *
      * @var array<int, RewardApiResource>
      */
+    #[API\ApiProperty(writable: false)]
     public array $rewards;
 }
