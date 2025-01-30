@@ -29,8 +29,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Index(fields: ['migratedId'])]
-#[UniqueEntity(fields: ['username'], message: 'This usernames already exists.')]
-#[UniqueEntity(fields: ['email'], message: 'This email address is already registered.')]
+#[UniqueEntity('email', message: 'This email address is already registered.')]
+#[UniqueEntity('username', message: 'This usernames already exists.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, AccountingOwnerInterface
 {
     use MigratedEntity;
@@ -43,7 +43,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
     private ?int $id = null;
 
     #[Gedmo\Versioned]
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
     /**
@@ -56,7 +56,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Account
      * Human readable, non white space, unique string.
      */
     #[Gedmo\Versioned]
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $username = null;
 
     /**
