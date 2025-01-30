@@ -35,7 +35,7 @@ class UserVoter extends Voter
         return false;
     }
 
-    private function canEdit(UserApiResource $subject, User $user): bool
+    private function canEdit(UserApiResource $subject, ?User $user): bool
     {
         if (!$user instanceof User) {
             return false;

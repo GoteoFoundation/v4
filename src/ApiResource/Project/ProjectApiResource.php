@@ -69,6 +69,7 @@ class ProjectApiResource
     /**
      * ISO 3166 data about the Project's territory of interest.
      */
+    #[Assert\NotBlank()]
     #[Assert\Valid()]
     public ProjectTerritoryApiResource $territory;
 
@@ -91,5 +92,6 @@ class ProjectApiResource
      *
      * @var array<int, RewardApiResource>
      */
+    #[API\ApiProperty(writable: false)]
     public array $rewards;
 }
