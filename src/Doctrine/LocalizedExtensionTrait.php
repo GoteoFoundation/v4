@@ -3,16 +3,25 @@
 namespace App\Doctrine;
 
 use ApiPlatform\Metadata\Operation;
-use App\Entity\Interface\LocalizedContentInterface;
+use App\Entity\Interface\LocalizedEntityInterface;
 use App\Service\LocalizationService;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Gedmo\Translatable\TranslatableListener;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Service\Attribute\Required;
 
 trait LocalizedExtensionTrait
 {
+    protected RequestStack $requestStack;
+
     protected LocalizationService $localizationService;
+
+    #[Required]
+    public function setRequestStack(RequestStack $requestStack)
+    {
+        $this->requestStack = $requestStack;
+    }
 
     #[Required]
     public function setLocalizationService(LocalizationService $localizationService)
@@ -24,7 +33,7 @@ trait LocalizedExtensionTrait
     {
         $reflectionClass = new \ReflectionClass($resourceClass);
 
-        return $reflectionClass->implementsInterface(LocalizedContentInterface::class);
+        return $reflectionClass->implementsInterface(LocalizedEntityInterface::class);
     }
 
     private function addLocalizationHints(QueryBuilder $queryBuilder, array $locales): Query
@@ -46,9 +55,15 @@ trait LocalizedExtensionTrait
         return $query;
     }
 
-    private function getContextLanguages(array $context): array
+    private function getAcceptedLanguages(array $context): array
     {
-        $tags = $context['request']->headers->get('Accept-Language', '');
+        $request = $this->requestStack->getCurrentRequest();
+
+        if (\array_key_exists('request', $context)) {
+            $request = $context['request'];
+        }
+
+        $tags = $request->headers->get('Accept-Language', '');
 
         return $this->localizationService->getLanguages($tags);
     }

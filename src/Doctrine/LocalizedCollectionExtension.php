@@ -38,7 +38,7 @@ final class LocalizedCollectionExtension implements QueryResultCollectionExtensi
         ?Operation $operation = null,
         array $context = [],
     ): iterable {
-        $query = $this->addLocalizationHints($queryBuilder, $this->getContextLanguages($context));
+        $query = $this->addLocalizationHints($queryBuilder, $this->getAcceptedLanguages($context));
 
         if (\count($queryBuilder->getAllAliases()) === 1) {
             $query->setHint(CountWalker::HINT_DISTINCT, false);

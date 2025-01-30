@@ -7,20 +7,20 @@ use ApiPlatform\Doctrine\Common\State\RemoveProcessor;
 use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\Interface\LocalizedContentInterface;
-use App\Service\LocalizationService;
+use App\Entity\Interface\LocalizedEntityInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Translatable\Entity\Translation;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class EntityStateProcessor implements ProcessorInterface
 {
+    use LocalizedStateProcessorTrait;
+
     public function __construct(
         #[Autowire(service: RemoveProcessor::class)]
         private ProcessorInterface $deleteProcessor,
         #[Autowire(service: PersistProcessor::class)]
         private ProcessorInterface $persistProcessor,
-        private LocalizationService $localizationService,
         private EntityManagerInterface $entityManager,
     ) {}
 
@@ -29,8 +29,8 @@ class EntityStateProcessor implements ProcessorInterface
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        if ($data instanceof LocalizedContentInterface) {
-            return $this->processLocalizedContent($data, $operation, $uriVariables, $context);
+        if ($this->isLocalizedData($data)) {
+            return $this->processLocalizedData($data, $operation, $uriVariables, $context);
         }
 
         if ($operation instanceof DeleteOperationInterface) {
@@ -40,42 +40,31 @@ class EntityStateProcessor implements ProcessorInterface
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }
 
-    private function processLocalizedContent(
-        LocalizedContentInterface $data,
+    private function processLocalizedData(
+        LocalizedEntityInterface $data,
         Operation $operation,
         array $uriVariables = [],
         array $context = [],
     ): mixed {
-        $languages = $this->getContextLanguages($context);
+        $languages = $this->getContentLanguages($context);
 
         if ($operation instanceof DeleteOperationInterface) {
-            if ($languages === null) {
-                return $this->deleteProcessor->process($data, $operation, $uriVariables, $context);
+            if ($this->isLocalizedRequest($context)) {
+                return $this->deleteLocalizedContent($data, $operation, $uriVariables, $context, $languages);
             }
 
-            return $this->deleteLocalizedContent($data, $operation, $uriVariables, $context, $languages);
+            return $this->deleteProcessor->process($data, $operation, $uriVariables, $context);
         }
 
-        $language = $languages ? $languages[0] : $this->localizationService->getDefaultLanguage();
+        $language = $languages[0] ?? $this->localizationService->getDefaultLanguage();
 
         $data->setTranslatableLocale($language);
 
         return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
     }
 
-    private function getContextLanguages(array $context): ?array
-    {
-        $tags = $context['request']->headers->get('Content-Language', '');
-
-        if (empty($tags)) {
-            return null;
-        }
-
-        return $this->localizationService->getLanguages($tags);
-    }
-
     private function deleteLocalizedContent(
-        LocalizedContentInterface $data,
+        LocalizedEntityInterface $data,
         Operation $operation,
         array $uriVariables = [],
         array $context = [],

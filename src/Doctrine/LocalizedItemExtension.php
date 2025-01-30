@@ -33,7 +33,7 @@ final class LocalizedItemExtension implements QueryResultItemExtensionInterface
         ?Operation $operation = null,
         array $context = [],
     ): ?object {
-        $query = $this->addLocalizationHints($queryBuilder, $this->getContextLanguages($context));
+        $query = $this->addLocalizationHints($queryBuilder, $this->getAcceptedLanguages($context));
 
         return $query->getOneOrNullResult();
     }
