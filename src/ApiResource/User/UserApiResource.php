@@ -6,10 +6,13 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata as API;
 use App\ApiResource\Accounting\AccountingApiResource;
+use App\Dto\UserSignupDto;
 use App\Entity\User\User;
 use App\Filter\OrderedLikeFilter;
 use App\Filter\UserQueryFilter;
 use App\State\ApiResourceStateProvider;
+use App\State\User\UserSignupProcessor;
+use App\State\User\UserStateProcessor;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,10 +21,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\ApiResource(
     shortName: 'User',
     stateOptions: new Options(entityClass: User::class),
-    provider: ApiResourceStateProvider::class
+    provider: ApiResourceStateProvider::class,
+    processor: UserStateProcessor::class,
 )]
 #[API\GetCollection()]
-#[API\Post()]
+#[API\Post(input: UserSignupDto::class, processor: UserSignupProcessor::class)]
 #[API\Get()]
 #[API\Patch(security: 'is_granted("USER_EDIT", object)')]
 #[API\Delete(security: 'is_granted("USER_EDIT", object)')]
