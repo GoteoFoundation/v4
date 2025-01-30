@@ -2,22 +2,15 @@
 
 namespace App\State;
 
-use ApiPlatform\Doctrine\Common\State\PersistProcessor;
-use ApiPlatform\Doctrine\Common\State\RemoveProcessor;
 use ApiPlatform\Doctrine\Orm\State\Options;
-use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Mapping\AutoMapper;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class ApiResourceStateProcessor implements ProcessorInterface
 {
     public function __construct(
-        #[Autowire(service: RemoveProcessor::class)]
-        private ProcessorInterface $deleteProcessor,
-        #[Autowire(service: PersistProcessor::class)]
-        private ProcessorInterface $persistProcessor,
+        private EntityStateProcessor $entityStateProcessor,
         private AutoMapper $autoMapper,
     ) {}
 
@@ -28,13 +21,11 @@ class ApiResourceStateProcessor implements ProcessorInterface
     {
         $entity = $this->getEntity($data, $operation->getStateOptions());
 
-        if ($operation instanceof DeleteOperationInterface) {
-            $this->deleteProcessor->process($entity, $operation, $uriVariables, $context);
+        $entity = $this->entityStateProcessor->process($entity, $operation, $uriVariables, $context);
 
+        if ($entity === null) {
             return null;
         }
-
-        $this->persistProcessor->process($entity, $operation, $uriVariables, $context);
 
         return $this->autoMapper->map($entity, $data);
     }
