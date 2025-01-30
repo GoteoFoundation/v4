@@ -7,7 +7,7 @@ use ApiPlatform\Doctrine\Common\State\RemoveProcessor;
 use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\Interface\LocalizedContentInterface;
+use App\Entity\Interface\LocalizedEntityInterface;
 use App\Service\LocalizationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Translatable\Entity\Translation;
@@ -29,7 +29,7 @@ class EntityStateProcessor implements ProcessorInterface
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        if ($data instanceof LocalizedContentInterface) {
+        if ($data instanceof LocalizedEntityInterface) {
             return $this->processLocalizedContent($data, $operation, $uriVariables, $context);
         }
 
@@ -41,7 +41,7 @@ class EntityStateProcessor implements ProcessorInterface
     }
 
     private function processLocalizedContent(
-        LocalizedContentInterface $data,
+        LocalizedEntityInterface $data,
         Operation $operation,
         array $uriVariables = [],
         array $context = [],
@@ -75,7 +75,7 @@ class EntityStateProcessor implements ProcessorInterface
     }
 
     private function deleteLocalizedContent(
-        LocalizedContentInterface $data,
+        LocalizedEntityInterface $data,
         Operation $operation,
         array $uriVariables = [],
         array $context = [],

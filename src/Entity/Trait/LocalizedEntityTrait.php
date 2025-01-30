@@ -5,7 +5,7 @@ namespace App\Entity\Trait;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-trait LocalizedContent
+trait LocalizedEntityTrait
 {
     #[Gedmo\Locale]
     private ?string $locale = null;

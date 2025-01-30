@@ -4,9 +4,9 @@ namespace App\Entity\Project;
 
 use App\Entity\Accounting\Accounting;
 use App\Entity\Interface\AccountingOwnerInterface;
-use App\Entity\Interface\LocalizedContentInterface;
+use App\Entity\Interface\LocalizedEntityInterface;
 use App\Entity\Interface\UserOwnedInterface;
-use App\Entity\Trait\LocalizedContent;
+use App\Entity\Trait\LocalizedEntityTrait;
 use App\Entity\Trait\MigratedEntity;
 use App\Entity\Trait\TimestampedCreationEntity;
 use App\Entity\Trait\TimestampedUpdationEntity;
@@ -23,9 +23,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 #[MapProvider(EntityMapProvider::class)]
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
-class Project implements UserOwnedInterface, AccountingOwnerInterface, LocalizedContentInterface
+class Project implements UserOwnedInterface, AccountingOwnerInterface, LocalizedEntityInterface
 {
-    use LocalizedContent;
+    use LocalizedEntityTrait;
     use MigratedEntity;
     use TimestampedCreationEntity;
     use TimestampedUpdationEntity;
