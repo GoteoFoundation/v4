@@ -1,7 +1,7 @@
 # The v4 API
 This repository holds the code for the Goteo **v4** API.
 
-> **NOTE**: Review the trusted certificates by OpenSSL. See: https://github.com/GoteoFoundation/v4/issues/43
+> **NOTE**: Review the trusted certificates by OpenSSL. See: https://github.com/goteo/org.goteo.api/issues/43
 
 ## Installation
 This application requires [Docker](https://docs.docker.com/get-docker/) and the [Docker Compose](https://docs.docker.com/compose/install/) plugin.
@@ -9,8 +9,8 @@ This application requires [Docker](https://docs.docker.com/get-docker/) and the 
 ### 1. Clone or download this repository.
 
 ```shell
-git clone https://github.com/GoteoFoundation/v4
-cd v4
+git clone https://github.com/goteo/org.goteo.api
+cd org.goteo.api
 ```
 
 ### 2. Build the Docker containers.
